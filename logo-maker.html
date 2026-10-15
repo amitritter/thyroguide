@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>מחולל לוגו ל-ThyroGuide</title>
+    <style>
+        body { font-family: system-ui, sans-serif; text-align: center; margin-top: 10vh; background: #f8fafc; color: #0f172a; }
+        .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); max-w-md mx-auto display: inline-block; }
+        button { background: #0f172a; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        button:hover { background: #1e293b; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>הורדת סמלילי (Icons) האפליקציה</h2>
+        <p>המערכת תייצר ותוריד 2 קבצי PNG ברזולוציות הנדרשות ל-PWA.</p>
+        <button onclick="downloadIcons()">הורד קבצי PNG עכשיו</button>
+    </div>
+
+    <script>
+        function drawAndDownload(size, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // רקע לבן חלק
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            // יצירת הלוגו (SVG)
+            const svgString = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22v-3"></path>
+                    <path d="M12 19c-1.5 0-3-1.5-3-3s1.5-4 3-4 3 1.5 3 4-1.5 3-3 3z"></path>
+                    <path d="M9 16c-4.5 0-7-2.5-7-6s4-4 7-2c1.5 1 2 2.5 2 4"></path>
+                    <path d="M15 16c4.5 0 7-2.5 7-6s-4-4-7-2c-1.5 1-2 2.5-2 4"></path>
+                </svg>
+            `;
+
+            const img = new Image();
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = function() {
+                // הוספת שוליים אסתטיים (Padding)
+                const padding = size * 0.15;
+                const drawSize = size - (padding * 2);
+                ctx.drawImage(img, padding, padding, drawSize, drawSize);
+                URL.revokeObjectURL(url);
+                
+                // יצירת הורדה אוטומטית
+                const a = document.createElement('a');
+                a.download = filename;
+                a.href = canvas.toDataURL('image/png');
+                a.click();
+            };
+            img.src = url;
+        }
+
+        function downloadIcons() {
+            drawAndDownload(192, 'icon-192.png');
+            // השהייה קלה כדי שהדפדפן לא יחסום את ההורדה הכפולה
+            setTimeout(() => drawAndDownload(512, 'icon-512.png'), 600);
+        }
+    </script>
+</body>
+</html>

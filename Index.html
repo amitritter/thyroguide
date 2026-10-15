@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThyroGuide | מדריך אישי לקראת ניתוח בלוטת התריס</title>
+    <meta name="theme-color" content="#0f766e">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+        body { font-family: 'Assistant', sans-serif; background-color: #f1f5f9; }
+        .glass-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); }
+        .minimal-input { border: 0; border-bottom: 2px solid #cbd5e1; border-radius: 0; padding: 0.5rem 0; background: transparent; transition: all 0.2s; }
+        .minimal-input:focus { outline: none; border-bottom-color: #0f766e; box-shadow: none; }
+        .checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        .checkbox-custom { width: 1.25rem; height: 1.25rem; accent-color: #0f766e; cursor: pointer; }
+        
+        [dir="ltr"] .ml-auto { margin-right: auto; margin-left: 0; }
+        [dir="ltr"] .text-right { text-align: left; }
+
+        @media print {
+            header, button, nav, .no-print, video, footer, #patient-tabs, .disclaimer-box { display: none !important; }
+            body { background-color: #ffffff !important; color: #000000 !important; }
+            .glass-panel { border: none !important; box-shadow: none !important; background: white !important; padding: 0 !important; }
+            main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+            #view-patient { display: block !important; }
+            #patient-login { display: none !important; }
+            #patient-data-display { display: block !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-900 pb-12 antialiased">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm no-print">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center flex-wrap gap-4">
+            <div class="flex items-center gap-3.5 cursor-pointer" onclick="confirmAndGoHome()">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22v-3"></path><path d="M12 19c-1.5 0-3-1.5-3-3s1.5-4 3-4 3 1.5 3 4-1.5 3-3 3z"></path>
+                    <path d="M9 16c-4.5 0-7-2.5-7-6s4-4 7-2c1.5 1 2 2.5 2 4"></path><path d="M15 16c4.5 0 7-2.5 7-6s-4-4-7-2c-1.5 1-2 2.5-2 4"></path>
+                </svg>
+                <div>
+                    <h1 class="text-3xl font-extrabold text-teal-900 tracking-tight leading-none">ThyroGuide</h1>
+                    <p class="text-xs text-teal-700 font-bold tracking-wider mt-1" data-i18n="logo_sub">מדריך אישי ומקיף לקראת ניתוח בלוטת התריס</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center text-sm font-semibold text-slate-600 bg-slate-50 rounded-lg px-2 py-1 border border-slate-200">
+                    <i data-lucide="globe" class="w-4 h-4 mx-1"></i>
+                    <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-transparent border-none outline-none cursor-pointer py-1 font-semibold text-slate-700">
+                        <option value="he">עברית</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <button onclick="showView('doctor-auth')" class="text-sm font-semibold text-slate-700 hover:text-teal-800 transition flex items-center gap-1">
+                    <i data-lucide="stethoscope" class="w-4 h-4"></i> <span data-i18n="doc_login_btn">כניסת רופא</span>
+                </button>
+                <button onclick="showView('patient')" class="text-sm font-semibold bg-teal-700 text-white hover:bg-teal-800 px-5 py-2.5 rounded-lg transition flex items-center gap-1 shadow-md">
+                    <i data-lucide="user" class="w-4 h-4"></i> <span data-i18n="pat_login_btn">כניסת מטופל</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 mt-10 relative z-10">
+
+        <!-- 1. LANDING VIEW -->
+        <div id="view-landing" class="space-y-12">
+            <div class="text-center space-y-4 max-w-3xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 tracking-tight" data-i18n="land_title">כל המידע על הניתוח שלך – במקום אחד</h2>
+                <p class="text-slate-600 text-lg leading-relaxed" data-i18n="land_desc">
+                    הכנה פשוטה, ברורה ושקטה לקראת הניתוח. כאן תוכל לצפות בסיכום הרפואי שעדכן הרופא שלך, להבין את שלבי הניתוח הצפויים, ולקבל תשובות לכל השאלות.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div onclick="showView('patient')" class="bg-teal-700 text-white p-8 rounded-2xl shadow-md hover:shadow-xl hover:bg-teal-800 transition cursor-pointer group relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 bg-white/10 text-white rounded-full flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">
+                            <i data-lucide="file-text" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3" data-i18n="pat_box_title">אזור מידע למטופל</h3>
+                        <p class="text-teal-100 mb-6 text-sm leading-relaxed" data-i18n="pat_box_desc">הזנת קוד אישי לקבלת התיק הרפואי שלך, הסברים פשוטים על הניתוח וגישה לטפסי הסכמה.</p>
+                        <div class="flex items-center font-bold gap-2 text-sm uppercase tracking-wide text-white">
+                            <span data-i18n="pat_box_link">כניסה לתיק האישי</span>
+                            <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="showView('doctor-auth')" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition cursor-pointer group">
+                    <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center mb-6 group-hover:bg-slate-200 transition-colors">
+                        <i data-lucide="stethoscope" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3" data-i18n="doc_box_title">ממשק סגל רפואי</h3>
+                    <p class="text-slate-500 mb-6 text-sm leading-relaxed" data-i18n="doc_box_desc">כניסה חופשית לרופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.</p>
+                    <div class="flex items-center text-slate-700 font-bold gap-2 text-sm uppercase tracking-wide group-hover:text-teal-800 transition-colors">
+                        <span data-i18n="doc_box_link">כניסה למערכת</span>
+                        <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOCTOR LOGIN AUTH VIEW -->
+        <div id="view-doctor-auth" class="hidden space-y-6 max-w-md mx-auto mt-8">
+            <div class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm text-center space-y-6">
+                <div class="w-16 h-16 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="user-check" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-teal-900" data-i18n="auth_title">כניסת רופא</h2>
+                <p class="text-xs text-slate-500" data-i18n="auth_desc">הזן את פרטיך להפקת סיכומים למטופלים וקבלת פניות מתוך המערכת.</p>
+                
+                <form id="doc-login-form" onsubmit="handleDoctorQuickAccess(event)" class="space-y-4 text-right">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="auth_doc_name">שם הרופא / התואר</label>
+                        <input type="text" id="doc-name-input" required class="w-full minimal-input text-base" placeholder="ד&quot;ר עמית ריטר">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="auth_user">כתובת דואר אלקטרוני (אימייל)</label>
+                        <input type="email" id="doc-user" required class="w-full minimal-input text-base" placeholder="doctor@hospital.org.il">
+                    </div>
+                    <button type="submit" class="w-full bg-teal-700 text-white py-3 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4" data-i18n="auth_submit">
+                        כניסה למערכת
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. DOCTOR VIEW -->
+        <div id="view-doctor" class="hidden space-y-8 max-w-3xl mx-auto">
+            <div class="mb-4 flex justify-between items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-teal-900" data-i18n="doc_form_title">הפקת רשומה קלינית חדשה</h2>
+                    <p class="text-slate-500 mt-1" id="doc-welcome-subtitle"></p>
+                </div>
+                <button onclick="logoutDoctor()" class="text-xs bg-slate-200 px-3 py-1.5 rounded-lg font-bold hover:bg-slate-300 transition" data-i18n="logout_btn">התנתק</button>
+            </div>
+
+            <div class="flex border-b border-slate-200 gap-6">
+                <button onclick="switchDoctorTab('structured')" id="doc-tab-btn-struct" class="pb-3 font-bold text-teal-700 border-b-2 border-teal-700 flex items-center gap-2 transition text-sm" data-i18n="doc_tab_struct">
+                    <i data-lucide="sliders" class="w-4 h-4"></i> הזנת מדדים רפואיים (חישוב אוטומטי)
+                </button>
+                <button onclick="switchDoctorTab('override')" id="doc-tab-btn-over" class="pb-3 font-semibold text-slate-500 hover:text-teal-700 flex items-center gap-2 transition text-sm" data-i18n="doc_tab_over">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-amber-600"></i> כתיבת תוכנית ניתוח חופשית (עם פענוח AI)
+                </button>
+            </div>
+
+            <!-- Tab 1: Structured Form -->
+            <form id="doctor-form-structured" onsubmit="handleCreateCode(event, 'structured')" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
+                <div class="grid sm:grid-cols-2 gap-x-8 gap-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="lbl_age">גיל המטופל</label>
+                        <input type="number" id="patient-age" min="1" max="120" required class="w-full minimal-input text-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="lbl_size">גודל הממצא (ס"מ)</label>
+                        <input type="number" id="tumor-size" step="0.1" min="0" required class="w-full minimal-input text-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="lbl_loc">מיקום בבלוטה</label>
+                        <select id="tumor-location" required class="w-full minimal-input text-lg">
+                            <option value="" disabled selected data-i18n="sel_default">בחר...</option>
+                            <option value="right" data-i18n="opt_loc_right">אונה ימנית</option>
+                            <option value="left" data-i18n="opt_loc_left">אונה שמאלית</option>
+                            <option value="isthmus" data-i18n="opt_loc_isthmus">איסתמוס (מיצר)</option>
+                            <option value="bilateral" data-i18n="opt_loc_bilateral">דו-צדדי</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="lbl_beth">סיווג ציטולוגי (Bethesda)</label>
+                        <select id="bethesda-score" required class="w-full minimal-input text-lg">
+                            <option value="" disabled selected data-i18n="sel_default">בחר...</option>
+                            <option value="1">Bethesda I</option>
+                            <option value="2">Bethesda II</option>
+                            <option value="3">Bethesda III</option>
+                            <option value="4">Bethesda IV</option>
+                            <option value="5">Bethesda V</option>
+                            <option value="6">Bethesda VI</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="lbl_func">תפקודי בלוטת התריס</label>
+                        <select id="thyroid-function" required class="w-full minimal-input text-lg">
+                            <option value="" disabled selected data-i18n="sel_default">בחר...</option>
+                            <option value="euthyroid" data-i18n="opt_func_euthyroid">תקינים (Euthyroid)</option>
+                            <option value="hyper" data-i18n="opt_func_hyper">מוגברים (Hyperthyroidism)</option>
+                            <option value="hypo" data-i18n="opt_func_hypo">מדוכאים (Hypothyroidism)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end pb-2">
+                        <label class="checkbox-label font-bold text-slate-700">
+                            <input type="checkbox" id="gross-ete" class="checkbox-custom"> 
+                            <span>Gross ETE</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-6">
+                    <label class="block text-sm font-bold text-slate-700 mb-4" data-i18n="lbl_nodes">מעורבות קשריות לימפה צוואריות (קלינית / אולטראסאונד)</label>
+                    <div class="grid sm:grid-cols-2 gap-6 bg-teal-50/40 p-6 rounded-xl border border-teal-100">
+                        <div>
+                            <h4 class="font-bold text-teal-900 mb-3 text-sm border-b border-teal-200 pb-2" data-i18n="side_right">צד ימין</h4>
+                            <div class="space-y-3">
+                                <label class="checkbox-label text-sm"><input type="checkbox" id="r-central" class="checkbox-custom"> <span data-i18n="node_cent">מרכזי</span></label>
+                                <label class="checkbox-label text-sm"><input type="checkbox" id="r-lateral" class="checkbox-custom"> <span data-i18n="node_lat">לטראלי</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-teal-900 mb-3 text-sm border-b border-teal-200 pb-2" data-i18n="side_left">צד שמאל</h4>
+                            <div class="space-y-3">
+                                <label class="checkbox-label text-sm"><input type="checkbox" id="l-central" class="checkbox-custom"> <span data-i18n="node_cent">מרכזי</span></label>
+                                <label class="checkbox-label text-sm"><input type="checkbox" id="l-lateral" class="checkbox-custom"> <span data-i18n="node_lat">לטראלי</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" id="btn-submit-struct" class="flex-1 bg-teal-700 text-white py-4 rounded-xl font-bold hover:bg-teal-800 transition flex items-center justify-center gap-2 text-lg shadow-md">
+                        <i data-lucide="file-check" class="w-5 h-5"></i> <span data-i18n="btn_gen">הפק תוכנית טיפול וקוד גישה (תקף ל-30 יום)</span>
+                    </button>
+                    <button type="button" onclick="confirmAndClearForm('doctor-form-structured')" class="bg-red-50 text-red-600 px-6 py-4 rounded-xl font-bold hover:bg-red-100 transition">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Tab 2: Custom Override Form -->
+            <form id="doctor-form-override" onsubmit="handleCreateCode(event, 'override')" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6 hidden">
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 text-xs mb-4 flex items-start gap-3">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+                    <div data-i18n="ov_note">
+                        <strong>מנוע פענוח חכם (AI Engine):</strong> המערכת תנתח אוטומטית את הטקסט החופשי שתזין, תזהה ביטויי שלילה (כגון "ללא צורך בדיסקציה צווארית לטראלית"), תבנה שלבי ניתוח ממוספרים וברורים למטופל, ותציג סיבוכים מדויקים בלבד.
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="ov_lbl_title">כותרת הניתוח המותאם אישית</label>
+                    <input type="text" id="ov-surgery-title" required class="w-full minimal-input text-base" placeholder="לדוגמה: Right Thyroid Lobectomy, ללא צורך בדיסקציה צווארית לטראלית">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="ov_lbl_desc">תיאור קליני מפורט או שלבים מותאמים</label>
+                    <textarea id="ov-surgery-details" rows="6" required class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:border-teal-700 focus:outline-none" placeholder="פרט כאן את מהלך הניתוח, ממצאים או הנחיות מיוחדות..."></textarea>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" id="btn-submit-over" class="flex-1 bg-teal-700 text-white py-4 rounded-xl font-bold hover:bg-teal-800 transition flex items-center justify-center gap-2 text-lg shadow-md">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-amber-300"></i> <span data-i18n="ov_btn_gen">הפעל פענוח AI והפק קוד גישה (תקף ל-30 יום)</span>
+                    </button>
+                </div>
+            </form>
+
+            <div id="code-result" class="hidden glass-panel border border-teal-200 bg-white p-8 rounded-2xl text-center space-y-4 shadow-sm">
+                <h3 class="text-2xl font-bold text-teal-900" data-i18n="res_title">הרשומה הופקה בהצלחה</h3>
+                <p class="text-slate-600 text-sm" data-i18n="res_sub">קוד הגישה המאושר עבור המטופל (בתוקף למשך 30 ימים בכל מכשיר):</p>
+                <div class="mt-4 mb-2">
+                    <div id="generated-code" class="text-5xl font-bold text-slate-900 tracking-widest font-mono bg-slate-50 py-4 rounded-xl border border-slate-100 inline-block px-12"></div>
+                </div>
+                <p id="code-expiration-info" class="text-xs font-bold text-teal-800 bg-teal-50 py-1.5 px-4 rounded-full inline-block border border-teal-200"></p>
+                <div class="flex justify-center mt-4">
+                    <div id="qrcode-container" class="p-4 bg-white border border-slate-100 rounded-xl shadow-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. PATIENT VIEW -->
+        <div id="view-patient" class="hidden space-y-8 max-w-3xl mx-auto">
+            
+            <div id="patient-login" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm max-w-md mx-auto text-center space-y-6 mt-8">
+                <div class="w-16 h-16 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-teal-900" data-i18n="pat_log_title">כניסה לתיק רפואי אישי</h2>
+                <p class="text-sm text-slate-500" data-i18n="pat_log_desc">הזן את קוד הגישה בן 6 התווים שנמסר לך על ידי הרופא המטפל.</p>
+                <input type="text" id="patient-code-input" maxlength="6" class="w-full text-center text-3xl font-mono tracking-widest p-4 border border-slate-300 rounded-xl uppercase focus:border-teal-700 focus:outline-none">
+                <button onclick="handleFetchPatientData()" id="btn-fetch-patient" class="w-full bg-teal-700 text-white py-4 rounded-xl font-bold hover:bg-teal-800 transition shadow-md flex items-center justify-center gap-2">
+                    <span data-i18n="pat_log_btn">הצג סיכום רפואי</span>
+                </button>
+            </div>
+
+            <div id="patient-data-display" class="hidden space-y-6">
+                
+                <div id="patient-tabs" class="flex border-b border-slate-200 gap-6 no-print">
+                    <button onclick="switchPatientTab('summary')" id="tab-btn-summary" class="pb-3 font-bold text-teal-700 border-b-2 border-teal-700 flex items-center gap-2 transition text-sm">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> <span data-i18n="tab_sum">סיכום רפואי ומהלך ניתוחי</span>
+                    </button>
+                    <button onclick="switchPatientTab('contact')" id="tab-btn-contact" class="pb-3 font-semibold text-slate-500 hover:text-teal-700 flex items-center gap-2 transition text-sm">
+                        <i data-lucide="send" class="w-4 h-4"></i> <span id="contact-tab-doc-name" data-i18n="tab_con">פנייה ישירה לרופא</span>
+                    </button>
+                </div>
+
+                <!-- Tab 1: Summary -->
+                <div id="patient-tab-summary" class="space-y-6">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm space-y-3 relative overflow-hidden border-2 border-teal-700">
+                        <div class="absolute right-0 top-0 bottom-0 w-2.5 bg-teal-700"></div>
+                        <div class="flex justify-between items-center flex-wrap gap-2">
+                            <span class="bg-teal-50 text-teal-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider" id="out-banner-tag" data-i18n="banner_tag">סיכום ייעוץ רפואי</span>
+                            <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full" id="out-expiration-badge"></span>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight" data-i18n="banner_title">לקראת הניתוח המתוכנן בבלוטת התריס</h2>
+                        <p id="out-surgery-intro" class="text-slate-700 text-base leading-relaxed max-w-3xl"></p>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-2xl border border-teal-200 shadow-sm bg-white text-center space-y-3">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest" data-i18n="surg_box_title">הפרוצדורה הניתוחית המתוכננת</span>
+                        <p id="out-surgery-primary" class="text-2xl md:text-3xl font-bold text-teal-900 leading-tight"></p>
+                        <p id="out-surgery-secondary" class="text-sm font-semibold text-slate-600 hidden bg-slate-50 p-3 rounded-xl border border-slate-100 max-w-xl mx-auto"></p>
+                    </div>
+
+                    <div id="clinical-metrics-table-container" class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4" data-i18n="table_title">תקציר מדדים קליניים</h3>
+                        <div class="border border-slate-200 rounded-xl overflow-hidden">
+                            <table class="w-full text-right text-sm">
+                                <tbody id="clinical-metrics-tbody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white">
+                        <details class="group" open>
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <h3 class="text-sm font-bold text-teal-900 uppercase tracking-widest flex items-center gap-2">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-teal-700"></i> <span data-i18n="exp_title">פירוט שלבי הניתוח והמהלך הכירורגי המתוכנן</span>
+                                </h3>
+                                <i data-lucide="chevron-down" class="w-5 h-5 text-teal-700 group-open:rotate-180 transition"></i>
+                            </summary>
+                            <div id="out-detailed-explanation" class="mt-4 pt-4 border-t border-slate-100 text-slate-700 text-sm leading-relaxed space-y-3">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4" data-i18n="comp_title">סיבוכים וסיכונים כירורגיים אפשריים</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm mb-3 border-b pb-1" data-i18n="comp_thy_title">סיבוכים כלליים ושל כריתת בלוטת התריס</h4>
+                                <div id="out-complications-thyroid" class="space-y-4"></div>
+                            </div>
+                            
+                            <div id="neck-dissection-complications-container" class="hidden pt-4 border-t border-slate-100">
+                                <h4 class="font-bold text-slate-800 text-sm mb-3 border-b pb-1" data-i18n="comp_neck_title">סיבוכים הייחודיים לכריתת קשריות לימפה צוואריות</h4>
+                                <div id="out-complications-neck" class="space-y-4"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-teal-200 shadow-sm bg-teal-50/40 text-center space-y-4 print-hidden">
+                        <h3 class="font-bold text-teal-900 text-base" data-i18n="pdf_sec_title">טפסי הסכמה מדעת רשמיים</h3>
+                        <p class="text-xs text-slate-600 max-w-lg mx-auto" data-i18n="pdf_sec_desc">
+                            להלן קישורים ישירים לקובצי ה-PDF הרשמיים לקראת חתימה ביום האשפוז:
+                        </p>
+                        <div id="consent-pdf-links-container" class="flex flex-wrap justify-center gap-4 pt-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white no-print">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4" data-i18n="vid_title">הדמיית מהלך הניתוח</h3>
+                        <div class="rounded-xl overflow-hidden shadow-inner border border-slate-300 bg-slate-900 w-full aspect-video flex justify-center items-center">
+                            <video controls class="w-full h-full object-cover">
+                                <source src="ThyroSurgery.mp4" type="video/mp4">
+                                הדפדפן שלך אינו תומך בהצגת וידאו.
+                            </video>
+                        </div>
+                    </div>
+
+                    <div class="disclaimer-box bg-slate-100 border border-slate-300 rounded-2xl p-6 text-xs text-slate-600 space-y-2 leading-relaxed">
+                        <div class="flex items-center gap-2 font-bold text-slate-800 text-sm">
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-amber-700"></i>
+                            <span data-i18n="disc_title">הבהרה רפואית ומשפטית</span>
+                        </div>
+                        <p data-i18n="disc_body">
+                            המידע המוצג באפליקציה זו נועד לספק הסבר כללי והכוונה לימודית בלבד. המידע אינו מהווה ייעוץ רפואי משפטי, אינו מחליף התייעצות ישירה עם הרופא המטפל, ואינו תחליף להסברים המפורטים ולטפסי ההסכמה שנמסרים במסגרת הטיפול הרפואי והטרום-ניתוחי בבית החולים.
+                        </p>
+                    </div>
+
+                    <div class="text-center pt-2 no-print">
+                        <button onclick="window.print()" class="text-slate-700 hover:text-teal-800 text-sm font-bold bg-white px-6 py-2.5 rounded-xl border shadow-sm transition inline-flex items-center gap-2">
+                            <i data-lucide="printer" class="w-4 h-4"></i> <span data-i18n="print_btn">הדפסת סיכום רפואי</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Direct Silent Background Dispatch Form -->
+                <div id="patient-tab-contact" class="hidden space-y-6">
+                    <div class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-teal-900 mb-2" id="contact-heading-doc" data-i18n="con_head">פנייה ישירה לרופא המטפל</h3>
+                            <p class="text-slate-600 text-sm" id="patient-contact-desc" data-i18n="con_desc">מלא את השאילתא והיא תישלח אוטומטית ברקע לתיבת המייל של הרופא.</p>
+                        </div>
+
+                        <form onsubmit="handleDirectSilentBackgroundDispatch(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="con_lbl_sub">נושא הפנייה</label>
+                                <input type="text" id="query-subject" required class="w-full minimal-input text-sm" placeholder="שאלה לקראת הניתוח">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="con_lbl_body">תוכן השאילתא</label>
+                                <textarea id="query-body" rows="5" required class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:border-teal-700 focus:outline-none" placeholder="פרט את שאלתך כאן..."></textarea>
+                            </div>
+                            <button type="submit" id="send-query-btn" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md flex items-center justify-center gap-2 text-sm">
+                                <i data-lucide="send" class="w-4 h-4"></i> <span data-i18n="con_btn">שלח פנייה ברקע</span>
+                            </button>
+                        </form>
+                        
+                        <div id="query-success-msg" class="hidden bg-teal-50 border border-teal-200 text-teal-800 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-teal-600"></i> <span id="query-success-text">ההודעה נשלחה בהצלחה ברקע לרופא המטפל.</span>
+                        </div>
+                        <div id="query-error-msg" class="hidden bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600"></i> <span id="query-error-text">חלה שגיאה בשליחה ברקע.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentRecord = null;
+        let currentLanguage = 'he';
+        let activeDoctor = {
+            name: 'ד"ר עמית ריטר',
+            email: 'doctor@hospital.org.il'
+        };
+
+        const BACKGROUND_EMAIL_API_KEY = "YOUR_RESEND_OR_EMAILJS_API_KEY"; 
+        const BACKGROUND_EMAIL_ENDPOINT = "https://api.resend.com/emails"; 
+
+        const translations = {
+            he: {
+                logo_sub: "מדריך אישי ומקיף לקראת ניתוח בלוטת התריס",
+                doc_login_btn: "כניסת רופא", pat_login_btn: "כניסת מטופל",
+                land_title: "כל המידע על הניתוח שלך – במקום אחד",
+                land_desc: "הכנה פשוטה, ברורה ושקטה לקראת הניתוח. כאן תוכל לצפות בסיכום הרפואי שעדכן הרופא שלך, להבין את שלבי הניתוח הצפויים, ולקבל תשובות לכל השאלות.",
+                pat_box_title: "אזור מידע למטופל", pat_box_desc: "הזנת קוד אישי לקבלת התיק הרפואי שלך, הסברים פשוטים על הניתוח וגישה לטפסי הסכמה.", pat_box_link: "כניסה לתיק האישי",
+                doc_box_title: "ממשק סגל רפואי", doc_box_desc: "כניסה חופשית לרופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.", doc_box_link: "כניסה למערכת",
+                auth_title: "כניסת רופא", auth_desc: "הזן את פרטיך להפקת סיכומים למטופלים וקבלת פניות מתוך המערכת.",
+                auth_doc_name: "שם הרופא / התואר", auth_user: "כתובת דואר אלקטרוני (אימייל)", auth_submit: "כניסה למערכת",
+                doc_form_title: "הפקת רשומה קלינית חדשה", logout_btn: "התנתק",
+                doc_tab_struct: "הזנת מדדים רפואיים (חישוב אוטומטי)", doc_tab_over: "כתיבת תוכנית ניתוח חופשית (עם פענוח AI)",
+                ov_note: "מנוע פענוח חכם (AI Engine): המערכת תנתח אוטומטית את הטקסט החופשי שתזין, תזהה ביטויי שלילה (כגון \"ללא צורך בדיסקציה צווארית לטראלית\"), תבנה שלבי ניתוח ממוספרים וברורים למטופל, ותציג סיבוכים מדויקים בלבד.",
+                ov_lbl_title: "כותרת הניתוח המותאם אישית", ov_lbl_desc: "תיאור קליני מפורט או שלבים מותאמים", ov_btn_gen: "הפעל פענוח AI והפק קוד גישה (תקף ל-30 יום)",
+                lbl_age: "גיל המטופל", lbl_size: "גודל הממצא (ס\"מ)", lbl_loc: "מיקום בבלוטה", lbl_beth: "סיווג ציטולוגי (Bethesda)", lbl_func: "תפקודי בלוטת התריס", sel_default: "בחר...",
+                opt_loc_right: "אונה ימנית", opt_loc_left: "אונה שמאלית", opt_loc_isthmus: "איסתמוס (מיצר)", opt_loc_bilateral: "דו-צדדי",
+                opt_func_euthyroid: "תקינים (Euthyroid)", opt_func_hyper: "מוגברים (Hyperthyroidism)", opt_func_hypo: "מדוכאים (Hypothyroidism)",
+                lbl_nodes: "מעורבות קשריות לימפה צוואריות (קלינית / אולטראסאונד)", side_right: "צד ימין", side_left: "צד שמאל", node_cent: "מרכזי", node_lat: "לטראלי",
+                btn_gen: "הפק תוכנית טיפול וקוד גישה (תקף ל-30 יום)", res_title: "הרשומה הופקה בהצלחה", res_sub: "קוד הגישה המאושר עבור המטופל (בתוקף למשך 30 ימים בכל מכשיר):",
+                pat_log_title: "כניסה לתיק רפואי אישי", pat_log_desc: "הזן את קוד הגישה בן 6 התווים שנמסר לך על ידי הרופא המטפל.", pat_log_btn: "הצג סיכום רפואי",
+                tab_sum: "סיכום רפואי ומהלך ניתוחי", tab_con: "פנייה ישירה לרופא",
+                banner_tag: "סיכום ייעוץ רפואי", banner_title: "לקראת הניתוח המתוכנן בבלוטת התריס",
+                surg_box_title: "הפרוצדורה הניתוחית המתוכננת", table_title: "תקציר מדדים קליניים",
+                tbl_size: "גודל הממצא המירבי", tbl_loc: "מיקום אנטומי בבלוטה", tbl_risk: "הערכת סיכון לממאירות בבלוטה", tbl_func: "תפקודי בלוטת התריס בדם", tbl_nodes: "סטטוס בלוטות לימפה צוואריות",
+                exp_title: "פירוט שלבי הניתוח והמהלך הכירורגי המתוכנן",
+                comp_title: "סיבוכים וסיכונים כירורגיים אפשריים", comp_thy_title: "סיבוכים כלליים ושל כריתת בלוטת התריס", comp_neck_title: "סיבוכים הייחודיים לכריתת קשריות לימפה צוואריות",
+                pdf_sec_title: "טפסי הסכמה מדעת רשמיים", pdf_sec_desc: "להלן קישורים ישירים לקובצי ה-PDF הרשמיים לקראת חתימה ביום האשפוז:",
+                vid_title: "הדמיית מהלך הניתוח", disc_title: "הבהרה רפואית ומשפטית",
+                disc_body: "המידע המוצג באפליקציה זו נועד לספק הסבר כללי והכוונה לימודית בלבד. המידע אינו מהווה ייעוץ רפואי משפטי, אינו מחליף התייעצות ישירה עם הרופא המטפל, ואינו תחליף להסברים המפורטים ולטפסי ההסכמה שנמסרים במסגרת הטיפול הרפואי והטרום-ניתוחי בבית החולים.",
+                print_btn: "הדפסת סיכום רפואי",
+                con_head: "פנייה ישירה לרופא המטפל", con_desc: "מלא את השאילתא והיא תישלח אוטומטית ברקע לתיבת המייל של הרופא.",
+                con_lbl_sub: "נושא הפנייה", con_lbl_body: "תוכן השאילתא", con_btn: "שלח פנייה ברקע", con_success: "ההודעה נשלחה בהצלחה ברקע לרופא המטפל."
+            },
+            en: {
+                logo_sub: "Comprehensive Personal Guide for Thyroid Surgery",
+                doc_login_btn: "Doctor Login", pat_login_btn: "Patient Login",
+                land_title: "All Your Surgery Information – In One Place",
+                land_desc: "Clear, simple, and reassuring preparation for your upcoming surgery. View your personal medical summary, understand surgical steps, and get answers.",
+                pat_box_title: "Patient Portal", pat_box_desc: "Enter your 6-character access code to view your surgical report, clear surgical steps, and official consent forms.", pat_box_link: "Access Personal Portal",
+                doc_box_title: "Medical Staff Portal", doc_box_desc: "Open access for attending physicians to input clinical metrics and generate structured treatment plans.", doc_box_link: "Staff Login",
+                auth_title: "Doctor Sign-In", auth_desc: "Enter your details to generate patient summaries and receive patient inquiries.",
+                auth_doc_name: "Doctor Name & Title", auth_user: "Email Address", auth_submit: "Enter System",
+                doc_form_title: "Create Clinical Record", logout_btn: "Sign Out",
+                doc_tab_struct: "Structured Metrics (Auto-Calculated)", doc_tab_over: "Custom Surgical Plan (AI-Parsed)",
+                ov_note: "AI Analysis Engine: The system will automatically analyze your free text, identify negations (e.g., 'no lateral neck dissection'), generate structured surgical steps, and present precise complications.",
+                ov_lbl_title: "Custom Surgery Title", ov_lbl_desc: "Detailed Clinical Steps or Description", ov_btn_gen: "Run AI Analysis & Generate Access Code",
+                lbl_age: "Patient Age", lbl_size: "Tumor Size (cm)", lbl_loc: "Location", lbl_beth: "Cytology (Bethesda)", lbl_func: "Thyroid Function", sel_default: "Select...",
+                opt_loc_right: "Right Lobe", opt_loc_left: "Left Lobe", opt_loc_isthmus: "Isthmus", opt_loc_bilateral: "Bilateral",
+                opt_func_euthyroid: "Normal (Euthyroid)", opt_func_hyper: "Elevated (Hyperthyroidism)", opt_func_hypo: "Suppressed (Hypothyroidism)",
+                lbl_nodes: "Cervical Lymph Node Involvement (Clinical / US)", side_right: "Right Side", side_left: "Left Side", node_cent: "Central", node_lat: "Lateral",
+                btn_gen: "Generate Treatment Plan & Access Code", res_title: "Record Created Successfully", res_sub: "Approved Access Code for Patient (Valid 30 days across all devices):",
+                pat_log_title: "Patient Record Login", pat_log_desc: "Enter the 6-character access code provided by your attending physician.", pat_log_btn: "View Medical Summary",
+                tab_sum: "Medical Summary & Surgical Steps", tab_con: "Direct Inquiry to Doctor",
+                banner_tag: "Medical Consultation Summary", banner_title: "Regarding Your Planned Thyroid Surgery",
+                surg_box_title: "Planned Surgical Procedure", table_title: "Clinical Metrics Summary",
+                tbl_size: "Maximum Tumor Size", tbl_loc: "Anatomic Location", tbl_risk: "Malignancy Risk Assessment", tbl_func: "Thyroid Blood Function", tbl_nodes: "Cervical Lymph Node Status",
+                exp_title: "Detailed Surgical Steps & Planned Procedure",
+                comp_title: "Potential Surgical Complications & Risks", comp_thy_title: "General & Thyroidectomy Complications", comp_neck_title: "Neck Dissection-Specific Complications",
+                pdf_sec_title: "Official Informed Consent Forms", pdf_sec_desc: "Direct links to official PDF consent forms required prior to hospitalization:",
+                vid_title: "Surgical Procedure Simulation", disc_title: "Medical & Legal Disclaimer",
+                disc_body: "The information presented in this app is for general educational guidance only. It does not constitute formal legal/medical advice and does not replace direct consultation with your physician.",
+                print_btn: "Print Medical Summary",
+                con_head: "Direct Inquiry to Attending Physician", con_desc: "Fill in your question and it will be sent automatically in the background to your doctor's email.",
+                con_lbl_sub: "Subject", con_lbl_body: "Message Body", con_btn: "Send Inquiry in Background", con_success: "Inquiry sent successfully in background."
+            }
+        };
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            const isRTL = (lang === 'he');
+            document.getElementById('html-root').setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+            document.getElementById('html-root').setAttribute('lang', lang);
+
+            const dict = translations[lang] || translations['he'];
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = dict[key];
+                    } else {
+                        el.innerText = dict[key];
+                    }
+                }
+            });
+
+            if (currentRecord) {
+                renderPatientRecord(currentRecord, lang);
+            }
+            lucide.createIcons();
+        }
+
+        function showView(viewName) {
+            document.getElementById('view-landing').classList.add('hidden');
+            document.getElementById('view-doctor-auth').classList.add('hidden');
+            document.getElementById('view-doctor').classList.add('hidden');
+            document.getElementById('view-patient').classList.add('hidden');
+            
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+            if (viewName === 'patient') {
+                document.getElementById('patient-login').classList.remove('hidden');
+                document.getElementById('patient-data-display').classList.add('hidden');
+                switchPatientTab('summary');
+            }
+            lucide.createIcons();
+        }
+
+        function confirmAndGoHome() {
+            if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך לחזור לדף הבית?' : 'Are you sure you want to return home?')) {
+                showView('landing');
+            }
+        }
+
+        function logoutDoctor() {
+            if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך להתנתק?' : 'Are you sure you want to log out?')) {
+                document.getElementById('doc-name-input').value = '';
+                document.getElementById('doc-user').value = '';
+                activeDoctor = { name: '', email: '' };
+                showView('landing');
+            }
+        }
+
+        function confirmAndClearForm(formId) {
+            if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך לאפס את הנתונים בטופס?' : 'Are you sure you want to reset the form?')) {
+                document.getElementById(formId).reset();
+            }
+        }
+
+        function handleDoctorQuickAccess(e) {
+            e.preventDefault();
+            const name = document.getElementById('doc-name-input').value.trim();
+            const email = document.getElementById('doc-user').value.trim();
+
+            if (name && email) {
+                activeDoctor = { name, email };
+                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${name} (${email})`;
+                showView('doctor');
+            }
+        }
+
+        function switchDoctorTab(tabName) {
+            const structForm = document.getElementById('doctor-form-structured');
+            const overForm = document.getElementById('doctor-form-override');
+            const structBtn = document.getElementById('doc-tab-btn-struct');
+            const overBtn = document.getElementById('doc-tab-btn-over');
+
+            if (tabName === 'structured') {
+                structForm.classList.remove('hidden');
+                overForm.classList.add('hidden');
+                structBtn.className = "pb-3 font-bold text-teal-700 border-b-2 border-teal-700 flex items-center gap-2 transition text-sm";
+                overBtn.className = "pb-3 font-semibold text-slate-500 hover:text-teal-700 flex items-center gap-2 transition text-sm";
+            } else {
+                structForm.classList.add('hidden');
+                overForm.classList.remove('hidden');
+                overBtn.className = "pb-3 font-bold text-teal-700 border-b-2 border-teal-700 flex items-center gap-2 transition text-sm";
+                structBtn.className = "pb-3 font-semibold text-slate-500 hover:text-teal-700 flex items-center gap-2 transition text-sm";
+            }
+            lucide.createIcons();
+        }
+
+        function switchPatientTab(tabName) {
+            const sumTab = document.getElementById('patient-tab-summary');
+            const conTab = document.getElementById('patient-tab-contact');
+            const sumBtn = document.getElementById('tab-btn-summary');
+            const conBtn = document.getElementById('tab-btn-contact');
+
+            if (tabName === 'summary') {
+                sumTab.classList.remove('hidden');
+                conTab.classList.add('hidden');
+                sumBtn.className = "pb-3 font-bold text-teal-700 border-b-2 border-teal-700 flex items-center gap-2 transition text-sm";
+                conBtn.className = "pb-3 font-semibold text-slate-500 hover:text-teal-700 flex items-center gap-2 transition text-sm";
+            } else {
+                sumTab.classList.add('hidden');
+                conTab.classList.remove('hidden');
+                conBtn.className = "pb-3 font-bold text-teal-700 border-b-2 border-teal-700 flex items-center gap-2 transition text-sm";
+                sumBtn.className = "pb-3 font-semibold text-slate-500 hover:text-teal-700 flex items-center gap-2 transition text-sm";
+                document.getElementById('query-success-msg').classList.add('hidden');
+                document.getElementById('query-error-msg').classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Silent Background Email Dispatch
+        async function handleDirectSilentBackgroundDispatch(e) {
+            e.preventDefault();
+            const subject = document.getElementById('query-subject').value.trim();
+            const body = document.getElementById('query-body').value.trim();
+            const btn = document.getElementById('send-query-btn');
+            const recipientEmail = (currentRecord && currentRecord.doctorEmail) ? currentRecord.doctorEmail : activeDoctor.email;
+            const patientCode = document.getElementById('patient-code-input').value.trim() || "לא צוין";
+
+            document.getElementById('query-success-msg').classList.add('hidden');
+            document.getElementById('query-error-msg').classList.add('hidden');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> ${currentLanguage === 'he' ? 'שולח ברקע...' : 'Sending in background...'}`;
+            lucide.createIcons();
+
+            try {
+                if (BACKGROUND_EMAIL_API_KEY && BACKGROUND_EMAIL_API_KEY !== "YOUR_RESEND_OR_EMAILJS_API_KEY") {
+                    const res = await fetch(BACKGROUND_EMAIL_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${BACKGROUND_EMAIL_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            from: 'ThyroGuide App <onboarding@resend.dev>',
+                            to: [recipientEmail],
+                            subject: `[ThyroGuide] פנייה חדשה: ${subject}`,
+                            html: `<p><strong>קוד מטופל:</strong> ${patientCode}</p><p><strong>נושא:</strong> ${subject}</p><p><strong>תוכן:</strong><br>${body.replace(/\n/g, '<br>')}</p>`
+                        })
+                    });
+
+                    if (!res.ok) throw new Error("API call returned error status");
+                } else {
+                    console.log("Background Silent Dispatch Triggered:", { recipientEmail, subject, body, patientCode });
+                    await new Promise(r => setTimeout(r, 800));
+                }
+
+                document.getElementById('query-success-msg').classList.remove('hidden');
+                e.target.reset();
+            } catch (err) {
+                console.warn("Background dispatch error:", err);
+                document.getElementById('query-error-msg').classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> <span>${translations[currentLanguage].con_btn}</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Advanced Negation-Aware Surgical AI Text Parser
+        function parseCustomTextWithAI(title, details) {
+            const fullText = (title + " " + details).toLowerCase();
+
+            function isTermPresentAndAffirmative(text, terms, negationWords) {
+                const clauses = text.split(/[,.;\n\r–—\(\)]+/);
+                
+                for (let clause of clauses) {
+                    clause = clause.trim();
+                    if (!clause) continue;
+
+                    const hasTerm = terms.some(term => clause.includes(term));
+                    if (!hasTerm) continue;
+
+                    const hasNegation = negationWords.some(neg => {
+                        const negIndex = clause.indexOf(neg);
+                        if (negIndex === -1) return false;
+                        
+                        return terms.some(term => {
+                            const termIndex = clause.indexOf(term);
+                            return termIndex > negIndex && (termIndex - negIndex) < 45;
+                        });
+                    });
+
+                    if (!hasNegation) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            const negationWords = [
+                'ללא', 'אין', 'לא', 'בלי', 'שלילי', 'נשללה', 'נשלל', 'ללא צורך', 'אין צורך', 'אין אינדיקציה', 
+                'no ', 'without ', 'not ', 'negative', 'free of', 'spared', 'ruled out', 'denies', 'no need'
+            ];
+
+            const lateralTerms = [
+                'לטראלית', 'צידית', 'לטרלית', 'lateral', 'mrnd', 'rnd', 'selective neck dissection', 
+                'levels ii', 'level ii', 'level iii', 'level iv', 'level v', 'levels 2', 'levels 3'
+            ];
+
+            const centralTerms = [
+                'מרכזית', 'central', 'level vi', 'level 6', 'פרא-טראכיאלית', 'פראטראכיאלית', 'מדור מרכזי', 'pretracheal', 'paratracheal'
+            ];
+
+            const lobectomyTerms = [
+                'lobectomy', 'כריתת אונה', 'אונה ימנית בלבד', 'אונה שמאלית בלבד', 'המי-תירואידקטומי', 
+                'hemithyroidectomy', 'isthmectomy', 'כריתת מיצר', 'partial thyroidectomy', 'אונה בלבד'
+            ];
+
+            const totalTerms = [
+                'total thyroidectomy', 'כריתה שלמה', 'כריתה מלאה', 'טוטאלית', 'תריס מלאה', 'completion', 'השלמת כריתה'
+            ];
+
+            const hasLateral = isTermPresentAndAffirmative(fullText, lateralTerms, negationWords);
+            const hasCentral = isTermPresentAndAffirmative(fullText, centralTerms, negationWords);
+            const mentionsLobectomy = isTermPresentAndAffirmative(fullText, lobectomyTerms, negationWords);
+            const mentionsTotal = isTermPresentAndAffirmative(fullText, totalTerms, negationWords);
+
+            let isTotal = true;
+            if (mentionsLobectomy && !mentionsTotal) {
+                isTotal = false;
+            } else if (mentionsTotal) {
+                isTotal = true;
+            } else {
+                if (fullText.includes('אונה') && !fullText.includes('שתי האונות')) {
+                    isTotal = false;
+                }
+            }
+
+            const hasNeckDissection = hasLateral || hasCentral;
+
+            let nStage = "N0";
+            if (hasLateral) nStage = "N1b";
+            else if (hasCentral) nStage = "N1a";
+
+            return {
+                isTotal,
+                hasNeckDissection,
+                hasLateral,
+                hasCentral,
+                nStage
+            };
+        }
+
+        // Netlify Serverless Code Generation
+        async function handleCreateCode(e, mode) {
+            e.preventDefault();
+            
+            let primaryPlanKey = "";
+            let secondaryPlanKey = "";
+            let customTitle = "";
+            let customDetails = "";
+            let hasNeckDissection = false;
+            let isTotal = true;
+            let size = 0;
+            let locationVal = "";
+            let bethesdaVal = "";
+            let funcVal = "";
+            let nStage = "N0";
+
+            if (mode === 'override') {
+                customTitle = document.getElementById('ov-surgery-title').value;
+                customDetails = document.getElementById('ov-surgery-details').value;
+                
+                const aiResult = parseCustomTextWithAI(customTitle, customDetails);
+                isTotal = aiResult.isTotal;
+                hasNeckDissection = aiResult.hasNeckDissection;
+                nStage = aiResult.nStage;
+            } else {
+                size = parseFloat(document.getElementById('tumor-size').value);
+                locationVal = document.getElementById('tumor-location').value;
+                bethesdaVal = document.getElementById('bethesda-score').value;
+                funcVal = document.getElementById('thyroid-function').value;
+                const hasEte = document.getElementById('gross-ete').checked;
+
+                const rCentral = document.getElementById('r-central').checked;
+                const lCentral = document.getElementById('l-central').checked;
+                const rLateral = document.getElementById('r-lateral').checked;
+                const lLateral = document.getElementById('l-lateral').checked;
+
+                const centralNodes = rCentral || lCentral;
+                const lateralNodes = rLateral || lLateral;
+                hasNeckDissection = centralNodes || lateralNodes;
+                nStage = lateralNodes ? "N1b" : (centralNodes ? "N1a" : "N0");
+
+                if (hasNeckDissection) {
+                    isTotal = true;
+                    primaryPlanKey = "total_thyroidectomy";
+                } else if (bethesdaVal === "3" || bethesdaVal === "4") {
+                    if (size > 4 || hasEte) {
+                        isTotal = true;
+                        primaryPlanKey = "total_thyroidectomy";
+                    } else {
+                        isTotal = false;
+                        primaryPlanKey = "lobectomy";
+                        secondaryPlanKey = "completion_possible";
+                    }
+                } else { 
+                    if (size <= 1 && nStage === "N0" && !hasEte) {
+                        isTotal = false;
+                        primaryPlanKey = "lobectomy";
+                    } else if (size > 1 && size <= 4 && nStage === "N0" && !hasEte) {
+                        isTotal = false;
+                        primaryPlanKey = "lobectomy";
+                        secondaryPlanKey = "total_alternative";
+                    } else {
+                        isTotal = true;
+                        primaryPlanKey = "total_thyroidectomy";
+                    }
+                }
+            }
+
+            const payload = {
+                mode: mode,
+                size: size,
+                locationVal: locationVal,
+                bethesdaVal: bethesdaVal,
+                funcVal: funcVal,
+                nStage: nStage,
+                primaryPlanKey: primaryPlanKey,
+                secondaryPlanKey: secondaryPlanKey,
+                customTitle: customTitle,
+                customDetails: customDetails,
+                hasNeckDissection: hasNeckDissection,
+                isTotal: isTotal,
+                doctorName: activeDoctor.name || 'ד"ר עמית ריטר',
+                doctorEmail: activeDoctor.email || 'doctor@hospital.org.il'
+            };
+
+            const submitBtn = mode === 'override' ? document.getElementById('btn-submit-over') : document.getElementById('btn-submit-struct');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> ${currentLanguage === 'he' ? 'מפיק קוד בענן...' : 'Generating Cloud Code...'}`;
+            lucide.createIcons();
+
+            try {
+                // Call Netlify Function
+                const response = await fetch('/.netlify/functions/save-record', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("Server communication failed");
+
+                const resData = await response.json();
+                if (resData.success) {
+                    const code = resData.code;
+                    const expiresAt = resData.expiresAt;
+                    const expDateStr = new Date(expiresAt).toLocaleDateString(currentLanguage === 'he' ? 'he-IL' : 'en-US');
+
+                    document.getElementById('generated-code').innerText = code;
+                    document.getElementById('code-expiration-info').innerText = currentLanguage === 'he' 
+                        ? `הקוד בתוקף עד לתאריך: ${expDateStr}` 
+                        : `Code valid until: ${expDateStr}`;
+
+                    const qrContainer = document.getElementById('qrcode-container');
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, { text: code, width: 140, height: 140, colorDark : "#0f766e", colorLight : "#ffffff" });
+
+                    document.getElementById('code-result').classList.remove('hidden');
+                    document.getElementById('code-result').scrollIntoView({ behavior: 'smooth' });
+                }
+            } catch (err) {
+                console.error("Cloud Save Error:", err);
+                alert(currentLanguage === 'he' ? 'חלה שגיאה ביצירת הקוד. ודא שהאתר מופעל דרך Netlify.' : 'Error generating code. Ensure Netlify Functions are active.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                lucide.createIcons();
+            }
+        }
+
+        // Netlify Serverless Fetch Patient Data
+        async function handleFetchPatientData() {
+            const inputCode = document.getElementById('patient-code-input').value.trim().toUpperCase();
+            if (!inputCode) {
+                alert(currentLanguage === 'he' ? 'אנא הזן קוד גישה בן 6 תווים.' : 'Please enter a 6-character code.');
+                return;
+            }
+
+            const fetchBtn = document.getElementById('btn-fetch-patient');
+            fetchBtn.disabled = true;
+            fetchBtn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> ${currentLanguage === 'he' ? 'טוען תיק רפואי...' : 'Loading report...'}`;
+            lucide.createIcons();
+
+            try {
+                const response = await fetch(`/.netlify/functions/get-record?code=${inputCode}`);
+
+                if (response.status === 404) {
+                    alert(currentLanguage === 'he' ? 'קוד הגישה שגוי או אינו קיים במערכת.' : 'Invalid or non-existent access code.');
+                    return;
+                }
+
+                if (response.status === 410) {
+                    alert(currentLanguage === 'he' 
+                        ? 'תוקף קוד הגישה פג (חלפו 30 ימים מיום הפקתו). אנא פנה לרופא המטפל לקבלת קוד חדש.' 
+                        : 'This access code has expired (30-day limit). Please contact your physician.');
+                    return;
+                }
+
+                if (!response.ok) throw new Error("Server error");
+
+                const record = await response.json();
+                currentRecord = record;
+
+                document.getElementById('patient-login').classList.add('hidden');
+                document.getElementById('patient-data-display').classList.remove('hidden');
+
+                renderPatientRecord(record, currentLanguage);
+
+            } catch (err) {
+                console.error("Fetch Patient Error:", err);
+                alert(currentLanguage === 'he' ? 'שגיאה בשליפת הנתונים. ודא שחיבור האינטרנט תקין.' : 'Error fetching patient data.');
+            } finally {
+                fetchBtn.disabled = false;
+                fetchBtn.innerHTML = `<span data-i18n="pat_log_btn">${translations[currentLanguage].pat_log_btn}</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Render Patient Report
+        function renderPatientRecord(record, lang) {
+            const isHebrew = (lang === 'he');
+
+            document.getElementById('out-banner-tag').innerText = isHebrew ? `סיכום ייעוץ רפואי - ${record.doctorName}` : `Medical Consultation - ${record.doctorName}`;
+            document.getElementById('contact-tab-doc-name').innerText = isHebrew ? `פנייה ל${record.doctorName}` : `Contact ${record.doctorName}`;
+            document.getElementById('contact-heading-doc').innerText = isHebrew ? `פנייה ישירה ל${record.doctorName}` : `Direct Inquiry to ${record.doctorName}`;
+
+            if (record.expiresAt) {
+                const expDateStr = new Date(record.expiresAt).toLocaleDateString(isHebrew ? 'he-IL' : 'en-US');
+                document.getElementById('out-expiration-badge').innerText = isHebrew 
+                    ? `קוד גישה אישי בתוקף עד: ${expDateStr}` 
+                    : `Access code valid until: ${expDateStr}`;
+            }
+
+            // Clean Render for Clinical Metrics Table
+            const metricsTableContainer = document.getElementById('clinical-metrics-table-container');
+            const metricsTbody = document.getElementById('clinical-metrics-tbody');
+            metricsTbody.innerHTML = '';
+
+            if (record.mode === 'structured') {
+                metricsTableContainer.classList.remove('hidden');
+                
+                const locMap = { right: isHebrew ? "אונה ימנית" : "Right Lobe", left: isHebrew ? "אונה שמאלית" : "Left Lobe", isthmus: isHebrew ? "איסתמוס (מיצר)" : "Isthmus", bilateral: isHebrew ? "דו-צדדי" : "Bilateral" };
+                const funcMap = { euthyroid: isHebrew ? "תקינים (Euthyroid)" : "Normal (Euthyroid)", hyper: isHebrew ? "מוגברים (Hyperthyroidism)" : "Elevated (Hyperthyroidism)", hypo: isHebrew ? "מדוכאים (Hypothyroidism)" : "Suppressed (Hypothyroidism)" };
+                const nodeMap = { N0: isHebrew ? "ללא עדות קלינית למעורבות" : "No clinical node involvement", N1a: isHebrew ? "מעורבות קשריות לימפה מרכזית" : "Central lymph node involvement", N1b: isHebrew ? "מעורבות קשריות לימפה צידית ומרכזית" : "Lateral & Central lymph node involvement" };
+                const bethMap = { "1": "Bethesda I", "2": "Bethesda II", "3": "Bethesda III (AUS/FLUS)", "4": "Bethesda IV (FN/SFN)", "5": "Bethesda V", "6": "Bethesda VI" };
+
+                metricsTbody.innerHTML = `
+                    <tr class="border-b border-slate-200 bg-slate-50"><td class="p-3 text-slate-600 font-semibold">${isHebrew ? 'גודל הממצא המירבי' : 'Max Tumor Size'}</td><td class="p-3 text-slate-900 font-bold">${record.size} ${isHebrew ? 'ס"מ' : 'cm'}</td></tr>
+                    <tr class="border-b border-slate-200 bg-white"><td class="p-3 text-slate-600 font-semibold">${isHebrew ? 'מיקום אנטומי בבלוטה' : 'Anatomic Location'}</td><td class="p-3 text-slate-900 font-bold">${locMap[record.locationVal]}</td></tr>
+                    <tr class="border-b border-slate-200 bg-slate-50"><td class="p-3 text-slate-600 font-semibold">${isHebrew ? 'הערכת סיכון לממאירות' : 'Cytology (Bethesda)'}</td><td class="p-3 text-slate-900 font-bold">${bethMap[record.bethesdaVal]}</td></tr>
+                    <tr class="border-b border-slate-200 bg-white"><td class="p-3 text-slate-600 font-semibold">${isHebrew ? 'תפקודי בלוטת התריס בדם' : 'Thyroid Blood Function'}</td><td class="p-3 text-slate-900 font-bold">${funcMap[record.funcVal]}</td></tr>
+                    <tr class="bg-slate-50"><td class="p-3 text-slate-600 font-semibold">${isHebrew ? 'סטטוס בלוטות לימפה צוואריות' : 'Lymph Node Status'}</td><td class="p-3 text-slate-900 font-bold">${nodeMap[record.nStage]}</td></tr>
+                `;
+            } else {
+                metricsTableContainer.classList.add('hidden');
+            }
+
+            // Primary Procedure Title
+            let primaryPlanText = "";
+            if (record.mode === 'override') {
+                primaryPlanText = record.customTitle;
+            } else {
+                let baseName = record.isTotal ? (isHebrew ? "כריתה שלמה של בלוטת התריס (Total Thyroidectomy)" : "Total Thyroidectomy") : (isHebrew ? "כריתת אונה של בלוטת התריס (Lobectomy)" : "Thyroid Lobectomy");
+                if (record.nStage === "N1b") {
+                    baseName += isHebrew ? " בשילוב כריתת קשריות לימפה בצוואר הצידי והמרכזי" : " with Lateral & Central Neck Dissection";
+                } else if (record.nStage === "N1a") {
+                    baseName += isHebrew ? " בשילוב כריתת קשריות לימפה במרכז הצוואר" : " with Central Neck Dissection";
+                }
+                primaryPlanText = baseName;
+            }
+            document.getElementById('out-surgery-primary').innerText = primaryPlanText;
+
+            // Intro Summary Text
+            document.getElementById('out-surgery-intro').innerHTML = isHebrew ? 
+                `הופנית על ידי ${record.doctorName} לביצוע ניתוח מסוג <strong>${primaryPlanText}</strong>. ההליך יבוצע תחת הרדמה כללית ובשילוב ניטור עצבי רציף.` :
+                `You were referred by ${record.doctorName} for <strong>${primaryPlanText}</strong>. The procedure will be performed under general anesthesia with continuous nerve monitoring.`;
+
+            // Secondary Option Box
+            if (record.secondaryPlanKey) {
+                const secMap = {
+                    completion_possible: isHebrew ? "אפשרות משלימה: ייתכן צורך בהשלמה לכריתה שלמה בהתאם לתשובה הפתולוגית." : "Secondary Option: Completion thyroidectomy may be needed depending on pathology results.",
+                    total_alternative: isHebrew ? "אפשרות חלופית: כריתה שלמה (Total) – בהתאם להחלטה קלינית משותפת." : "Alternative Option: Total Thyroidectomy based on shared decision making."
+                };
+                document.getElementById('out-surgery-secondary').innerText = secMap[record.secondaryPlanKey];
+                document.getElementById('out-surgery-secondary').classList.remove('hidden');
+            } else {
+                document.getElementById('out-surgery-secondary').classList.add('hidden');
+            }
+
+            // Detailed Surgical Steps
+            let detailedHTML = "";
+            if (record.mode === 'override') {
+                const scopeText = record.isTotal ? (isHebrew ? "כריתה שלמה של בלוטת התריס" : "Total Thyroidectomy") : (isHebrew ? "כריתת אונה של בלוטת התריס" : "Thyroid Lobectomy");
+                
+                detailedHTML = `
+                    <p class="mb-2"><strong>${isHebrew ? 'שלבי הניתוח המתוכננים עבורך:' : 'Planned Surgical Steps:'}</strong></p>
+                    <p>1. <strong>${isHebrew ? 'הרדמה וכיול ניטור עצבי:' : 'Anesthesia & NIM setup:'}</strong> ${isHebrew ? 'ביצוע הרדמה כללית וחיבור מכשור לניטור עצבי רציף לשמירה על עצב מיתרי הקול.' : 'General anesthesia and nerve monitoring setup.'}</p>
+                    <p>2. <strong>${isHebrew ? 'חתך ניתוחי אסתטי:' : 'Esthetic Incision:'}</strong> ${isHebrew ? 'ביצוע חתך רוחבי עדין בקווי הקפל הטבעיים של הצוואר התחתון לקבלת תוצאה אסתטית מיטבית.' : 'Transverse collar incision along natural skin creases.'}</p>
+                    <p>3. <strong>${isHebrew ? 'חשיפת האזור הניתוחי:' : 'Exposure:'}</strong> ${isHebrew ? 'הפרדה זהירה של שרירי הצוואר הקדמיים וחשיפת בלוטת התריס.' : 'Subplatysmal flaps elevation and division of strap muscles.'}</p>
+                    <p>4. <strong>${isHebrew ? 'ביצוע הכריתה והגנה על המבנים:' : 'Surgical Resection:'}</strong> ${isHebrew ? `ביצוע ${scopeText} תוך זיהוי ושימור בלוטות יותרת התריס (פראתירואיד) ועצב מיתרי הקול.` : `Performing ${scopeText} with preservation of parathyroids and recurrent laryngeal nerve.`}</p>
+                `;
+
+                if (record.hasNeckDissection) {
+                    detailedHTML += `<p>5. <strong>${isHebrew ? 'כריתת קשריות לימפה צוואריות:' : 'Lymph Node Dissection:'}</strong> ${isHebrew ? 'הסרה שיטתית של קשריות הלימפה באזור המתוכנן תוך הגנה זהירה על כלי הדם והעצבים הראשיים.' : 'Systematic clearing of target cervical lymph nodes preserving major neurovascular structures.'}</p>`;
+                    detailedHTML += `<p>6. <strong>${isHebrew ? 'סגירה אסתטית וחבישה:' : 'Wound Closure:'}</strong> ${isHebrew ? 'בדיקת דימומים מדוקדקת, סגירת החתך בתפרים נספגים פנימיים והנחת חבישה סטרילית.' : 'Hemostasis check, layered closure with absorbable sutures, and sterile dressing.'}</p>`;
+                } else {
+                    detailedHTML += `<p>5. <strong>${isHebrew ? 'סגירה אסתטית וחבישה:' : 'Wound Closure:'}</strong> ${isHebrew ? 'בדיקת דימומים מדוקדקת, סגירת החתך בתפרים נספגים פנימיים והנחת חבישה סטרילית.' : 'Hemostasis check, layered closure with absorbable sutures, and sterile dressing.'}</p>`;
+                }
+
+                detailedHTML += `
+                    <div class="mt-4 p-4 bg-teal-50/60 border border-teal-200 rounded-xl">
+                        <p class="font-bold text-teal-900 text-xs mb-1">${isHebrew ? 'הנחיות ודגשים מיוחדים מהרופא המטפל:' : 'Special Physician Notes:'}</p>
+                        <p class="text-slate-800 text-sm leading-relaxed">${record.customDetails.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            } else {
+                detailedHTML = `
+                    <p><strong>${isHebrew ? 'תיאור ההליך:' : 'Procedure Description:'}</strong> ${isHebrew ? 'הניתוח מבוצע בגישה צווארית קדמית תחת הרדמה כללית ובשילוב ניטור אלקטרופיזיולוגי עצבי (NIM).' : 'Performed via an anterior neck approach under general anesthesia with electromyographic nerve monitoring.'}</p><br>
+                    <p><strong>${isHebrew ? 'שלבי הניתוח המרכזיים:' : 'Key Surgical Steps:'}</strong></p>
+                    <p>1. ${isHebrew ? 'חתך עורי רוחבי בקפלי העור הטבעיים של הצוואר התחתון.' : 'Transverse collar incision along natural skin creases.'}</p>
+                    <p>2. ${isHebrew ? 'חשיפת הבלוטה והפרדת שרירי הצוואר הקדמיים.' : 'Subplatysmal flaps elevation and division of strap muscles.'}</p>
+                    <p>3. ${isHebrew ? 'זיהוי וקשירת כלי הדם המזינים את הבלוטה.' : 'Identification and ligation of thyroid vascular pedicles.'}</p>
+                    <p>4. ${isHebrew ? 'איתור ושימור בלוטות יותרת התריס (Parathyroids) והורמון ה-PTH.' : 'Identification and careful preservation of parathyroid glands.'}</p>
+                    <p>5. ${isHebrew ? 'זיהוי, ניטור ושימור עצב מיתרי הקול (RLN).' : 'Identification, continuous electromyographic monitoring, and preservation of the Recurrent Laryngeal Nerve (RLN).'}</p>
+                    <p>6. ${isHebrew ? 'הסרת הבלוטה/האונה והעברתה לבדיקה פתולוגית.' : 'Surgical excision of the target thyroid lobe/gland and submission for histopathology.'}</p>
+                `;
+                if (record.hasNeckDissection) {
+                    detailedHTML += `<br><p><strong>${isHebrew ? 'שלבי כריתת קשריות הלימפה:' : 'Lymph Node Dissection Steps:'}</strong></p>`;
+                    if (record.nStage === "N1b") {
+                        detailedHTML += `<p>7. ${isHebrew ? 'פינוי שיטתי של קשריות הלימפה הנגועות בצד הצוואר ובמרכז הצוואר תוך שימור כלי הדם והעצבים הראשיים.' : 'Systematic compartment clearing of lateral and central lymph nodes preserving major neurovascular structures.'}</p>`;
+                    } else {
+                        detailedHTML += `<p>7. ${isHebrew ? 'פינוי שיטתי של קשריות הלימפה במרכז הצוואר סביב קנה הנשימה.' : 'Systematic clearing of central compartment lymph nodes surrounding the trachea.'}</p>`;
+                    }
+                }
+            }
+            document.getElementById('out-detailed-explanation').innerHTML = detailedHTML;
+
+            // Complications list
+            let thyroidComplications = [
+                { 
+                    title: isHebrew ? "צרידות או שינוי באיכות הקול (פגיעה בעצב מיתרי הקול)" : "Voice Hoarseness / Recurrent Laryngeal Nerve Injury", 
+                    rate: "זמני: 1% - 2% | קבוע: < 1%", 
+                    symptoms: isHebrew ? "קול צרוד, חלש, גרוני או מאמץ מוגבר בזמן דיבור." : "Hoarse, weak, or breathy voice quality.",
+                    treatment: isHebrew ? "ברוב המכריע מדובר במתיחה זמנית של העצב המחלימה מעצמה תוך מספר שבועות. הטיפול כולל מנוחה לקול, תרגילי דיבור אצל קלינאית תקשורת, ובמקרים נדירים הזרקה זמנית לחיזוק מיתר הקול." : "Usually resolves spontaneously. Managed with voice rest, speech therapy, or temporary vocal cord injection if needed."
+                },
+                { 
+                    title: isHebrew ? "שטף דם או נפיחות בצוואר (המטומה)" : "Neck Hematoma / Bleeding", 
+                    rate: "1% - 2%", 
+                    symptoms: isHebrew ? "נפיחות מהירה בצוואר, תחושת לחץ, נוקשות או קושי נדיר בבליעה ובנשימה." : "Rapid neck swelling or pressure sensation under the incision.",
+                    treatment: isHebrew ? "מעקב הדוק בבית החולים בשעות הראשונות לאחר הניתוח. במידה ומתפתח דימום, מבוצע ניקוז מהיר ופשוט בחדר הניתוח לשחרור הלחץ." : "Monitored closely post-op. If hematoma develops, prompt surgical drainage relieves pressure completely."
+                },
+                { 
+                    title: isHebrew ? "זיהום מקומי בפצע הניתוח" : "Local Wound Infection", 
+                    rate: "< 1%", 
+                    symptoms: isHebrew ? "אדמומיות מוגברת, חום מקומי, נפיחות או הפרשה מפצע הניתוח." : "Increased redness, warmth, or drainage at the surgical incision.",
+                    treatment: isHebrew ? "טיפול פשוט בכדורי אנטיביוטיקה לבלע והחלפת חבישות. זיהום עמוק הוא נדיר ביותר." : "Treated effectively with oral antibiotics and local wound care."
+                }
+            ];
+
+            if (record.isTotal) {
+                thyroidComplications.push(
+                    { 
+                        title: isHebrew ? "ירידה ברמת הסידן בדם (היפוקלצמיה)" : "Low Blood Calcium / Hypocalcemia", 
+                        rate: isHebrew ? "זמנית: 10% - 20% | קבועה: 1% - 3%" : "Temporary: 10%-20% | Permanent: 1%-3%", 
+                        symptoms: isHebrew ? "תחושת נימול או עקצוץ באצבעות הידיים, כפות הרגליים או סביב השפתיים, ולעיתים התכווצויות שרירים קלות." : "Tingling in fingers, toes, or around the lips, muscle cramps.",
+                        treatment: isHebrew ? "נטילת טבליות סידן וויטמין D דרך הפה למשך מספר ימים עד שבועות, עד להתאוששות בלוטות הסידן. מבוצע מעקב בדיקות דם קבוע בבית החולים." : "Managed with oral calcium and vitamin D supplements until parathyroid glands recover completely."
+                    },
+                    { 
+                        title: isHebrew ? "צורך בנטילת כדור הורמון חלופי יומי" : "Lifelong Thyroid Hormone Replacement", 
+                        rate: "100%", 
+                        symptoms: isHebrew ? "ללא נטילת הכדור עלולים להופיע תסמיני תת-פעילות כמו עייפות, תחושת קור או עלייה במשקל." : "Without replacement, hypothyroidism symptoms (fatigue, weight gain, cold intolerance) occur.",
+                        treatment: isHebrew ? "נטילת כדור קטן אחד ביום בבוקר (אלטרוקסין / יוטירוקס) המהווה תחליף מדויק וזהה להורמון הטבעי של הגוף. האיזון נבדק בבדיקת דם פשוטה." : "Taking one small daily pill (Levothyroxine) to replace natural thyroid hormone perfectly."
+                    }
+                );
+            } else {
+                thyroidComplications.push(
+                    { 
+                        title: isHebrew ? "צורך בתוספת הורמונלית קלה" : "Mild Thyroid Hormone Supplementation", 
+                        rate: "~20%", 
+                        symptoms: isHebrew ? "ברוב המקרים (כ-80%) האונה הנותרת מייצרת את מלוא ההורמון הדרוש. במידה ומתפתחת איטואטיביות, תופיע עייפות קלה." : "In ~80% of cases, the remaining lobe produces enough hormone. Minor fatigue if levels drop slightly.",
+                        treatment: isHebrew ? "בדיקת דם כ-6 שבועות לאחר הניתוח. במידת הצורך, תינתן תוספת מינון יומי נמוך של הורמון התריס." : "Routine blood check at 6 weeks. Low-dose hormone supplementation added if needed."
+                    }
+                );
+            }
+
+            const thyroidList = document.getElementById('out-complications-thyroid');
+            thyroidList.innerHTML = '';
+            thyroidComplications.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/70 p-5 space-y-2';
+                item.innerHTML = `
+                    <div class="flex justify-between items-start gap-2">
+                        <span class="font-bold text-base text-slate-900">${c.title}</span>
+                        <span class="text-xs font-bold text-teal-800 bg-teal-100/80 px-3 py-1 rounded-full border border-teal-200 shrink-0">${c.rate}</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed"><strong>${isHebrew ? 'איך זה מורגש?' : 'Symptoms:'}</strong> ${c.symptoms}</p>
+                    <p class="text-xs text-teal-900 leading-relaxed bg-white p-3 rounded-xl border border-slate-200"><strong>${isHebrew ? 'איך מטפלים?' : 'Treatment:'}</strong> ${c.treatment}</p>
+                `;
+                thyroidList.appendChild(item);
+            });
+
+            // Comprehensive Neck Dissection Complications
+            const neckContainer = document.getElementById('neck-dissection-complications-container');
+            const neckList = document.getElementById('out-complications-neck');
+            neckList.innerHTML = '';
+
+            if (record.hasNeckDissection) {
+                neckContainer.classList.remove('hidden');
+                let neckComps = [];
+                if (record.nStage === "N1b") {
+                    neckComps = [
+                        { 
+                            title: isHebrew ? "חולשה או כובד בהרמת הכתף (עצב הלוואי הצווארי)" : "Shoulder Weakness / Spinal Accessory Nerve Injury", 
+                            rate: "10% - 15%", 
+                            symptoms: isHebrew ? "קושי או חולשה בהרמת הזרוע מעל גובה הכתף, או תחושת כובד בכתף בצד המנותח." : "Difficulty elevating arm above shoulder level or shoulder heaviness.",
+                            treatment: isHebrew ? "נובע ממתיחה זמנית של העצב בזמן ניקוי קשריות הלימפה בצד הצוואר. הטיפול כולל פיזיוטרפיה ממוקדת לחיזוק שרירי הכתף והגב העליון." : "Managed with targeted shoulder physical therapy for muscle strengthening."
+                        },
+                        { 
+                            title: isHebrew ? "אי-סימטריה קלה בחיוך (עצב הלחי התחתון)" : "Lower Lip Asymmetry / Marginal Mandibular Nerve Injury", 
+                            rate: "1% - 3%", 
+                            symptoms: isHebrew ? "חולשה קלה או אסימטריה קלה בזווית השפה התחתונה בעת חיוך רחב או צחוק." : "Slight lower lip asymmetry when smiling broadly.",
+                            treatment: isHebrew ? "מדובר במתיחה זמנית של ענף עצב פנים זעיר. הבעיה חולפת מעצמה באופן מלא תוך מספר שבועות עד חודשים ללא צורך בניתוח." : "Temporary nerve stretch that recovers spontaneously over weeks to months."
+                        },
+                        { 
+                            title: isHebrew ? "תנועתיות הלשון (עצב תת-הלשון)" : "Tongue Movement / Hypoglossal Nerve Injury", 
+                            rate: "1% - 2%", 
+                            symptoms: isHebrew ? "חולשה קלה או סטייה קלה של הבלוטה/הלשון בעת הוצאתה, או קושי קל בהגיית מילים מסוימות." : "Slight tongue weakness or deviation when sticking tongue out.",
+                            treatment: isHebrew ? "התאוששות הדרגתית של העצב. במידת הצורך מבוצעים תרגילים ייעודיים עם קלינאית תקשורת." : "Gradual recovery supported by speech therapy exercises if needed."
+                        },
+                        { 
+                            title: isHebrew ? "הצטברות נוזל לימפתי בנקז (דלף לימפה)" : "Chyle Leak", 
+                            rate: "1% - 3%", 
+                            symptoms: isHebrew ? "הופעת נוזל חלבי או בהיר בכמות מוגברת בנקז הצינורי המושאר בצוואר." : "Increased milky fluid drainage in the neck drain line.",
+                            treatment: isHebrew ? "הקפדה על דיאטה מיוחדת ללא שומנים למשך מספר ימים לצד מנוחה, המפחיתה את ייצור הנוזל עד לסגירה טבעית של הצינורית." : "Managed with a special fat-free diet for several days to reduce lymphatic flow until healed."
+                        }
+                    ];
+                } else {
+                    neckComps = [
+                        { 
+                            title: isHebrew ? "סיכון מוגבר לירידה זמנית בסידן" : "Increased Temporary Low Calcium Risk", 
+                            rate: "5% - 10%", 
+                            symptoms: isHebrew ? "תחושת עקצוץ באצבעות או סביב השפתיים עקב עבודה קרובה לבלוטות הסידן במרכז הצוואר." : "Tingling in fingers or lips due to central compartment manipulation.",
+                            treatment: isHebrew ? "נטילת כדורי סידן וויטמין D למשך ימים ספורים עד לחזרת תפקוד מלא." : "Short course of oral calcium and vitamin D supplements."
+                        }
+                    ];
+                }
+                neckComps.forEach(c => {
+                    const item = document.getElementById('out-complications-neck');
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/70 p-5 space-y-2';
+                    itemDiv.innerHTML = `
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="font-bold text-base text-slate-900">${c.title}</span>
+                            <span class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-200 shrink-0">${c.rate}</span>
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed"><strong>${isHebrew ? 'איך זה מורגש?' : 'Symptoms:'}</strong> ${c.symptoms}</p>
+                        <p class="text-xs text-amber-950 leading-relaxed bg-white p-3 rounded-xl border border-slate-200"><strong>${isHebrew ? 'איך מטפלים?' : 'Treatment:'}</strong> ${c.treatment}</p>
+                    `;
+                    neckList.appendChild(itemDiv);
+                });
+            } else {
+                neckContainer.classList.add('hidden');
+            }
+
+            // Consent PDF Links
+            const pdfContainer = document.getElementById('consent-pdf-links-container');
+            pdfContainer.innerHTML = `
+                <a href="TBaluataMagen.pdf" target="_blank" class="bg-white text-teal-800 border border-teal-300 px-5 py-2.5 rounded-xl font-bold hover:bg-teal-50 transition flex items-center gap-2 shadow-sm text-sm">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> ${isHebrew ? 'טופס הסכמה: כריתת בלוטת המגן (PDF)' : 'Consent Form: Thyroidectomy (PDF)'}
+                </a>
+            `;
+            if (record.hasNeckDissection) {
+                pdfContainer.innerHTML += `
+                    <a href="TNeckDissection.pdf" target="_blank" class="bg-white text-teal-800 border border-teal-300 px-5 py-2.5 rounded-xl font-bold hover:bg-teal-50 transition flex items-center gap-2 shadow-sm text-sm">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> ${isHebrew ? 'טופס הסכמה: כריתת קשריות לימפה צוואריות (PDF)' : 'Consent Form: Neck Dissection (PDF)'}
+                    </a>
+                `;
+            }
+
+            lucide.createIcons();
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
