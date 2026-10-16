@@ -424,7 +424,65 @@
         </div>
     </main>
 
+    <!-- ========================================================= -->
+    <!-- ספריות Firebase SDK Compat Version 9 -->
+    <!-- ========================================================= -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <script>
+        // =========================================================
+        // הגדרות Firebase - החלף כאן את ה-YOUR_... בפרטים מגוגל:
+        // =========================================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyDw0bZmDJRX5QhRprHYAqkK1bDqP_rRrEk",
+          authDomain: "thyroguide.firebaseapp.com",
+          databaseURL: "https://thyroguide-default-rtdb.firebaseio.com",
+          projectId: "thyroguide",
+          storageBucket: "thyroguide.firebasestorage.app",
+          messagingSenderId: "1024482122045",
+          appId: "1:1024482122045:web:c3e833e40513a90d224d54",
+          measurementId: "G-W7BKVKR09X"
+        };
+
+        // אתחול Firebase Realtime Database
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        // פונקציה לשמירת נתונים ב-Firebase ויצירת קוד גישה בן 6 תווים
+        async function saveRecordToCloud(patientData) {
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const now = Date.now();
+            const expiresAt = now + (30 * 24 * 60 * 60 * 1000); // תוקף ל-30 ימים
+
+            await db.ref('records/' + code).set({
+                data: patientData,
+                createdAt: now,
+                expiresAt: expiresAt
+            });
+
+            return { code, expiresAt };
+        }
+
+        // פונקציה לשליפת נתונים מ-Firebase לפי קוד
+        async function getRecordFromCloud(code) {
+            if (!code) return { status: 404 };
+            const cleanCode = code.trim().toUpperCase();
+            const snapshot = await db.ref('records/' + cleanCode).once('value');
+
+            if (!snapshot.exists()) return { status: 404 };
+
+            const record = snapshot.val();
+            if (record.expiresAt && Date.now() > record.expiresAt) {
+                await db.ref('records/' + cleanCode).remove();
+                return { status: 410 };
+            }
+
+            return { status: 200, data: record.data, expiresAt: record.expiresAt };
+        }
+
         let currentRecord = null;
         let currentLanguage = 'he';
         let activeDoctor = {
@@ -752,7 +810,7 @@
             };
         }
 
-        // Netlify Serverless Code Generation
+        // Firebase Cloud Code Generation
         async function handleCreateCode(e, mode) {
             e.preventDefault();
             
@@ -844,36 +902,26 @@
             lucide.createIcons();
 
             try {
-                // Call Netlify Function
-                const response = await fetch('/.netlify/functions/save-record', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                // שמירה ישירה ב-Firebase
+                const saveResult = await saveRecordToCloud(payload);
+                const code = saveResult.code;
+                const expiresAt = saveResult.expiresAt;
+                const expDateStr = new Date(expiresAt).toLocaleDateString(currentLanguage === 'he' ? 'he-IL' : 'en-US');
 
-                if (!response.ok) throw new Error("Server communication failed");
+                document.getElementById('generated-code').innerText = code;
+                document.getElementById('code-expiration-info').innerText = currentLanguage === 'he' 
+                    ? `הקוד בתוקף עד לתאריך: ${expDateStr}` 
+                    : `Code valid until: ${expDateStr}`;
 
-                const resData = await response.json();
-                if (resData.success) {
-                    const code = resData.code;
-                    const expiresAt = resData.expiresAt;
-                    const expDateStr = new Date(expiresAt).toLocaleDateString(currentLanguage === 'he' ? 'he-IL' : 'en-US');
+                const qrContainer = document.getElementById('qrcode-container');
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, { text: code, width: 140, height: 140, colorDark : "#0f766e", colorLight : "#ffffff" });
 
-                    document.getElementById('generated-code').innerText = code;
-                    document.getElementById('code-expiration-info').innerText = currentLanguage === 'he' 
-                        ? `הקוד בתוקף עד לתאריך: ${expDateStr}` 
-                        : `Code valid until: ${expDateStr}`;
-
-                    const qrContainer = document.getElementById('qrcode-container');
-                    qrContainer.innerHTML = '';
-                    new QRCode(qrContainer, { text: code, width: 140, height: 140, colorDark : "#0f766e", colorLight : "#ffffff" });
-
-                    document.getElementById('code-result').classList.remove('hidden');
-                    document.getElementById('code-result').scrollIntoView({ behavior: 'smooth' });
-                }
+                document.getElementById('code-result').classList.remove('hidden');
+                document.getElementById('code-result').scrollIntoView({ behavior: 'smooth' });
             } catch (err) {
                 console.error("Cloud Save Error:", err);
-                alert(currentLanguage === 'he' ? 'חלה שגיאה ביצירת הקוד. ודא שהאתר מופעל דרך Netlify.' : 'Error generating code. Ensure Netlify Functions are active.');
+                alert(currentLanguage === 'he' ? 'חלה שגיאה ביצירת הקוד. ודא שפרטי Firebase מוגדרים כראוי.' : 'Error generating code. Check Firebase config.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
@@ -881,7 +929,7 @@
             }
         }
 
-        // Netlify Serverless Fetch Patient Data
+        // Firebase Cloud Fetch Patient Data
         async function handleFetchPatientData() {
             const inputCode = document.getElementById('patient-code-input').value.trim().toUpperCase();
             if (!inputCode) {
@@ -895,23 +943,22 @@
             lucide.createIcons();
 
             try {
-                const response = await fetch(`/.netlify/functions/get-record?code=${inputCode}`);
+                // שליפה ישירה מ-Firebase
+                const fetchResult = await getRecordFromCloud(inputCode);
 
-                if (response.status === 404) {
+                if (fetchResult.status === 404) {
                     alert(currentLanguage === 'he' ? 'קוד הגישה שגוי או אינו קיים במערכת.' : 'Invalid or non-existent access code.');
                     return;
                 }
 
-                if (response.status === 410) {
+                if (fetchResult.status === 410) {
                     alert(currentLanguage === 'he' 
                         ? 'תוקף קוד הגישה פג (חלפו 30 ימים מיום הפקתו). אנא פנה לרופא המטפל לקבלת קוד חדש.' 
                         : 'This access code has expired (30-day limit). Please contact your physician.');
                     return;
                 }
 
-                if (!response.ok) throw new Error("Server error");
-
-                const record = await response.json();
+                const record = fetchResult.data;
                 currentRecord = record;
 
                 document.getElementById('patient-login').classList.add('hidden');
@@ -1195,25 +1242,5 @@
 
         lucide.createIcons();
     </script>
-<!-- טעינת ספריות Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-<script>
-  // הקוד שהעתקת מגוגל:
-  const firebaseConfig = {
-    apiKey: "הדבק_כאן_את_ה-apiKey_שלך",
-    authDomain: "thyroguide-xxx.firebaseapp.com",
-    databaseURL: "https://thyroguide-xxx-default-rtdb.firebaseio.com",
-    projectId: "thyroguide-xxx",
-    storageBucket: "thyroguide-xxx.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abc..."
-  };
-
-  // הפעלת החיבור
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-</script>
 </body>
 </html>
