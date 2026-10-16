@@ -680,6 +680,11 @@
                     })
                 }).catch(err => console.error("Activation email failed to send in background:", err));
 
+                // התראת מערכת על שליחת מייל ההפעלה
+                alert(currentLanguage === 'he' ? 
+                    "החשבון נוצר בהצלחה!\n\nשים לב: שלחנו אליך כעת הודעת אימות למייל שהזנת.\nאנא היכנס לתיבת הדואר שלך ולחץ על כפתור 'Activate' כדי לאשר קבלת הודעות עתידיות מהמטופלים שלך." : 
+                    "Account created successfully!\n\nPlease note: An activation email has been sent to you. Please check your inbox and click 'Activate' to enable receiving messages from your patients.");
+
                 updateWelcomeMessage();
                 showView('doctor');
             } catch (err) {
@@ -712,7 +717,20 @@
                 updateWelcomeMessage();
                 showView('doctor');
             } catch (err) {
-                alert((currentLanguage === 'he' ? "שגיאה בהתחברות: " : "Login Error: ") + err.message);
+                console.error("Firebase Login Error:", err);
+                
+                // תרגום שגיאות ההתחברות הנפוצות של פיירבייס לעברית מסודרת
+                let errorMsg = currentLanguage === 'he' ? "אירעה שגיאה בהתחברות. אנא נסה שוב." : "A login error occurred. Please try again.";
+                
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+                    errorMsg = currentLanguage === 'he' ? "שם משתמש או סיסמה אינם נכונים. אנא נסה שוב." : "Invalid email or password. Please try again.";
+                } else if (err.code === 'auth/too-many-requests') {
+                    errorMsg = currentLanguage === 'he' ? "יותר מדי ניסיונות התחברות כושלים. אנא נסה שוב מאוחר יותר." : "Too many failed login attempts. Please try again later.";
+                } else if (err.code === 'auth/invalid-email') {
+                    errorMsg = currentLanguage === 'he' ? "כתובת האימייל שהוזנה אינה תקינה." : "The email address is badly formatted.";
+                }
+                
+                alert(errorMsg);
             } finally {
                 btn.disabled = false;
                 btn.innerText = translations[currentLanguage].log_btn;
@@ -1092,7 +1110,6 @@
             document.getElementById('out-detailed-explanation').innerHTML = detailedHTML;
 
             const pdfContainer = document.getElementById('consent-pdf-links-container');
-            // קישור זמני עם התראת JS להסבר שצריך להעלות קובץ
             pdfContainer.innerHTML = `
                 <a href="#" onclick="warnMissingFile(event)" class="flex items-center gap-2 bg-white text-teal-800 border border-teal-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-teal-50 transition shadow-sm">
                     <i data-lucide="file-text" class="w-4 h-4"></i> ${isHebrew ? 'טופס הסכמה - כריתת בלוטת התריס' : 'Thyroidectomy Consent'}
