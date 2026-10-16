@@ -1,7 +1,7 @@
-import { getStore } from "@netlify/blobs";
+const { getStore } = require("@netlify/blobs");
 
-export async function handler(event) {
-    const code = event.queryStringParameters.code?.toUpperCase();
+exports.handler = async function(event) {
+    const code = event.queryStringParameters?.code?.toUpperCase();
 
     if (!code) {
         return { statusCode: 400, body: JSON.stringify({ error: "Code missing" }) };
@@ -15,9 +15,8 @@ export async function handler(event) {
             return { statusCode: 404, body: JSON.stringify({ error: "Code not found" }) };
         }
 
-        // בדיקת תוקף 30 ימים
         if (record.expiresAt && Date.now() > record.expiresAt) {
-            await store.delete(code); // ניקוי אוטומטי של קוד שפג תוקפו
+            await store.delete(code);
             return { statusCode: 410, body: JSON.stringify({ error: "Code expired" }) };
         }
 
@@ -28,4 +27,4 @@ export async function handler(event) {
     } catch (error) {
         return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
     }
-}
+};
