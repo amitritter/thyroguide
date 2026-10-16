@@ -1,7 +1,6 @@
 {
   "name": "thyroguide",
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "@netlify/blobs": "^8.0.0"
   }
