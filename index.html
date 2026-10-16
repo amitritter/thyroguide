@@ -8,10 +8,157 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+        body { font-family: 'Assistant', sans-serif; background-color: #f1f5f9; }
+        .glass-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); }
+        .minimal-input { border: 0; border-bottom: 2px solid #cbd5e1; border-radius: 0; padding: 0.5rem 0; background: transparent; transition: all 0.2s; }
+        .minimal-input:focus { outline: none; border-bottom-color: #0f766e; box-shadow: none; }
+        .checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        .checkbox-custom { width: 1.25rem; height: 1.25rem; accent-color: #0f766e; cursor: pointer; }
+        
+        [dir="ltr"] .ml-auto { margin-right: auto; margin-left: 0; }
+        [dir="ltr"] .text-right { text-align: left; }
+
+        @media print {
+            header, button, nav, .no-print, video, footer, #patient-tabs, .disclaimer-box { display: none !important; }
+            body { background-color: #ffffff !important; color: #000000 !important; }
+            .glass-panel { border: none !important; box-shadow: none !important; background: white !important; padding: 0 !important; }
+            main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+            #view-patient { display: block !important; }
+            #patient-login { display: none !important; }
+            #patient-data-display { display: block !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-900 pb-12 antialiased">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm no-print">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center flex-wrap gap-4">
+            <div class="flex items-center gap-3.5 cursor-pointer" onclick="confirmAndGoHome()">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22v-3"></path><path d="M12 19c-1.5 0-3-1.5-3-3s1.5-4 3-4 3 1.5 3 4-1.5 3-3 3z"></path>
+                    <path d="M9 16c-4.5 0-7-2.5-7-6s4-4 7-2c1.5 1 2 2.5 2 4"></path><path d="M15 16c4.5 0 7-2.5 7-6s-4-4-7-2c-1.5 1-2 2.5-2 4"></path>
+                </svg>
+                <div>
+                    <h1 class="text-3xl font-extrabold text-teal-900 tracking-tight leading-none">ThyroGuide</h1>
+                    <p class="text-xs text-teal-700 font-bold tracking-wider mt-1" data-i18n="logo_sub">מדריך אישי ומקיף לקראת ניתוח בלוטת התריס</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center text-sm font-semibold text-slate-600 bg-slate-50 rounded-lg px-2 py-1 border border-slate-200">
+                    <i data-lucide="globe" class="w-4 h-4 mx-1"></i>
+                    <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-transparent border-none outline-none cursor-pointer py-1 font-semibold text-slate-700">
+                        <option value="he">עברית</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <button onclick="showView('doctor-auth')" class="text-sm font-semibold text-slate-700 hover:text-teal-800 transition flex items-center gap-1">
+                    <i data-lucide="stethoscope" class="w-4 h-4"></i> <span data-i18n="doc_login_btn">כניסת רופא</span>
+                </button>
+                <button onclick="showView('patient')" class="text-sm font-semibold bg-teal-700 text-white hover:bg-teal-800 px-5 py-2.5 rounded-lg transition flex items-center gap-1 shadow-md">
+                    <i data-lucide="user" class="w-4 h-4"></i> <span data-i18n="pat_login_btn">כניסת מטופל</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 mt-10 relative z-10">
+
+        <!-- 1. LANDING VIEW -->
+        <div id="view-landing" class="space-y-12">
+            <div class="text-center space-y-4 max-w-3xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 tracking-tight" data-i18n="land_title">כל המידע על הניתוח שלך – במקום אחד</h2>
+                <p class="text-slate-600 text-lg leading-relaxed" data-i18n="land_desc">
+                    הכנה פשוטה, ברורה ושקטה לקראת הניתוח. כאן תוכל לצפות בסיכום הרפואי שעדכן הרופא שלך, להבין את שלבי הניתוח הצפויים, ולקבל תשובות לכל השאלות.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div onclick="showView('patient')" class="bg-teal-700 text-white p-8 rounded-2xl shadow-md hover:shadow-xl hover:bg-teal-800 transition cursor-pointer group relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 bg-white/10 text-white rounded-full flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">
+                            <i data-lucide="file-text" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3" data-i18n="pat_box_title">אזור מידע למטופל</h3>
+                        <p class="text-teal-100 mb-6 text-sm leading-relaxed" data-i18n="pat_box_desc">הזנת קוד אישי לקבלת התיק הרפואי שלך, הסברים פשוטים על הניתוח וגישה לטפסי הסכמה.</p>
+                        <div class="flex items-center font-bold gap-2 text-sm uppercase tracking-wide text-white">
+                            <span data-i18n="pat_box_link">כניסה לתיק האישי</span>
+                            <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="showView('doctor-auth')" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition cursor-pointer group">
+                    <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center mb-6 group-hover:bg-slate-200 transition-colors">
+                        <i data-lucide="stethoscope" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-3" data-i18n="doc_box_title">ממשק סגל רפואי</h3>
+                    <p class="text-slate-500 mb-6 text-sm leading-relaxed" data-i18n="doc_box_desc">כניסה והרשמת רופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.</p>
+                    <div class="flex items-center text-slate-700 font-bold gap-2 text-sm uppercase tracking-wide group-hover:text-teal-800 transition-colors">
+                        <span data-i18n="doc_box_link">כניסה / הרשמה למערכת</span>
+                        <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOCTOR LOGIN & REGISTRATION AUTH VIEW -->
+        <div id="view-doctor-auth" class="hidden space-y-6 max-w-md mx-auto mt-8">
+            <div class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="w-16 h-16 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="user-check" class="w-8 h-8"></i>
+                </div>
+
+                <!-- Tabs: Login vs Register -->
+                <div class="flex border-b border-slate-200 justify-center gap-6">
+                    <button onclick="switchAuthTab('login')" id="auth-tab-login-btn" class="pb-2 font-bold text-teal-700 border-b-2 border-teal-700 text-sm transition">התחברות רופא</button>
+                    <button onclick="switchAuthTab('register')" id="auth-tab-register-btn" class="pb-2 font-semibold text-slate-500 hover:text-teal-700 text-sm transition">הרשמת רופא חדש</button>
+                </div>
+
+                <!-- 1. LOGIN FORM -->
+                <form id="doc-login-form" onsubmit="handleDoctorLogin(event)" class="space-y-4 text-right">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">כתובת אימייל</label>
+                        <input type="email" id="login-email" required class="w-full minimal-input text-base" placeholder="doctor@hospital.org.il">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">סיסמה</label>
+                        <input type="password" id="login-password" required class="w-full minimal-input text-base" placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="btn-login-submit" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4">
+                        התחבר למערכת
+                    </button>
+                </form>
+
+                <!-- 2. REGISTER FORM -->
+                <form id="doc-register-form" onsubmit="handleDoctorRegister(event)" class="space-y-4 text-right hidden">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">תואר</label>
+                            <select id="reg-title" class="w-full minimal-input text-sm font-bold text-slate-700">
+                                <option value="ד&quot;ר">ד"ר</option>
+                                <option value="פרופ&quot;">פרופ'</option>
+                            </קוד ה-`index.html` המלא והמעודכן, כולל האינטגרציה ל-Web3Forms ואפשרות מחיקת החשבון:
+
+```html
+<!DOCTYPE html>
+<html lang="he" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThyroGuide | מדריך אישי לקראת ניתוח בלוטת התריס</title>
+    <meta name="theme-color" content="#0f766e">
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <script src="[https://unpkg.com/lucide@latest](https://unpkg.com/lucide@latest)"></script>
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js](https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js)"></script>
+    
+    <style>
+        @import url('[https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap](https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap)');
         body { font-family: 'Assistant', sans-serif; background-color: #f1f5f9; }
         .glass-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); }
         .minimal-input { border: 0; border-bottom: 2px solid #cbd5e1; border-radius: 0; padding: 0.5rem 0; background: transparent; transition: all 0.2s; }
@@ -172,12 +319,15 @@
 
         <!-- 2. DOCTOR VIEW -->
         <div id="view-doctor" class="hidden space-y-8 max-w-3xl mx-auto">
-            <div class="mb-4 flex justify-between items-center">
+            <div class="mb-4 flex justify-between items-center flex-wrap gap-2">
                 <div>
                     <h2 class="text-3xl font-bold text-teal-900" data-i18n="doc_form_title">הפקת רשומה קלינית חדשה</h2>
                     <p class="text-slate-500 mt-1 font-semibold" id="doc-welcome-subtitle"></p>
                 </div>
-                <button onclick="logoutDoctor()" class="text-xs bg-slate-200 px-3.5 py-2 rounded-lg font-bold hover:bg-slate-300 transition" data-i18n="logout_btn">התנתק</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="logoutDoctor()" class="text-xs bg-slate-200 px-3.5 py-2 rounded-lg font-bold hover:bg-slate-300 transition" data-i18n="logout_btn">התנתק</button>
+                    <button onclick="deleteDoctorAccount()" class="text-xs bg-red-100 text-red-700 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition">מחק חשבון</button>
+                </div>
             </div>
 
             <div class="flex border-b border-slate-200 gap-6">
@@ -427,7 +577,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: Direct Email Dispatch Form to the Specific Doctor -->
+                <!-- Tab 2: Direct Email Dispatch Form to the Specific Doctor using Web3Forms -->
                 <div id="patient-tab-contact" class="hidden space-y-6">
                     <div class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                         <div>
@@ -436,6 +586,10 @@
                         </div>
 
                         <form onsubmit="handleDirectSilentBackgroundDispatch(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">כתובת האימייל שלך (להחזרת תשובה)</label>
+                                <input type="email" id="patient-email" class="w-full minimal-input text-sm" placeholder="patient@example.com">
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="con_lbl_sub">נושא הפנייה</label>
                                 <input type="text" id="query-subject" required class="w-full minimal-input text-sm" placeholder="שאלה לקראת הניתוח">
@@ -453,7 +607,7 @@
                             <i data-lucide="check-circle" class="w-5 h-5 text-teal-600"></i> <span id="query-success-text">ההודעה נשלחה בהצלחה לרופא המטפל.</span>
                         </div>
                         <div id="query-error-msg" class="hidden bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-                            <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600"></i> <span id="query-error-text">חלה שגיאה בשליחת המודעה. נסה שנית.</span>
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600"></i> <span id="query-error-text">חלה שגיאה בשליחה. נסה שנית.</span>
                         </div>
                     </div>
                 </div>
@@ -465,35 +619,28 @@
     <!-- ========================================== -->
     <!-- ספריות Firebase (App, Database, Auth) -->
     <!-- ========================================== -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="[https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js](https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js](https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js)"></script>
 
     <script>
         // ----------------------------------------------------
         // 1. הגדרות FIREBASE CONFIG - הדבק כאן את המפתחות מגוגל
         // ----------------------------------------------------
         const firebaseConfig = {
-            apiKey: "AIzaSyDw0bZmDJRX5QhRprHYAqkK1bDqP_rRrEk",
-  authDomain: "thyroguide.firebaseapp.com",
-  databaseURL: "https://thyroguide-default-rtdb.firebaseio.com",
-  projectId: "thyroguide",
-  storageBucket: "thyroguide.firebasestorage.app",
-  messagingSenderId: "1024482122045",
-  appId: "1:1024482122045:web:c3e833e40513a90d224d54",
-  measurementId: "G-W7BKVKR09X"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         // ----------------------------------------------------
-        // 2. הגדרות EmailJS - למשלוח מיילים לרופאים
+        // 2. הגדרות Web3Forms - למשלוח מיילים חופשי ברקע
         // ----------------------------------------------------
-        const EMAILJS_PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
-        const EMAILJS_SERVICE_ID = "YOUR_EMAILJS_SERVICE_ID";
-        const EMAILJS_TEMPLATE_ID = "YOUR_EMAILJS_TEMPLATE_ID";
-
-        if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
-            emailjs.init(EMAILJS_PUBLIC_KEY);
-        }
+        const WEB3FORMS_ACCESS_KEY = "YOUR_WEB3FORMS_ACCESS_KEY";
 
         // אתחול Firebase
         firebase.initializeApp(firebaseConfig);
@@ -723,6 +870,23 @@
             }
         }
 
+        async function deleteDoctorAccount() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            if (confirm("האם אתה בטוח שברצונך למחוק לחלוטין את החשבון שלך מהמערכת? פעולה זו אינה ניתנת לביטול.")) {
+                try {
+                    await db.ref('doctors/' + user.uid).remove();
+                    await user.delete();
+                    activeDoctor = null;
+                    alert("החשבון נמחק בהצלחה.");
+                    showView('landing');
+                } catch (err) {
+                    alert("שגיאה במחיקת החשבון: " + err.message);
+                }
+            }
+        }
+
         function confirmAndGoHome() {
             if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך לחזור לדף הבית?' : 'Are you sure you want to return home?')) {
                 showView('landing');
@@ -777,14 +941,14 @@
             lucide.createIcons();
         }
 
-        // משלוח מייל לרופא המטפל שיצר את הרשומה
+        // משלוח מייל לרופא המטפל שיצר את הרשומה דרך Web3Forms
         async function handleDirectSilentBackgroundDispatch(e) {
             e.preventDefault();
             const subject = document.getElementById('query-subject').value.trim();
             const body = document.getElementById('query-body').value.trim();
+            const patientEmail = document.getElementById('patient-email').value.trim();
             const btn = document.getElementById('send-query-btn');
             
-            // שליחה לכתובת המייל המדויקת של הרופא שיצר את הרשומה הזו
             const targetDoctorEmail = (currentRecord && currentRecord.doctorEmail) ? currentRecord.doctorEmail : "doctor@hospital.org.il";
             const targetDoctorName = (currentRecord && currentRecord.doctorName) ? currentRecord.doctorName : "הרופא המטפל";
             const patientCode = document.getElementById('patient-code-input').value.trim() || "לא צוין";
@@ -797,16 +961,24 @@
             lucide.createIcons();
 
             try {
-                if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
-                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                        to_email: targetDoctorEmail,
-                        to_name: targetDoctorName,
-                        subject: subject,
-                        message: body,
-                        patient_code: patientCode
+                if (WEB3FORMS_ACCESS_KEY && WEB3FORMS_ACCESS_KEY !== "YOUR_WEB3FORMS_ACCESS_KEY") {
+                    const formData = new FormData();
+                    formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+                    formData.append("to_email", targetDoctorEmail);
+                    formData.append("subject", `[ThyroGuide - קוד ${patientCode}] ${subject}`);
+                    formData.append("from_name", `ThyroGuide (מטופל ${patientCode})`);
+                    formData.append("reply_to", patientEmail || targetDoctorEmail);
+                    formData.append("message", `פנייה חדשה עבור ${targetDoctorName}:\n\nקוד מטופל: ${patientCode}\nמייל המטופל להחזרת תשובה: ${patientEmail || 'לא צוין'}\n\nתוכן הפנייה:\n${body}`);
+
+                    const res = await fetch("[https://api.web3forms.com/submit](https://api.web3forms.com/submit)", {
+                        method: "POST",
+                        body: formData
                     });
+
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.message);
                 } else {
-                    console.log("Inquiry sent to doctor email:", targetDoctorEmail, { subject, body, patientCode });
+                    console.log("Web3Forms Email Dispatch Triggered to:", targetDoctorEmail, { subject, body, patientCode, patientEmail });
                     await new Promise(r => setTimeout(r, 800));
                 }
 
@@ -949,7 +1121,6 @@
                 }
             }
 
-            // שם ואימייל של הרופא הספציפי שמחובר כעת
             const doctorFullName = activeDoctor ? (activeDoctor.fullName || `${activeDoctor.title} ${activeDoctor.firstName} ${activeDoctor.lastName}`.trim()) : 'ד"ר עמית ריטר';
             const doctorEmailAddress = activeDoctor ? activeDoctor.email : 'doctor@hospital.org.il';
 
