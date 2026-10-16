@@ -116,21 +116,21 @@
 
                 <!-- Tabs: Login vs Register -->
                 <div class="flex border-b border-slate-200 justify-center gap-6">
-                    <button onclick="switchAuthTab('login')" id="auth-tab-login-btn" class="pb-2 font-bold text-teal-700 border-b-2 border-teal-700 text-sm transition">התחברות רופא</button>
-                    <button onclick="switchAuthTab('register')" id="auth-tab-register-btn" class="pb-2 font-semibold text-slate-500 hover:text-teal-700 text-sm transition">הרשמת רופא חדש</button>
+                    <button onclick="switchAuthTab('login')" id="auth-tab-login-btn" class="pb-2 font-bold text-teal-700 border-b-2 border-teal-700 text-sm transition" data-i18n="auth_log">התחברות רופא</button>
+                    <button onclick="switchAuthTab('register')" id="auth-tab-register-btn" class="pb-2 font-semibold text-slate-500 hover:text-teal-700 text-sm transition" data-i18n="auth_reg">הרשמת רופא חדש</button>
                 </div>
 
                 <!-- 1. LOGIN FORM -->
                 <form id="doc-login-form" onsubmit="handleDoctorLogin(event)" class="space-y-4 text-right">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">כתובת אימייל</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="log_email">כתובת אימייל</label>
                         <input type="email" id="login-email" required class="w-full minimal-input text-base" placeholder="doctor@hospital.org.il">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">סיסמה</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="log_pass">סיסמה</label>
                         <input type="password" id="login-password" required class="w-full minimal-input text-base" placeholder="••••••••">
                     </div>
-                    <button type="submit" id="btn-login-submit" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4">
+                    <button type="submit" id="btn-login-submit" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4" data-i18n="log_btn">
                         התחבר למערכת
                     </button>
                 </form>
@@ -139,30 +139,30 @@
                 <form id="doc-register-form" onsubmit="handleDoctorRegister(event)" class="space-y-4 text-right hidden">
                     <div class="grid grid-cols-3 gap-2">
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">תואר</label>
+                            <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="reg_title">תואר</label>
                             <select id="reg-title" class="w-full minimal-input text-sm font-bold text-slate-700">
                                 <option value="ד&quot;ר">ד"ר</option>
                                 <option value="פרופ&quot;">פרופ'</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">שם פרטי</label>
-                            <input type="text" id="reg-first-name" required class="w-full minimal-input text-sm" placeholder="עמית">
+                            <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="reg_fn">שם פרטי</label>
+                            <input type="text" id="reg-first-name" required class="w-full minimal-input text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">שם משפחה</label>
-                            <input type="text" id="reg-last-name" required class="w-full minimal-input text-sm" placeholder="ריטר">
+                            <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="reg_ln">שם משפחה</label>
+                            <input type="text" id="reg-last-name" required class="w-full minimal-input text-sm">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">כתובת אימייל מקצועית</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="reg_email">כתובת אימייל מקצועית</label>
                         <input type="email" id="reg-email" required class="w-full minimal-input text-base" placeholder="doctor@hospital.org.il">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">סיסמה (לפחות 6 תווים)</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="reg_pass">סיסמה (לפחות 6 תווים)</label>
                         <input type="password" id="reg-password" minlength="6" required class="w-full minimal-input text-base" placeholder="••••••••">
                     </div>
-                    <button type="submit" id="btn-register-submit" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4">
+                    <button type="submit" id="btn-register-submit" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4" data-i18n="reg_btn">
                         צור חשבון רופא חדש
                     </button>
                 </form>
@@ -178,7 +178,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="logoutDoctor()" class="text-xs bg-slate-200 px-3.5 py-2 rounded-lg font-bold hover:bg-slate-300 transition" data-i18n="logout_btn">התנתק</button>
-                    <button onclick="deleteDoctorAccount()" class="text-xs bg-red-100 text-red-700 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition">מחק חשבון</button>
+                    <button onclick="deleteDoctorAccount()" class="text-xs bg-red-100 text-red-700 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition" data-i18n="del_acc_btn">מחק חשבון</button>
                 </div>
             </div>
 
@@ -281,11 +281,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="ov_lbl_title">כותרת הניתוח המותאם אישית</label>
-                    <input type="text" id="ov-surgery-title" required class="w-full minimal-input text-base" placeholder="לדוגמה: Right Thyroid Lobectomy, ללא צורך בדיסקציה צווארית לטראלית">
+                    <input type="text" id="ov-surgery-title" required class="w-full minimal-input text-base" data-i18n="ov_plh_title" placeholder="לדוגמה: Right Thyroid Lobectomy, ללא צורך בדיסקציה צווארית לטראלית">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-1" data-i18n="ov_lbl_desc">תיאור קליני מפורט או שלבים מותאמים</label>
-                    <textarea id="ov-surgery-details" rows="6" required class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:border-teal-700 focus:outline-none" placeholder="פרט כאן את מהלך הניתוח, ממצאים או הנחיות מיוחדות..."></textarea>
+                    <textarea id="ov-surgery-details" rows="6" required class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:border-teal-700 focus:outline-none" data-i18n="ov_plh_desc" placeholder="פרט כאן את מהלך הניתוח, ממצאים או הנחיות מיוחדות..."></textarea>
                 </div>
                 <div class="flex gap-4 pt-4">
                     <button type="submit" id="btn-submit-over" class="flex-1 bg-teal-700 text-white py-4 rounded-xl font-bold hover:bg-teal-800 transition flex items-center justify-center gap-2 text-lg shadow-md">
@@ -497,6 +497,13 @@
         let currentLanguage = 'he';
         let activeDoctor = null;
 
+        function updateWelcomeMessage() {
+            if (activeDoctor) {
+                const prefix = translations[currentLanguage].logged_in_as;
+                document.getElementById('doc-welcome-subtitle').innerText = `${prefix} ${activeDoctor.fullName || activeDoctor.email}`;
+            }
+        }
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const snap = await db.ref('doctors/' + user.uid).once('value');
@@ -506,7 +513,7 @@
                 } else {
                     activeDoctor = { email: user.email, title: 'ד"ר', firstName: '', lastName: '', fullName: user.email, uid: user.uid };
                 }
-                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${activeDoctor.title} ${activeDoctor.firstName} ${activeDoctor.lastName} (${activeDoctor.email})`;
+                updateWelcomeMessage();
             } else {
                 activeDoctor = null;
             }
@@ -520,10 +527,14 @@
                 land_desc: "הכנה פשוטה, ברורה ושקטה לקראת הניתוח. כאן תוכל לצפות בסיכום הרפואי שעדכן הרופא שלך, להבין את שלבי הניתוח הצפויים, ולקבל תשובות לכל השאלות.",
                 pat_box_title: "אזור מידע למטופל", pat_box_desc: "הזנת קוד אישי לקבלת התיק הרפואי שלך, הסברים פשוטים על הניתוח וגישה לטפסי הסכמה.", pat_box_link: "כניסה לתיק האישי",
                 doc_box_title: "ממשק סגל רפואי", doc_box_desc: "כניסה והרשמת רופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.", doc_box_link: "כניסה / הרשמה למערכת",
-                doc_form_title: "הפקת רשומה קלינית חדשה", logout_btn: "התנתק",
+                doc_form_title: "הפקת רשומה קלינית חדשה", logout_btn: "התנתק", del_acc_btn: "מחק חשבון", logged_in_as: "מחובר כעת:",
+                auth_log: "התחברות רופא", auth_reg: "הרשמת רופא חדש",
+                log_email: "כתובת אימייל", log_pass: "סיסמה", log_btn: "התחבר למערכת",
+                reg_title: "תואר", reg_fn: "שם פרטי", reg_ln: "שם משפחה", reg_email: "כתובת אימייל מקצועית", reg_pass: "סיסמה (לפחות 6 תווים)", reg_btn: "צור חשבון רופא חדש",
                 doc_tab_struct: "הזנת מדדים רפואיים (חישוב אוטומטי)", doc_tab_over: "כתיבת תוכנית ניתוח חופשית (עם פענוח AI)",
                 ov_note: "מנוע פענוח חכם (AI Engine): המערכת תנתח אוטומטית את הטקסט החופשי שתזין, תזהה ביטויי שלילה, תבנה שלבי ניתוח ממוספרים, ותציג סיבוכים מדויקים בלבד.",
-                ov_lbl_title: "כותרת הניתוח המותאם אישית", ov_lbl_desc: "תיאור קליני מפורט או שלבים מותאמים", ov_btn_gen: "הפעל פענוח AI והפק קוד גישה (תקף ל-30 יום)",
+                ov_lbl_title: "כותרת הניתוח המותאם אישית", ov_plh_title: "לדוגמה: Right Thyroid Lobectomy, ללא צורך בדיסקציה צווארית לטראלית",
+                ov_lbl_desc: "תיאור קליני מפורט או שלבים מותאמים", ov_plh_desc: "פרט כאן את מהלך הניתוח, ממצאים או הנחיות מיוחדות...", ov_btn_gen: "הפעל פענוח AI והפק קוד גישה (תקף ל-30 יום)",
                 lbl_age: "גיל המטופל", lbl_size: "גודל הממצא (ס\"מ)", lbl_loc: "מיקום בבלוטה", lbl_beth: "סיווג ציטולוגי (Bethesda)", lbl_func: "תפקודי בלוטת התריס", sel_default: "בחר...",
                 opt_loc_right: "אונה ימנית", opt_loc_left: "אונה שמאלית", opt_loc_isthmus: "איסתמוס (מיצר)", opt_loc_bilateral: "דו-צדדי",
                 opt_func_euthyroid: "תקינים (Euthyroid)", opt_func_hyper: "מוגברים (Hyperthyroidism)", opt_func_hypo: "מדוכאים (Hypothyroidism)",
@@ -549,10 +560,14 @@
                 land_desc: "Clear, simple, and reassuring preparation for your upcoming surgery.",
                 pat_box_title: "Patient Portal", pat_box_desc: "Enter your 6-character access code to view your surgical report.", pat_box_link: "Access Personal Portal",
                 doc_box_title: "Medical Staff Portal", doc_box_desc: "Sign in or register to input clinical metrics.", doc_box_link: "Staff Portal",
-                doc_form_title: "Create Clinical Record", logout_btn: "Sign Out",
+                doc_form_title: "Create Clinical Record", logout_btn: "Sign Out", del_acc_btn: "Delete Account", logged_in_as: "Logged in as:",
+                auth_log: "Doctor Login", auth_reg: "Register New Doctor",
+                log_email: "Email Address", log_pass: "Password", log_btn: "Login",
+                reg_title: "Title", reg_fn: "First Name", reg_ln: "Last Name", reg_email: "Professional Email", reg_pass: "Password (min 6 chars)", reg_btn: "Create Doctor Account",
                 doc_tab_struct: "Structured Metrics", doc_tab_over: "Custom Surgical Plan (AI)",
                 ov_note: "AI Analysis Engine: Automatically parses surgical steps and negations.",
-                ov_lbl_title: "Custom Surgery Title", ov_lbl_desc: "Detailed Clinical Steps", ov_btn_gen: "Run AI Analysis & Generate Access Code",
+                ov_lbl_title: "Custom Surgery Title", ov_plh_title: "e.g., Right Thyroid Lobectomy, without lateral neck...",
+                ov_lbl_desc: "Detailed Clinical Steps", ov_plh_desc: "Detail the surgical steps, findings, or special instructions...", ov_btn_gen: "Run AI Analysis & Generate Access Code",
                 lbl_age: "Patient Age", lbl_size: "Tumor Size (cm)", lbl_loc: "Location", lbl_beth: "Cytology (Bethesda)", lbl_func: "Thyroid Function", sel_default: "Select...",
                 opt_loc_right: "Right Lobe", opt_loc_left: "Left Lobe", opt_loc_isthmus: "Isthmus", opt_loc_bilateral: "Bilateral",
                 opt_func_euthyroid: "Normal", opt_func_hyper: "Elevated", opt_func_hypo: "Suppressed",
@@ -583,6 +598,7 @@
                     else el.innerText = dict[key];
                 }
             });
+            updateWelcomeMessage();
             if (currentRecord) renderPatientRecord(currentRecord, lang);
             lucide.createIcons();
         }
@@ -593,7 +609,6 @@
             document.getElementById('view-doctor').classList.add('hidden');
             document.getElementById('view-patient').classList.add('hidden');
             
-            // איפוס שדות הרופא תמיד במעבר לדף רלוונטי
             if (viewName === 'doctor-auth') {
                 document.getElementById('doc-login-form').reset();
                 document.getElementById('doc-register-form').reset();
@@ -645,7 +660,7 @@
             const btn = document.getElementById('btn-register-submit');
 
             btn.disabled = true;
-            btn.innerText = "נרשם למערכת...";
+            btn.innerText = currentLanguage === 'he' ? "נרשם למערכת..." : "Registering...";
 
             try {
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
@@ -653,13 +668,25 @@
                 const docData = { title, firstName, lastName, fullName: `${title} ${firstName} ${lastName}`.trim(), email, createdAt: Date.now() };
                 await db.ref('doctors/' + uid).set(docData);
                 activeDoctor = { ...docData, uid };
-                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${docData.fullName} (${email})`;
+                
+                // שליחת מייל אוטומטי להפעלת שירות ההודעות של FormSubmit עבור הרופא ברקע
+                fetch(`https://formsubmit.co/ajax/${email}`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        _subject: "ברוך הבא למערכת ThyroGuide - דרוש אישור קבלת הודעות",
+                        name: "מערכת ThyroGuide",
+                        message: "שלום רב,\n\nהודעה זו נשלחה אוטומטית כדי להפעיל את שירות העברת ההודעות של FormSubmit עבור המטופלים שלך.\nאנא לחץ על כפתור האישור (Activate) במייל שקיבלת (או תקבל מיד) מ-FormSubmit כדי שהמטופלים יוכלו לשלוח לך שאילתות ישירות מהאפליקציה שלנו.\n\nבברכה,\nצוות ThyroGuide"
+                    })
+                }).catch(err => console.error("Activation email failed to send in background:", err));
+
+                updateWelcomeMessage();
                 showView('doctor');
             } catch (err) {
-                alert("שגיאה בהרשמה: " + err.message);
+                alert((currentLanguage === 'he' ? "שגיאה בהרשמה: " : "Registration Error: ") + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "צור חשבון רופא חדש";
+                btn.innerText = translations[currentLanguage].reg_btn;
             }
         }
 
@@ -670,7 +697,7 @@
             const btn = document.getElementById('btn-login-submit');
 
             btn.disabled = true;
-            btn.innerText = "מתחבר...";
+            btn.innerText = currentLanguage === 'he' ? "מתחבר..." : "Logging in...";
 
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
@@ -682,13 +709,13 @@
                 } else {
                     activeDoctor = { email: email, title: 'ד"ר', firstName: '', lastName: '', fullName: email, uid };
                 }
-                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${activeDoctor.fullName || activeDoctor.email}`;
+                updateWelcomeMessage();
                 showView('doctor');
             } catch (err) {
-                alert("שגיאה בהתחברות: " + err.message);
+                alert((currentLanguage === 'he' ? "שגיאה בהתחברות: " : "Login Error: ") + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "התחבר למערכת";
+                btn.innerText = translations[currentLanguage].log_btn;
             }
         }
 
@@ -704,15 +731,15 @@
             const user = auth.currentUser;
             if (!user) return;
 
-            if (confirm("האם אתה בטוח שברצונך למחוק לחלוטין את החשבון שלך מהמערכת? פעולה זו אינה ניתנת לביטול.")) {
+            if (confirm(currentLanguage === 'he' ? "האם אתה בטוח שברצונך למחוק לחלוטין את החשבון שלך מהמערכת? פעולה זו אינה ניתנת לביטול." : "Are you sure you want to permanently delete your account? This action cannot be undone.")) {
                 try {
                     await db.ref('doctors/' + user.uid).remove();
                     await user.delete();
                     activeDoctor = null;
-                    alert("החשבון נמחק בהצלחה.");
+                    alert(currentLanguage === 'he' ? "החשבון נמחק בהצלחה." : "Account deleted successfully.");
                     showView('landing');
                 } catch (err) {
-                    alert("שגיאה במחיקת החשבון: " + err.message);
+                    alert((currentLanguage === 'he' ? "שגיאה במחיקת החשבון: " : "Error deleting account: ") + err.message);
                 }
             }
         }
@@ -790,7 +817,6 @@
             lucide.createIcons();
 
             try {
-                // שימוש בשירות חינמי ואוטומטי - FormSubmit - לא מצריך מפתח התחברות
                 const payload = {
                     _subject: `[ThyroGuide - קוד ${patientCode}] ${subject}`,
                     _replyto: patientEmail || targetDoctorEmail,
@@ -923,7 +949,7 @@
                 }
             }
 
-            const doctorFullName = activeDoctor ? (activeDoctor.fullName || `${activeDoctor.title} ${activeDoctor.firstName} ${activeDoctor.lastName}`.trim()) : 'ד"ר עמית ריטר';
+            const doctorFullName = activeDoctor ? (activeDoctor.fullName || `${activeDoctor.title} ${activeDoctor.firstName} ${activeDoctor.lastName}`.trim()) : 'הרופא המטפל';
             const doctorEmailAddress = activeDoctor ? activeDoctor.email : 'doctor@hospital.org.il';
 
             const payload = {
@@ -1019,6 +1045,11 @@
             }
         }
 
+        function warnMissingFile(e) {
+            e.preventDefault();
+            alert(currentLanguage === 'he' ? 'קובץ ה-PDF אינו נמצא בשרת עדיין. אנא העלה קובץ הסכמה אמיתי לתיקיית האתר.' : 'The PDF file is missing on the server. Please upload an actual consent form.');
+        }
+
         function renderPatientRecord(record, lang) {
             const isHebrew = (lang === 'he');
 
@@ -1060,16 +1091,16 @@
             let detailedHTML = record.mode === 'override' ? `<p><strong>${isHebrew ? 'הנחיות הרופא:' : 'Doctor Notes:'}</strong></p><p>${record.customDetails.replace(/\n/g, '<br>')}</p>` : `<p>${isHebrew ? 'הניתוח מבוצע בגישה צווארית קדמית תחת הרדמה כללית ובשילוב ניטור אלקטרופיזיולוגי עצבי (NIM).' : 'Standard procedure steps applied.'}</p>`;
             document.getElementById('out-detailed-explanation').innerHTML = detailedHTML;
 
-            // החזרת והזרקת קישורי טפסי הסכמה
             const pdfContainer = document.getElementById('consent-pdf-links-container');
+            // קישור זמני עם התראת JS להסבר שצריך להעלות קובץ
             pdfContainer.innerHTML = `
-                <a href="thyroid_consent.pdf" target="_blank" class="flex items-center gap-2 bg-white text-teal-800 border border-teal-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-teal-50 transition shadow-sm">
+                <a href="#" onclick="warnMissingFile(event)" class="flex items-center gap-2 bg-white text-teal-800 border border-teal-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-teal-50 transition shadow-sm">
                     <i data-lucide="file-text" class="w-4 h-4"></i> ${isHebrew ? 'טופס הסכמה - כריתת בלוטת התריס' : 'Thyroidectomy Consent'}
                 </a>
             `;
             if (record.hasNeckDissection) {
                 pdfContainer.innerHTML += `
-                    <a href="neck_dissection_consent.pdf" target="_blank" class="flex items-center gap-2 bg-white text-teal-800 border border-teal-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-teal-50 transition shadow-sm">
+                    <a href="#" onclick="warnMissingFile(event)" class="flex items-center gap-2 bg-white text-teal-800 border border-teal-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-teal-50 transition shadow-sm">
                         <i data-lucide="file-text" class="w-4 h-4"></i> ${isHebrew ? 'טופס הסכמה - בתירת צוואר' : 'Neck Dissection Consent'}
                     </a>
                 `;
