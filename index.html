@@ -475,23 +475,18 @@
 
     <script>
         // ----------------------------------------------------
-        // 1. הגדרות FIREBASE CONFIG - הדבק כאן את המפתחות מגוגל
+        // 1. הגדרות FIREBASE CONFIG
         // ----------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyDw0bZmDJRX5QhRprHYAqkK1bDqP_rRrEk",
-  authDomain: "thyroguide.firebaseapp.com",
-  databaseURL: "https://thyroguide-default-rtdb.firebaseio.com",
-  projectId: "thyroguide",
-  storageBucket: "thyroguide.firebasestorage.app",
-  messagingSenderId: "1024482122045",
-  appId: "1:1024482122045:web:c3e833e40513a90d224d54",
-  measurementId: "G-W7BKVKR09X"
+            authDomain: "thyroguide.firebaseapp.com",
+            databaseURL: "https://thyroguide-default-rtdb.firebaseio.com",
+            projectId: "thyroguide",
+            storageBucket: "thyroguide.firebasestorage.app",
+            messagingSenderId: "1024482122045",
+            appId: "1:1024482122045:web:c3e833e40513a90d224d54",
+            measurementId: "G-W7BKVKR09X"
         };
-
-        // ----------------------------------------------------
-        // 2. הגדרות Web3Forms - למשלוח מיילים ברקע
-        // ----------------------------------------------------
-        const WEB3FORMS_ACCESS_KEY = "YOUR_WEB3FORMS_ACCESS_KEY";
 
         // אתחול Firebase
         firebase.initializeApp(firebaseConfig);
@@ -598,8 +593,16 @@
             document.getElementById('view-doctor').classList.add('hidden');
             document.getElementById('view-patient').classList.add('hidden');
             
+            // איפוס שדות הרופא תמיד במעבר לדף רלוונטי
+            if (viewName === 'doctor-auth') {
+                document.getElementById('doc-login-form').reset();
+                document.getElementById('doc-register-form').reset();
+            }
+
             if (viewName === 'doctor' && !activeDoctor) {
                 document.getElementById('view-doctor-auth').classList.remove('hidden');
+                document.getElementById('doc-login-form').reset();
+                document.getElementById('doc-register-form').reset();
             } else {
                 document.getElementById('view-' + viewName).classList.remove('hidden');
             }
@@ -607,6 +610,7 @@
             if (viewName === 'patient') {
                 document.getElementById('patient-login').classList.remove('hidden');
                 document.getElementById('patient-data-display').classList.add('hidden');
+                document.getElementById('patient-code-input').value = '';
                 switchPatientTab('summary');
             }
             lucide.createIcons();
@@ -786,25 +790,25 @@
             lucide.createIcons();
 
             try {
-                if (WEB3FORMS_ACCESS_KEY && WEB3FORMS_ACCESS_KEY !== "YOUR_WEB3FORMS_ACCESS_KEY") {
-                    const formData = new FormData();
-                    formData.append("access_key", WEB3FORMS_ACCESS_KEY);
-                    formData.append("to_email", targetDoctorEmail);
-                    formData.append("subject", `[ThyroGuide - קוד ${patientCode}] ${subject}`);
-                    formData.append("from_name", `ThyroGuide (מטופל ${patientCode})`);
-                    formData.append("reply_to", patientEmail || targetDoctorEmail);
-                    formData.append("message", `פנייה חדשה עבור ${targetDoctorName}:\n\nקוד מטופל: ${patientCode}\nמייל המטופל להחזרת תשובה: ${patientEmail || 'לא צוין'}\n\nתוכן הפנייה:\n${body}`);
+                // שימוש בשירות חינמי ואוטומטי - FormSubmit - לא מצריך מפתח התחברות
+                const payload = {
+                    _subject: `[ThyroGuide - קוד ${patientCode}] ${subject}`,
+                    _replyto: patientEmail || targetDoctorEmail,
+                    name: `ThyroGuide (מטופל ${patientCode})`,
+                    message: `פנייה חדשה עבור ${targetDoctorName}:\n\nקוד מטופל: ${patientCode}\nמייל המטופל להחזרת תשובה: ${patientEmail || 'לא צוין'}\n\nתוכן הפנייה:\n${body}`
+                };
 
-                    const res = await fetch("https://api.web3forms.com/submit", {
-                        method: "POST",
-                        body: formData
-                    });
+                const res = await fetch(`https://formsubmit.co/ajax/${targetDoctorEmail}`, {
+                    method: "POST",
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-                    const data = await res.json();
-                    if (!data.success) throw new Error(data.message);
-                } else {
-                    await new Promise(r => setTimeout(r, 800));
-                }
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || "Email dispatch failed");
 
                 document.getElementById('query-success-msg').classList.remove('hidden');
                 e.target.reset();
@@ -1055,6 +1059,21 @@
 
             let detailedHTML = record.mode === 'override' ? `<p><strong>${isHebrew ? 'הנחיות הרופא:' : 'Doctor Notes:'}</strong></p><p>${record.customDetails.replace(/\n/g, '<br>')}</p>` : `<p>${isHebrew ? 'הניתוח מבוצע בגישה צווארית קדמית תחת הרדמה כללית ובשילוב ניטור אלקטרופיזיולוגי עצבי (NIM).' : 'Standard procedure steps applied.'}</p>`;
             document.getElementById('out-detailed-explanation').innerHTML = detailedHTML;
+
+            // החזרת והזרקת קישורי טפסי הסכמה
+            const pdfContainer = document.getElementById('consent-pdf-links-container');
+            pdfContainer.innerHTML = `
+                <a href="thyroid_consent.pdf" target="_blank" class="flex items-center gap-2 bg-white text-teal-800 border border-teal-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-teal-50 transition shadow-sm">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> ${isHebrew ? 'טופס הסכמה - כריתת בלוטת התריס' : 'Thyroidectomy Consent'}
+                </a>
+            `;
+            if (record.hasNeckDissection) {
+                pdfContainer.innerHTML += `
+                    <a href="neck_dissection_consent.pdf" target="_blank" class="flex items-center gap-2 bg-white text-teal-800 border border-teal-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-teal-50 transition shadow-sm">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> ${isHebrew ? 'טופס הסכמה - בתירת צוואר' : 'Neck Dissection Consent'}
+                    </a>
+                `;
+            }
 
             lucide.createIcons();
         }
