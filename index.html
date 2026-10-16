@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
@@ -98,35 +99,72 @@
                         <i data-lucide="stethoscope" class="w-5 h-5"></i>
                     </div>
                     <h3 class="text-2xl font-bold text-slate-900 mb-3" data-i18n="doc_box_title">ממשק סגל רפואי</h3>
-                    <p class="text-slate-500 mb-6 text-sm leading-relaxed" data-i18n="doc_box_desc">כניסה חופשית לרופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.</p>
+                    <p class="text-slate-500 mb-6 text-sm leading-relaxed" data-i18n="doc_box_desc">כניסה והרשמת רופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.</p>
                     <div class="flex items-center text-slate-700 font-bold gap-2 text-sm uppercase tracking-wide group-hover:text-teal-800 transition-colors">
-                        <span data-i18n="doc_box_link">כניסה למערכת</span>
+                        <span data-i18n="doc_box_link">כניסה / הרשמה למערכת</span>
                         <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- DOCTOR LOGIN AUTH VIEW -->
+        <!-- DOCTOR LOGIN & REGISTRATION AUTH VIEW -->
         <div id="view-doctor-auth" class="hidden space-y-6 max-w-md mx-auto mt-8">
-            <div class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm text-center space-y-6">
+            <div class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                 <div class="w-16 h-16 bg-teal-50 text-teal-700 rounded-full flex items-center justify-center mx-auto mb-2">
                     <i data-lucide="user-check" class="w-8 h-8"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-teal-900" data-i18n="auth_title">כניסת רופא</h2>
-                <p class="text-xs text-slate-500" data-i18n="auth_desc">הזן את פרטיך להפקת סיכומים למטופלים וקבלת פניות מתוך המערכת.</p>
-                
-                <form id="doc-login-form" onsubmit="handleDoctorQuickAccess(event)" class="space-y-4 text-right">
+
+                <!-- Tabs: Login vs Register -->
+                <div class="flex border-b border-slate-200 justify-center gap-6">
+                    <button onclick="switchAuthTab('login')" id="auth-tab-login-btn" class="pb-2 font-bold text-teal-700 border-b-2 border-teal-700 text-sm transition">התחברות רופא</button>
+                    <button onclick="switchAuthTab('register')" id="auth-tab-register-btn" class="pb-2 font-semibold text-slate-500 hover:text-teal-700 text-sm transition">הרשמת רופא חדש</button>
+                </div>
+
+                <!-- 1. LOGIN FORM -->
+                <form id="doc-login-form" onsubmit="handleDoctorLogin(event)" class="space-y-4 text-right">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="auth_doc_name">שם הרופא / התואר</label>
-                        <input type="text" id="doc-name-input" required class="w-full minimal-input text-base" placeholder="ד&quot;ר עמית ריטר">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">כתובת אימייל</label>
+                        <input type="email" id="login-email" required class="w-full minimal-input text-base" placeholder="doctor@hospital.org.il">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="auth_user">כתובת דואר אלקטרוני (אימייל)</label>
-                        <input type="email" id="doc-user" required class="w-full minimal-input text-base" placeholder="doctor@hospital.org.il">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">סיסמה</label>
+                        <input type="password" id="login-password" required class="w-full minimal-input text-base" placeholder="••••••••">
                     </div>
-                    <button type="submit" class="w-full bg-teal-700 text-white py-3 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4" data-i18n="auth_submit">
-                        כניסה למערכת
+                    <button type="submit" id="btn-login-submit" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4">
+                        התחבר למערכת
+                    </button>
+                </form>
+
+                <!-- 2. REGISTER FORM -->
+                <form id="doc-register-form" onsubmit="handleDoctorRegister(event)" class="space-y-4 text-right hidden">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">תואר</label>
+                            <select id="reg-title" class="w-full minimal-input text-sm font-bold text-slate-700">
+                                <option value="ד&quot;ר">ד"ר</option>
+                                <option value="פרופ&quot;">פרופ'</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">שם פרטי</label>
+                            <input type="text" id="reg-first-name" required class="w-full minimal-input text-sm" placeholder="עמית">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">שם משפחה</label>
+                            <input type="text" id="reg-last-name" required class="w-full minimal-input text-sm" placeholder="ריטר">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">כתובת אימייל מקצועית</label>
+                        <input type="email" id="reg-email" required class="w-full minimal-input text-base" placeholder="doctor@hospital.org.il">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">סיסמה (לפחות 6 תווים)</label>
+                        <input type="password" id="reg-password" minlength="6" required class="w-full minimal-input text-base" placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="btn-register-submit" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md mt-4">
+                        צור חשבון רופא חדש
                     </button>
                 </form>
             </div>
@@ -137,9 +175,9 @@
             <div class="mb-4 flex justify-between items-center">
                 <div>
                     <h2 class="text-3xl font-bold text-teal-900" data-i18n="doc_form_title">הפקת רשומה קלינית חדשה</h2>
-                    <p class="text-slate-500 mt-1" id="doc-welcome-subtitle"></p>
+                    <p class="text-slate-500 mt-1 font-semibold" id="doc-welcome-subtitle"></p>
                 </div>
-                <button onclick="logoutDoctor()" class="text-xs bg-slate-200 px-3 py-1.5 rounded-lg font-bold hover:bg-slate-300 transition" data-i18n="logout_btn">התנתק</button>
+                <button onclick="logoutDoctor()" class="text-xs bg-slate-200 px-3.5 py-2 rounded-lg font-bold hover:bg-slate-300 transition" data-i18n="logout_btn">התנתק</button>
             </div>
 
             <div class="flex border-b border-slate-200 gap-6">
@@ -389,12 +427,12 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: Direct Silent Background Dispatch Form -->
+                <!-- Tab 2: Direct Email Dispatch Form to the Specific Doctor -->
                 <div id="patient-tab-contact" class="hidden space-y-6">
                     <div class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                         <div>
                             <h3 class="text-xl font-bold text-teal-900 mb-2" id="contact-heading-doc" data-i18n="con_head">פנייה ישירה לרופא המטפל</h3>
-                            <p class="text-slate-600 text-sm" id="patient-contact-desc" data-i18n="con_desc">מלא את השאילתא והיא תישלח אוטומטית ברקע לתיבת המייל של הרופא.</p>
+                            <p class="text-slate-600 text-sm" id="patient-contact-desc" data-i18n="con_desc">מלא את השאילתא והיא תישלח אוטומטית לתיבת המייל של הרופא שיצר עבורך את הסיכום.</p>
                         </div>
 
                         <form onsubmit="handleDirectSilentBackgroundDispatch(event)" class="space-y-4">
@@ -407,15 +445,15 @@
                                 <textarea id="query-body" rows="5" required class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:border-teal-700 focus:outline-none" placeholder="פרט את שאלתך כאן..."></textarea>
                             </div>
                             <button type="submit" id="send-query-btn" class="w-full bg-teal-700 text-white py-3.5 rounded-xl font-bold hover:bg-teal-800 transition shadow-md flex items-center justify-center gap-2 text-sm">
-                                <i data-lucide="send" class="w-4 h-4"></i> <span data-i18n="con_btn">שלח פנייה ברקע</span>
+                                <i data-lucide="send" class="w-4 h-4"></i> <span data-i18n="con_btn">שלח פנייה לרופא המטפל</span>
                             </button>
                         </form>
                         
                         <div id="query-success-msg" class="hidden bg-teal-50 border border-teal-200 text-teal-800 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-teal-600"></i> <span id="query-success-text">ההודעה נשלחה בהצלחה ברקע לרופא המטפל.</span>
+                            <i data-lucide="check-circle" class="w-5 h-5 text-teal-600"></i> <span id="query-success-text">ההודעה נשלחה בהצלחה לרופא המטפל.</span>
                         </div>
                         <div id="query-error-msg" class="hidden bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-                            <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600"></i> <span id="query-error-text">חלה שגיאה בשליחה ברקע.</span>
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-amber-600"></i> <span id="query-error-text">חלה שגיאה בשליחת המודעה. נסה שנית.</span>
                         </div>
                     </div>
                 </div>
@@ -424,74 +462,62 @@
         </div>
     </main>
 
-    <!-- ========================================================= -->
-    <!-- ספריות Firebase SDK Compat Version 9 -->
-    <!-- ========================================================= -->
+    <!-- ========================================== -->
+    <!-- ספריות Firebase (App, Database, Auth) -->
+    <!-- ========================================== -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-        // =========================================================
-        // הגדרות Firebase - החלף כאן את ה-YOUR_... בפרטים מגוגל:
-        // =========================================================
+        // ----------------------------------------------------
+        // 1. הגדרות FIREBASE CONFIG - הדבק כאן את המפתחות מגוגל
+        // ----------------------------------------------------
         const firebaseConfig = {
-          apiKey: "AIzaSyDw0bZmDJRX5QhRprHYAqkK1bDqP_rRrEk",
-          authDomain: "thyroguide.firebaseapp.com",
-          databaseURL: "https://thyroguide-default-rtdb.firebaseio.com",
-          projectId: "thyroguide",
-          storageBucket: "thyroguide.firebasestorage.app",
-          messagingSenderId: "1024482122045",
-          appId: "1:1024482122045:web:c3e833e40513a90d224d54",
-          measurementId: "G-W7BKVKR09X"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
-        // אתחול Firebase Realtime Database
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        // ----------------------------------------------------
+        // 2. הגדרות EmailJS - למשלוח מיילים לרופאים
+        // ----------------------------------------------------
+        const EMAILJS_PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
+        const EMAILJS_SERVICE_ID = "YOUR_EMAILJS_SERVICE_ID";
+        const EMAILJS_TEMPLATE_ID = "YOUR_EMAILJS_TEMPLATE_ID";
+
+        if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
         }
+
+        // אתחול Firebase
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
-        // פונקציה לשמירת נתונים ב-Firebase ויצירת קוד גישה בן 6 תווים
-        async function saveRecordToCloud(patientData) {
-            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const now = Date.now();
-            const expiresAt = now + (30 * 24 * 60 * 60 * 1000); // תוקף ל-30 ימים
-
-            await db.ref('records/' + code).set({
-                data: patientData,
-                createdAt: now,
-                expiresAt: expiresAt
-            });
-
-            return { code, expiresAt };
-        }
-
-        // פונקציה לשליפת נתונים מ-Firebase לפי קוד
-        async function getRecordFromCloud(code) {
-            if (!code) return { status: 404 };
-            const cleanCode = code.trim().toUpperCase();
-            const snapshot = await db.ref('records/' + cleanCode).once('value');
-
-            if (!snapshot.exists()) return { status: 404 };
-
-            const record = snapshot.val();
-            if (record.expiresAt && Date.now() > record.expiresAt) {
-                await db.ref('records/' + cleanCode).remove();
-                return { status: 410 };
-            }
-
-            return { status: 200, data: record.data, expiresAt: record.expiresAt };
-        }
+        const auth = firebase.auth();
 
         let currentRecord = null;
         let currentLanguage = 'he';
-        let activeDoctor = {
-            name: 'ד"ר עמית ריטר',
-            email: 'doctor@hospital.org.il'
-        };
+        let activeDoctor = null;
 
-        const BACKGROUND_EMAIL_API_KEY = "YOUR_RESEND_OR_EMAILJS_API_KEY"; 
-        const BACKGROUND_EMAIL_ENDPOINT = "https://api.resend.com/emails"; 
+        // האזנה למצב ההתחברות של הרופא (Auto Login)
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const snap = await db.ref('doctors/' + user.uid).once('value');
+                if (snap.exists()) {
+                    activeDoctor = snap.val();
+                    activeDoctor.uid = user.uid;
+                } else {
+                    activeDoctor = { email: user.email, title: 'ד"ר', firstName: '', lastName: '', fullName: user.email, uid: user.uid };
+                }
+                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${activeDoctor.title} ${activeDoctor.firstName} ${activeDoctor.lastName} (${activeDoctor.email})`;
+            } else {
+                activeDoctor = null;
+            }
+        });
 
         const translations = {
             he: {
@@ -500,7 +526,7 @@
                 land_title: "כל המידע על הניתוח שלך – במקום אחד",
                 land_desc: "הכנה פשוטה, ברורה ושקטה לקראת הניתוח. כאן תוכל לצפות בסיכום הרפואי שעדכן הרופא שלך, להבין את שלבי הניתוח הצפויים, ולקבל תשובות לכל השאלות.",
                 pat_box_title: "אזור מידע למטופל", pat_box_desc: "הזנת קוד אישי לקבלת התיק הרפואי שלך, הסברים פשוטים על הניתוח וגישה לטפסי הסכמה.", pat_box_link: "כניסה לתיק האישי",
-                doc_box_title: "ממשק סגל רפואי", doc_box_desc: "כניסה חופשית לרופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.", doc_box_link: "כניסה למערכת",
+                doc_box_title: "ממשק סגל רפואי", doc_box_desc: "כניסה והרשמת רופאים מטפלים להזנת מדדים קליניים והפקת תוכניות טיפוליות למטופלים.", doc_box_link: "כניסה / הרשמה למערכת",
                 auth_title: "כניסת רופא", auth_desc: "הזן את פרטיך להפקת סיכומים למטופלים וקבלת פניות מתוך המערכת.",
                 auth_doc_name: "שם הרופא / התואר", auth_user: "כתובת דואר אלקטרוני (אימייל)", auth_submit: "כניסה למערכת",
                 doc_form_title: "הפקת רשומה קלינית חדשה", logout_btn: "התנתק",
@@ -523,18 +549,18 @@
                 vid_title: "הדמיית מהלך הניתוח", disc_title: "הבהרה רפואית ומשפטית",
                 disc_body: "המידע המוצג באפליקציה זו נועד לספק הסבר כללי והכוונה לימודית בלבד. המידע אינו מהווה ייעוץ רפואי משפטי, אינו מחליף התייעצות ישירה עם הרופא המטפל, ואינו תחליף להסברים המפורטים ולטפסי ההסכמה שנמסרים במסגרת הטיפול הרפואי והטרום-ניתוחי בבית החולים.",
                 print_btn: "הדפסת סיכום רפואי",
-                con_head: "פנייה ישירה לרופא המטפל", con_desc: "מלא את השאילתא והיא תישלח אוטומטית ברקע לתיבת המייל של הרופא.",
-                con_lbl_sub: "נושא הפנייה", con_lbl_body: "תוכן השאילתא", con_btn: "שלח פנייה ברקע", con_success: "ההודעה נשלחה בהצלחה ברקע לרופא המטפל."
+                con_head: "פנייה ישירה לרופא המטפל", con_desc: "מלא את השאילתא והיא תישלח אוטומטית לתיבת המייל של הרופא שיצר עבורך את הסיכום.",
+                con_lbl_sub: "נושא הפנייה", con_lbl_body: "תוכן השאילתא", con_btn: "שלח פנייה לרופא המטפל", con_success: "ההודעה נשלחה בהצלחה לרופא המטפל."
             },
             en: {
                 logo_sub: "Comprehensive Personal Guide for Thyroid Surgery",
-                doc_login_btn: "Doctor Login", pat_login_btn: "Patient Login",
+                doc_login_btn: "Doctor Portal", pat_login_btn: "Patient Login",
                 land_title: "All Your Surgery Information – In One Place",
                 land_desc: "Clear, simple, and reassuring preparation for your upcoming surgery. View your personal medical summary, understand surgical steps, and get answers.",
                 pat_box_title: "Patient Portal", pat_box_desc: "Enter your 6-character access code to view your surgical report, clear surgical steps, and official consent forms.", pat_box_link: "Access Personal Portal",
-                doc_box_title: "Medical Staff Portal", doc_box_desc: "Open access for attending physicians to input clinical metrics and generate structured treatment plans.", doc_box_link: "Staff Login",
+                doc_box_title: "Medical Staff Portal", doc_box_desc: "Sign in or register to input clinical metrics and generate structured treatment plans.", doc_box_link: "Staff Portal",
                 auth_title: "Doctor Sign-In", auth_desc: "Enter your details to generate patient summaries and receive patient inquiries.",
-                auth_doc_name: "Doctor Name & Title", auth_user: "Email Address", auth_submit: "Enter System",
+                auth_doc_name: "Doctor Name & Title", auth_user: "Email Address", auth_submit: "Sign In",
                 doc_form_title: "Create Clinical Record", logout_btn: "Sign Out",
                 doc_tab_struct: "Structured Metrics (Auto-Calculated)", doc_tab_over: "Custom Surgical Plan (AI-Parsed)",
                 ov_note: "AI Analysis Engine: The system will automatically analyze your free text, identify negations (e.g., 'no lateral neck dissection'), generate structured surgical steps, and present precise complications.",
@@ -555,8 +581,8 @@
                 vid_title: "Surgical Procedure Simulation", disc_title: "Medical & Legal Disclaimer",
                 disc_body: "The information presented in this app is for general educational guidance only. It does not constitute formal legal/medical advice and does not replace direct consultation with your physician.",
                 print_btn: "Print Medical Summary",
-                con_head: "Direct Inquiry to Attending Physician", con_desc: "Fill in your question and it will be sent automatically in the background to your doctor's email.",
-                con_lbl_sub: "Subject", con_lbl_body: "Message Body", con_btn: "Send Inquiry in Background", con_success: "Inquiry sent successfully in background."
+                con_head: "Direct Inquiry to Attending Physician", con_desc: "Fill in your question and it will be sent automatically to your attending doctor's email.",
+                con_lbl_sub: "Subject", con_lbl_body: "Message Body", con_btn: "Send Inquiry to Doctor", con_success: "Inquiry sent successfully to doctor."
             }
         };
 
@@ -591,7 +617,12 @@
             document.getElementById('view-doctor').classList.add('hidden');
             document.getElementById('view-patient').classList.add('hidden');
             
-            document.getElementById('view-' + viewName).classList.remove('hidden');
+            if (viewName === 'doctor' && !activeDoctor) {
+                document.getElementById('view-doctor-auth').classList.remove('hidden');
+            } else {
+                document.getElementById('view-' + viewName).classList.remove('hidden');
+            }
+
             if (viewName === 'patient') {
                 document.getElementById('patient-login').classList.remove('hidden');
                 document.getElementById('patient-data-display').classList.add('hidden');
@@ -600,17 +631,99 @@
             lucide.createIcons();
         }
 
-        function confirmAndGoHome() {
-            if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך לחזור לדף הבית?' : 'Are you sure you want to return home?')) {
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('doc-login-form');
+            const regForm = document.getElementById('doc-register-form');
+            const loginBtn = document.getElementById('auth-tab-login-btn');
+            const regBtn = document.getElementById('auth-tab-register-btn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                loginBtn.className = "pb-2 font-bold text-teal-700 border-b-2 border-teal-700 text-sm transition";
+                regBtn.className = "pb-2 font-semibold text-slate-500 hover:text-teal-700 text-sm transition";
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                regBtn.className = "pb-2 font-bold text-teal-700 border-b-2 border-teal-700 text-sm transition";
+                loginBtn.className = "pb-2 font-semibold text-slate-500 hover:text-teal-700 text-sm transition";
+            }
+        }
+
+        async function handleDoctorRegister(e) {
+            e.preventDefault();
+            const title = document.getElementById('reg-title').value;
+            const firstName = document.getElementById('reg-first-name').value.trim();
+            const lastName = document.getElementById('reg-last-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const btn = document.getElementById('btn-register-submit');
+
+            btn.disabled = true;
+            btn.innerText = "נרשם למערכת...";
+
+            try {
+                const userCred = await auth.createUserWithEmailAndPassword(email, password);
+                const uid = userCred.user.uid;
+                const docData = {
+                    title,
+                    firstName,
+                    lastName,
+                    fullName: `${title} ${firstName} ${lastName}`.trim(),
+                    email,
+                    createdAt: Date.now()
+                };
+                await db.ref('doctors/' + uid).set(docData);
+                activeDoctor = { ...docData, uid };
+                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${docData.fullName} (${email})`;
+                showView('doctor');
+            } catch (err) {
+                alert("שגיאה בהרשמה: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "צור חשבון רופא חדש";
+            }
+        }
+
+        async function handleDoctorLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('btn-login-submit');
+
+            btn.disabled = true;
+            btn.innerText = "מתחבר...";
+
+            try {
+                const userCred = await auth.signInWithEmailAndPassword(email, password);
+                const uid = userCred.user.uid;
+                const snap = await db.ref('doctors/' + uid).once('value');
+                if (snap.exists()) {
+                    activeDoctor = snap.val();
+                    activeDoctor.uid = uid;
+                } else {
+                    activeDoctor = { email: email, title: 'ד"ר', firstName: '', lastName: '', fullName: email, uid };
+                }
+                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${activeDoctor.fullName || activeDoctor.email}`;
+                showView('doctor');
+            } catch (err) {
+                alert("שגיאה בהתחברות: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "התחבר למערכת";
+            }
+        }
+
+        async function logoutDoctor() {
+            if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך להתנתק?' : 'Are you sure you want to log out?')) {
+                await auth.signOut();
+                activeDoctor = null;
                 showView('landing');
             }
         }
 
-        function logoutDoctor() {
-            if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך להתנתק?' : 'Are you sure you want to log out?')) {
-                document.getElementById('doc-name-input').value = '';
-                document.getElementById('doc-user').value = '';
-                activeDoctor = { name: '', email: '' };
+        function confirmAndGoHome() {
+            if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך לחזור לדף הבית?' : 'Are you sure you want to return home?')) {
                 showView('landing');
             }
         }
@@ -618,18 +731,6 @@
         function confirmAndClearForm(formId) {
             if (confirm(currentLanguage === 'he' ? 'האם אתה בטוח שברצונך לאפס את הנתונים בטופס?' : 'Are you sure you want to reset the form?')) {
                 document.getElementById(formId).reset();
-            }
-        }
-
-        function handleDoctorQuickAccess(e) {
-            e.preventDefault();
-            const name = document.getElementById('doc-name-input').value.trim();
-            const email = document.getElementById('doc-user').value.trim();
-
-            if (name && email) {
-                activeDoctor = { name, email };
-                document.getElementById('doc-welcome-subtitle').innerText = `${currentLanguage === 'he' ? 'מחובר כעת' : 'Logged in as'}: ${name} (${email})`;
-                showView('doctor');
             }
         }
 
@@ -675,48 +776,43 @@
             lucide.createIcons();
         }
 
-        // Silent Background Email Dispatch
+        // משלוח מייל לרופא המטפל שיצר את הרשומה
         async function handleDirectSilentBackgroundDispatch(e) {
             e.preventDefault();
             const subject = document.getElementById('query-subject').value.trim();
             const body = document.getElementById('query-body').value.trim();
             const btn = document.getElementById('send-query-btn');
-            const recipientEmail = (currentRecord && currentRecord.doctorEmail) ? currentRecord.doctorEmail : activeDoctor.email;
+            
+            // שליחה לכתובת המייל המדויקת של הרופא שיצר את הרשומה הזו
+            const targetDoctorEmail = (currentRecord && currentRecord.doctorEmail) ? currentRecord.doctorEmail : "doctor@hospital.org.il";
+            const targetDoctorName = (currentRecord && currentRecord.doctorName) ? currentRecord.doctorName : "הרופא המטפל";
             const patientCode = document.getElementById('patient-code-input').value.trim() || "לא צוין";
 
             document.getElementById('query-success-msg').classList.add('hidden');
             document.getElementById('query-error-msg').classList.add('hidden');
 
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> ${currentLanguage === 'he' ? 'שולח ברקע...' : 'Sending in background...'}`;
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> ${currentLanguage === 'he' ? 'שולח לרופא...' : 'Sending...'}`;
             lucide.createIcons();
 
             try {
-                if (BACKGROUND_EMAIL_API_KEY && BACKGROUND_EMAIL_API_KEY !== "YOUR_RESEND_OR_EMAILJS_API_KEY") {
-                    const res = await fetch(BACKGROUND_EMAIL_ENDPOINT, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${BACKGROUND_EMAIL_API_KEY}`
-                        },
-                        body: JSON.stringify({
-                            from: 'ThyroGuide App <onboarding@resend.dev>',
-                            to: [recipientEmail],
-                            subject: `[ThyroGuide] פנייה חדשה: ${subject}`,
-                            html: `<p><strong>קוד מטופל:</strong> ${patientCode}</p><p><strong>נושא:</strong> ${subject}</p><p><strong>תוכן:</strong><br>${body.replace(/\n/g, '<br>')}</p>`
-                        })
+                if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                        to_email: targetDoctorEmail,
+                        to_name: targetDoctorName,
+                        subject: subject,
+                        message: body,
+                        patient_code: patientCode
                     });
-
-                    if (!res.ok) throw new Error("API call returned error status");
                 } else {
-                    console.log("Background Silent Dispatch Triggered:", { recipientEmail, subject, body, patientCode });
+                    console.log("Inquiry sent to doctor email:", targetDoctorEmail, { subject, body, patientCode });
                     await new Promise(r => setTimeout(r, 800));
                 }
 
                 document.getElementById('query-success-msg').classList.remove('hidden');
                 e.target.reset();
             } catch (err) {
-                console.warn("Background dispatch error:", err);
+                console.error("Email dispatch error:", err);
                 document.getElementById('query-error-msg').classList.remove('hidden');
             } finally {
                 btn.disabled = false;
@@ -749,35 +845,16 @@
                         });
                     });
 
-                    if (!hasNegation) {
-                        return true;
-                    }
+                    if (!hasNegation) return true;
                 }
                 return false;
             }
 
-            const negationWords = [
-                'ללא', 'אין', 'לא', 'בלי', 'שלילי', 'נשללה', 'נשלל', 'ללא צורך', 'אין צורך', 'אין אינדיקציה', 
-                'no ', 'without ', 'not ', 'negative', 'free of', 'spared', 'ruled out', 'denies', 'no need'
-            ];
-
-            const lateralTerms = [
-                'לטראלית', 'צידית', 'לטרלית', 'lateral', 'mrnd', 'rnd', 'selective neck dissection', 
-                'levels ii', 'level ii', 'level iii', 'level iv', 'level v', 'levels 2', 'levels 3'
-            ];
-
-            const centralTerms = [
-                'מרכזית', 'central', 'level vi', 'level 6', 'פרא-טראכיאלית', 'פראטראכיאלית', 'מדור מרכזי', 'pretracheal', 'paratracheal'
-            ];
-
-            const lobectomyTerms = [
-                'lobectomy', 'כריתת אונה', 'אונה ימנית בלבד', 'אונה שמאלית בלבד', 'המי-תירואידקטומי', 
-                'hemithyroidectomy', 'isthmectomy', 'כריתת מיצר', 'partial thyroidectomy', 'אונה בלבד'
-            ];
-
-            const totalTerms = [
-                'total thyroidectomy', 'כריתה שלמה', 'כריתה מלאה', 'טוטאלית', 'תריס מלאה', 'completion', 'השלמת כריתה'
-            ];
+            const negationWords = ['ללא', 'אין', 'לא', 'בלי', 'שלילי', 'נשללה', 'נשלל', 'ללא צורך', 'אין צורך', 'no ', 'without ', 'not ', 'negative'];
+            const lateralTerms = ['לטראלית', 'צידית', 'לטרלית', 'lateral', 'mrnd', 'rnd', 'levels ii', 'level ii', 'level iii', 'level iv'];
+            const centralTerms = ['מרכזית', 'central', 'level vi', 'level 6', 'פרא-טראכיאלית'];
+            const lobectomyTerms = ['lobectomy', 'כריתת אונה', 'אונה ימנית בלבד', 'אונה שמאלית בלבד', 'hemithyroidectomy'];
+            const totalTerms = ['total thyroidectomy', 'כריתה שלמה', 'כריתה מלאה', 'טוטאלית', 'completion'];
 
             const hasLateral = isTermPresentAndAffirmative(fullText, lateralTerms, negationWords);
             const hasCentral = isTermPresentAndAffirmative(fullText, centralTerms, negationWords);
@@ -796,21 +873,14 @@
             }
 
             const hasNeckDissection = hasLateral || hasCentral;
-
             let nStage = "N0";
             if (hasLateral) nStage = "N1b";
             else if (hasCentral) nStage = "N1a";
 
-            return {
-                isTotal,
-                hasNeckDissection,
-                hasLateral,
-                hasCentral,
-                nStage
-            };
+            return { isTotal, hasNeckDissection, hasLateral, hasCentral, nStage };
         }
 
-        // Firebase Cloud Code Generation
+        // Firebase Cloud Save Procedure
         async function handleCreateCode(e, mode) {
             e.preventDefault();
             
@@ -878,6 +948,10 @@
                 }
             }
 
+            // שם ואימייל של הרופא הספציפי שמחובר כעת
+            const doctorFullName = activeDoctor ? (activeDoctor.fullName || `${activeDoctor.title} ${activeDoctor.firstName} ${activeDoctor.lastName}`.trim()) : 'ד"ר עמית ריטר';
+            const doctorEmailAddress = activeDoctor ? activeDoctor.email : 'doctor@hospital.org.il';
+
             const payload = {
                 mode: mode,
                 size: size,
@@ -891,37 +965,37 @@
                 customDetails: customDetails,
                 hasNeckDissection: hasNeckDissection,
                 isTotal: isTotal,
-                doctorName: activeDoctor.name || 'ד"ר עמית ריטר',
-                doctorEmail: activeDoctor.email || 'doctor@hospital.org.il'
+                doctorName: doctorFullName,
+                doctorEmail: doctorEmailAddress
             };
 
             const submitBtn = mode === 'override' ? document.getElementById('btn-submit-over') : document.getElementById('btn-submit-struct');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> ${currentLanguage === 'he' ? 'מפיק קוד בענן...' : 'Generating Cloud Code...'}`;
+            submitBtn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> ${currentLanguage === 'he' ? 'מפיק קוד בענן...' : 'Generating Code...'}`;
             lucide.createIcons();
 
             try {
-                // שמירה ישירה ב-Firebase
-                const saveResult = await saveRecordToCloud(payload);
-                const code = saveResult.code;
-                const expiresAt = saveResult.expiresAt;
-                const expDateStr = new Date(expiresAt).toLocaleDateString(currentLanguage === 'he' ? 'he-IL' : 'en-US');
+                const code = await saveRecordToCloud(payload);
+                if (code) {
+                    const expiresAt = Date.now() + (30 * 24 * 60 * 60 * 1000);
+                    const expDateStr = new Date(expiresAt).toLocaleDateString(currentLanguage === 'he' ? 'he-IL' : 'en-US');
 
-                document.getElementById('generated-code').innerText = code;
-                document.getElementById('code-expiration-info').innerText = currentLanguage === 'he' 
-                    ? `הקוד בתוקף עד לתאריך: ${expDateStr}` 
-                    : `Code valid until: ${expDateStr}`;
+                    document.getElementById('generated-code').innerText = code;
+                    document.getElementById('code-expiration-info').innerText = currentLanguage === 'he' 
+                        ? `הקוד בתוקף עד לתאריך: ${expDateStr}` 
+                        : `Code valid until: ${expDateStr}`;
 
-                const qrContainer = document.getElementById('qrcode-container');
-                qrContainer.innerHTML = '';
-                new QRCode(qrContainer, { text: code, width: 140, height: 140, colorDark : "#0f766e", colorLight : "#ffffff" });
+                    const qrContainer = document.getElementById('qrcode-container');
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, { text: code, width: 140, height: 140, colorDark : "#0f766e", colorLight : "#ffffff" });
 
-                document.getElementById('code-result').classList.remove('hidden');
-                document.getElementById('code-result').scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('code-result').classList.remove('hidden');
+                    document.getElementById('code-result').scrollIntoView({ behavior: 'smooth' });
+                }
             } catch (err) {
-                console.error("Cloud Save Error:", err);
-                alert(currentLanguage === 'he' ? 'חלה שגיאה ביצירת הקוד. ודא שפרטי Firebase מוגדרים כראוי.' : 'Error generating code. Check Firebase config.');
+                console.error("Firebase Save Error:", err);
+                alert(currentLanguage === 'he' ? 'חלה שגיאה בשמירת הנתונים ב-Firebase.' : 'Error saving record to Firebase.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
@@ -929,7 +1003,37 @@
             }
         }
 
-        // Firebase Cloud Fetch Patient Data
+        // Firebase Database Functions
+        async function saveRecordToCloud(patientData) {
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const now = Date.now();
+            const expiresAt = now + (30 * 24 * 60 * 60 * 1000);
+
+            await db.ref('records/' + code).set({
+                data: patientData,
+                createdAt: now,
+                expiresAt: expiresAt
+            });
+
+            return code;
+        }
+
+        async function getRecordFromCloud(code) {
+            if (!code) return null;
+            const cleanCode = code.trim().toUpperCase();
+            const snapshot = await db.ref('records/' + cleanCode).once('value');
+            
+            if (!snapshot.exists()) return null;
+
+            const record = snapshot.val();
+            if (record.expiresAt && Date.now() > record.expiresAt) {
+                await db.ref('records/' + cleanCode).remove();
+                return null;
+            }
+
+            return record.data;
+        }
+
         async function handleFetchPatientData() {
             const inputCode = document.getElementById('patient-code-input').value.trim().toUpperCase();
             if (!inputCode) {
@@ -943,22 +1047,13 @@
             lucide.createIcons();
 
             try {
-                // שליפה ישירה מ-Firebase
-                const fetchResult = await getRecordFromCloud(inputCode);
+                const record = await getRecordFromCloud(inputCode);
 
-                if (fetchResult.status === 404) {
-                    alert(currentLanguage === 'he' ? 'קוד הגישה שגוי או אינו קיים במערכת.' : 'Invalid or non-existent access code.');
+                if (!record) {
+                    alert(currentLanguage === 'he' ? 'קוד הגישה שגוי או שפג תוקפו.' : 'Invalid or expired access code.');
                     return;
                 }
 
-                if (fetchResult.status === 410) {
-                    alert(currentLanguage === 'he' 
-                        ? 'תוקף קוד הגישה פג (חלפו 30 ימים מיום הפקתו). אנא פנה לרופא המטפל לקבלת קוד חדש.' 
-                        : 'This access code has expired (30-day limit). Please contact your physician.');
-                    return;
-                }
-
-                const record = fetchResult.data;
                 currentRecord = record;
 
                 document.getElementById('patient-login').classList.add('hidden');
@@ -968,7 +1063,7 @@
 
             } catch (err) {
                 console.error("Fetch Patient Error:", err);
-                alert(currentLanguage === 'he' ? 'שגיאה בשליפת הנתונים. ודא שחיבור האינטרנט תקין.' : 'Error fetching patient data.');
+                alert(currentLanguage === 'he' ? 'שגיאה בשליפת הנתונים.' : 'Error fetching patient data.');
             } finally {
                 fetchBtn.disabled = false;
                 fetchBtn.innerHTML = `<span data-i18n="pat_log_btn">${translations[currentLanguage].pat_log_btn}</span>`;
@@ -1205,7 +1300,6 @@
                     ];
                 }
                 neckComps.forEach(c => {
-                    const item = document.getElementById('out-complications-neck');
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/70 p-5 space-y-2';
                     itemDiv.innerHTML = `
