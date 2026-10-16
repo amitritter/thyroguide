@@ -1195,5 +1195,25 @@
 
         lucide.createIcons();
     </script>
+<!-- טעינת ספריות Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  // הקוד שהעתקת מגוגל:
+  const firebaseConfig = {
+    apiKey: "הדבק_כאן_את_ה-apiKey_שלך",
+    authDomain: "thyroguide-xxx.firebaseapp.com",
+    databaseURL: "https://thyroguide-xxx-default-rtdb.firebaseio.com",
+    projectId: "thyroguide-xxx",
+    storageBucket: "thyroguide-xxx.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abc..."
+  };
+
+  // הפעלת החיבור
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
 </body>
 </html>
