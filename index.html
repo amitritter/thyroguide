@@ -408,10 +408,9 @@
 
     <script>
         // -------------------------------------------------------------------------
-        // 1. הגדרת מפתח GEMINI לסריקת טקסט חינמית בקוד צד-לקוח
-        // הכנס כאן מפתח מ- Google AI Studio (aistudio.google.com/app/apikey)
+        // 1. הגדרת מפתח GEMINI לסריקת טקסט. מוטמע בצורה "נסתרת" כעת דרך Headers
         // -------------------------------------------------------------------------
-        const GEMINI_API_KEY = "AQ.Ab8RN6LE6mq9KKi1DAU0dlgnpoB-v_YmPVg7oiEC0FhO0q2poA"; 
+        const GEMINI_API_KEY = "AQ.Ab8RN6LN1NblKkM_ZfasAduVmDO1qbo2OQ0mzbb_0i2Ezeg7KQ"; 
 
         // 2. הגדרת חיבור לבסיס הנתונים (Firebase Realtime DB & Auth)
         const firebaseConfig = {
@@ -547,7 +546,9 @@
             }
         }
 
-        // פענוח מסמך חינמי בצד לקוח מול Gemini API
+        // ==========================================
+        // עדכון חדש: שליחת המפתח דרך Header (עוקף שגיאות AQ)
+        // ==========================================
         async function processDocumentWithAI(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -556,13 +557,12 @@
             statusEl.innerHTML = `<i class="lucide-loader animate-spin w-4 h-4 mx-auto mb-1 text-indigo-600"></i> מנתח...`;
             
             if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
-                alert("לא נמצא מפתח GEMINI_API_KEY בקוד.\nבגרסה זו, הסריקה מתבצעת חינם דרך הדפדפן ולכן יש להדביק מפתח Google AI Studio בקוד ה-HTML.");
+                alert("לא נמצא מפתח GEMINI_API_KEY בקוד.");
                 statusEl.innerHTML = `העלה/צלם מסמך (חינם)<br><span class="text-[10px] text-indigo-500 font-normal">Gemini 1.5 API</span>`;
                 return;
             }
 
             try {
-                // המרת הקובץ ל-Base64
                 const base64Data = await new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result.split(',')[1]);
@@ -579,9 +579,13 @@
                     }]
                 };
 
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                // המפתח נשלח כאן דרך x-goog-api-key ולא בכתובת עצמה
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': GEMINI_API_KEY
+                    },
                     body: JSON.stringify(body)
                 });
                 
