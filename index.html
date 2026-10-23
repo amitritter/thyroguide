@@ -9,7 +9,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <!-- פונט עדין ונקי יותר - Heebo -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <style>
@@ -45,21 +44,28 @@
     <!-- Header -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm no-print">
         <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center flex-wrap gap-4">
+            
             <div class="flex items-center gap-4 cursor-pointer" onclick="confirmAndGoHome()">
-                <!-- לוגו אבסטרקטי ומינימליסטי - פרפר/עלה מצטלב -->
-                <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 20 C 35 20 20 40 40 65 C 45 72 50 80 50 85" stroke="#0f766e" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M50 20 C 65 20 80 40 60 65 C 55 72 50 80 50 85" stroke="#0f766e" stroke-width="4" stroke-linecap="round"/>
-                    <circle cx="50" cy="14" r="5" fill="#0f766e"/>
-                    <path d="M40 65 C 50 55 60 65 50 75" fill="#10b981" fill-opacity="0.2"/>
+                <!-- לוגו Head & Neck מינימליסטי ואנטומי -->
+                <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" rx="20" fill="#f0fdfa"/>
+                    <!-- Neck & Shoulders -->
+                    <path d="M 35 20 V 45 C 35 60 20 70 20 90 H 80 C 80 70 65 60 65 45 V 20" stroke="#0f766e" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Jawline -->
+                    <path d="M 28 15 C 40 30 60 30 72 15" stroke="#0f766e" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Thyroid / Target Area Highlight -->
+                    <path d="M 40 60 C 46 54 54 54 60 60 C 65 67 55 75 50 75 C 45 75 35 67 40 60 Z" fill="#10b981"/>
+                    <!-- Larynx Node -->
+                    <circle cx="50" cy="48" r="4.5" fill="#0f766e"/>
                 </svg>
-                <div class="flex flex-col">
-                    <div class="flex items-baseline gap-2">
-                        <h1 class="text-3xl font-extrabold text-teal-900 tracking-tight leading-none">THRIVE</h1>
-                        <span class="text-[9px] text-teal-700 font-bold uppercase tracking-wider hidden sm:block">
-                            Treatment & Healing Resources<br>for Individualized Virtual Education
-                        </span>
-                    </div>
+                
+                <!-- סידור טיפוגרפי מתקדם ומיושר -->
+                <div class="flex items-center gap-3">
+                    <h1 class="text-4xl font-extrabold text-teal-900 tracking-tight leading-none pt-1">THRIVE</h1>
+                    <div class="hidden sm:block h-8 w-px bg-teal-200 opacity-80 mx-1"></div>
+                    <span class="text-[10px] text-teal-700 font-bold uppercase tracking-widest hidden sm:block leading-tight mt-1 text-left" dir="ltr">
+                        Treatment & Healing Resources<br>for Individualized Virtual Education
+                    </span>
                 </div>
             </div>
             
@@ -173,7 +179,6 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">סוג הגידול / איבר מטרה</label>
-                            <!-- LTR alignment and English only for Primary Site -->
                             <select id="primary-site-selector" onchange="renderClinicalFields()" class="w-full border border-teal-400 bg-white rounded-lg px-3 py-2 font-bold text-teal-900 shadow-sm" dir="ltr" required>
                                 <option value="" disabled selected>Select Primary Site...</option>
                                 <option value="thyroid">Thyroid</option>
@@ -471,7 +476,6 @@
             }
         }
 
-        // חשיפת פונקציית עזר ל-DOM הגלובלי (לשימוש בתוך ה-HTML המוזרק)
         window.toggleThyroidSubtypes = function(val) {
             document.getElementById('th-benign-type-container').classList.toggle('hidden', val !== 'benign');
         };
@@ -689,7 +693,6 @@
                     
                     payload.clinical.surgery = document.getElementById('th-surgery-type').value;
                 }
-                // איסוף נתונים לאיברים אחרים יתווסף בהמשך הפיתוח...
             } else {
                 payload.overrideTitle = document.getElementById('ov-surgery-title').value;
                 payload.overrideText = document.getElementById('ov-surgery-details').value;
@@ -710,7 +713,7 @@
         }
 
         // ==========================================
-        // תצוגת מטופל דינמית (זמנית ללא פירוט מלא של התירואיד)
+        // תצוגת מטופל דינמית
         // ==========================================
         async function handleFetchPatientData() {
             const inputCode = document.getElementById('patient-code-input').value.trim().toUpperCase();
@@ -752,9 +755,9 @@
             } else {
                 if (r.site === 'thyroid') {
                     narrative = `<p>מתוכנן ניתוח <strong>${r.clinical.surgery === 'total' ? 'כריתה שלמה' : (r.clinical.surgery === 'completion' ? 'השלמת כריתה' : 'כריתת אונה')}</strong> של בלוטת התריס בעקבות ממצא ${r.clinical.diseaseType === 'benign' ? 'שפיר' : 'המחשיד לממאירות'}.</p>`;
-                    if(r.clinical.hasETE) narrative += `<p>הניתוח יכלול הפרדה זהירה מאיברים סמוכים עקב חשד למעורבות מחוץ לקופסית הבלוטה.</p>`;
+                    if(r.clinical.hasETE) narrative += `<p>הניתוח יכלול הפרדה זהירה מאיברים סמוכים עקב מעורבות אפשרית מחוץ לקופסית הבלוטה.</p>`;
                     const hasND = r.clinical.nd.centralR || r.clinical.nd.centralL || r.clinical.nd.lateralR || r.clinical.nd.lateralL;
-                    if(hasND) narrative += `<p>כמו כן יוסרו בלוטות לימפה מאזור הצוואר למניעת פיזור.</p>`;
+                    if(hasND) narrative += `<p>כמו כן יוסרו בלוטות לימפה מאזור הצוואר.</p>`;
                     comps = `<ul class="list-disc list-inside text-sm space-y-2 text-slate-700"><li>צרידות (פגיעה בעצב מיתר הקול) - לרוב זמנית.</li><li>ירידה ברמת הסידן בדם הדורשת כדורים.</li><li>דימום המחייב השגחה.</li></ul>`;
                 } else {
                     narrative = `<p>הצוות הרפואי תכנן עבורך ניתוח המותאם במדויק למיקום ולשלב הגידול במטרה להסיר את הרקמה הנגועה תוך שימור תפקודי מרבי.</p>`;
