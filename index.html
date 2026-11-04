@@ -23,7 +23,6 @@
         [dir="ltr"] .ml-auto { margin-right: auto; margin-left: 0; }
         [dir="ltr"] .text-right { text-align: left; }
 
-        /* אנימציות */
         #chat-widget { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; transform-origin: bottom left; }
         .chat-hidden { transform: scale(0); opacity: 0; pointer-events: none; }
         .chat-visible { transform: scale(1); opacity: 1; pointer-events: auto; }
@@ -178,36 +177,56 @@
                 <div class="border-t border-slate-200 pt-6 space-y-5">
                     <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-emerald-600"></i> 3. הגדרות והנחיות טרום-ניתוח</h3>
                     <div class="grid sm:grid-cols-2 gap-6">
-                        <div class="bg-white p-5 rounded-xl border border-slate-200">
-                            <h4 class="text-sm font-bold text-teal-800 mb-3 border-b border-slate-100 pb-2">בדיקות מעבדה ודימות</h4>
-                            <div class="space-y-2.5 mb-5 grid grid-cols-2">
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="ספירת דם (CBC)"> ספירת דם (CBC)</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="כימיה ותפקודי קרישה"> כימיה וקרישה</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי תריס (TSH, FT4)"> תפקודי תריס</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אולטרסאונד צוואר (US)"> US צוואר</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="CT צוואר/חזה"> CT צוואר/חזה</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="צילום חזה"> צילום חזה</label>
+                        <!-- Col 1: Tests & Imaging -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">בדיקות דם</h4>
+                                <div class="space-y-2 grid grid-cols-2">
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="ספירת דם (CBC)"> ספירת דם (CBC)</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="כימיה ותפקודי קרישה"> כימיה וקרישה</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי תריס (TSH, FT4)"> תפקודי תריס</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אק&quot;ג (ECG)"> אק"ג (ECG)</label>
+                                </div>
                             </div>
-                            <h4 class="text-sm font-bold text-teal-800 mb-3 border-b border-slate-100 pb-2 mt-4">אישורים רפואיים</h4>
-                            <div class="space-y-2.5 grid grid-cols-2">
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="אישור קרדיולוג"> קרדיולוג</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="אישור נוירולוג"> נוירולוג</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="רופא ריאות"> רופא ריאות</label>
+                            <div>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">בדיקות דימות ותפקוד</h4>
+                                <div class="space-y-2 grid grid-cols-2">
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אולטרסאונד צוואר (US)"> US צוואר</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="CT צוואר/חזה"> CT צוואר/חזה</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי ריאה (PFT)"> תפקודי ריאה (PFT)</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="דופלקס קרוטידים"> דופלקס קרוטידים</label>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="bg-rose-50 p-5 rounded-xl border border-rose-200">
-                            <h4 class="text-sm font-bold text-rose-900 mb-3 border-b border-rose-200 pb-2 flex items-center gap-2"><i data-lucide="droplet" class="w-4 h-4 text-rose-600"></i> מדללי דם</h4>
-                            <label class="checkbox-label text-sm font-bold text-rose-800 mb-4">
-                                <input type="checkbox" id="preop-stop-blood" class="checkbox-custom accent-rose-700" onchange="document.getElementById('blood-thinner-options').classList.toggle('hidden', !this.checked)"> המטופל נוטל מדללי דם
-                            </label>
-                            <div id="blood-thinner-options" class="hidden space-y-3 bg-white p-4 rounded-lg border border-rose-100">
-                                <span class="text-xs font-bold text-rose-700 block mb-1">סמן את כל המדללים הרלוונטיים:</span>
-                                <label class="checkbox-label text-sm"><input type="checkbox" value="aspirin" class="checkbox-custom accent-rose-600 thinner-cb"> אספירין / קרטיה</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" value="plavix" class="checkbox-custom accent-rose-600 thinner-cb"> פלביקס / קלופידוגרל</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" value="eliquis" class="checkbox-custom accent-rose-600 thinner-cb"> אליקוויס / קסרלטו / פרדקסה</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" value="coumadin" class="checkbox-custom accent-rose-600 thinner-cb"> קומדין</label>
-                                <label class="checkbox-label text-sm"><input type="checkbox" value="clexane" class="checkbox-custom accent-rose-600 thinner-cb"> קלקסן</label>
+                        <!-- Col 2: Consults & Blood thinners -->
+                        <div class="space-y-6 flex flex-col">
+                            <div class="bg-white p-5 rounded-xl border border-slate-200">
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">אישורים רפואיים</h4>
+                                <div class="space-y-2 grid grid-cols-2 mb-3">
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="אישור קרדיולוג"> קרדיולוג</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="אישור נוירולוג"> נוירולוג</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="רופא ריאות"> רופא ריאות</label>
+                                </div>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <label class="checkbox-label text-sm whitespace-nowrap"><input type="checkbox" id="consult-other-cb" class="checkbox-custom" onchange="document.getElementById('consult-other-text').classList.toggle('hidden', !this.checked)"> אחר:</label>
+                                    <input type="text" id="consult-other-text" class="hidden border-b border-slate-300 focus:border-teal-700 outline-none text-sm px-2 py-0.5 w-full bg-slate-50" placeholder="פרט כאן...">
+                                </div>
+                            </div>
+
+                            <div class="bg-rose-50 p-5 rounded-xl border border-rose-200 mt-auto">
+                                <h4 class="text-sm font-bold text-rose-900 mb-3 border-b border-rose-200 pb-2 flex items-center gap-2"><i data-lucide="droplet" class="w-4 h-4 text-rose-600"></i> מדללי דם</h4>
+                                <label class="checkbox-label text-sm font-bold text-rose-800 mb-4">
+                                    <input type="checkbox" id="preop-stop-blood" class="checkbox-custom accent-rose-700" onchange="document.getElementById('blood-thinner-options').classList.toggle('hidden', !this.checked)"> המטופל נוטל מדללי דם
+                                </label>
+                                <div id="blood-thinner-options" class="hidden space-y-3 bg-white p-4 rounded-lg border border-rose-100">
+                                    <span class="text-xs font-bold text-rose-700 block mb-1">סמן את כל המדללים הרלוונטיים:</span>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" value="aspirin" class="checkbox-custom accent-rose-600 thinner-cb"> אספירין / קרטיה</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" value="plavix" class="checkbox-custom accent-rose-600 thinner-cb"> פלביקס / קלופידוגרל</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" value="eliquis" class="checkbox-custom accent-rose-600 thinner-cb"> אליקוויס / קסרלטו / פרדקסה</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" value="coumadin" class="checkbox-custom accent-rose-600 thinner-cb"> קומדין</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" value="clexane" class="checkbox-custom accent-rose-600 thinner-cb"> קלקסן</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -384,7 +403,7 @@
         function confirmAndGoHome() { showView('landing'); }
 
         // ==========================================
-        // עזרי UI והזנה קלינית - THYROID
+        // UI & CLINICAL ENGINE - THYROID
         // ==========================================
         function toggleInputMode() {
             const mode = document.querySelector('input[name="input_mode"]:checked').value;
@@ -429,34 +448,9 @@
             else { input.classList.remove('text-rose-600', 'border-rose-500', 'bg-rose-50'); icon.innerHTML = ''; }
         };
 
-        window.checkND = function() {
-            const cr = document.getElementById('nd-central-r').checked, cl = document.getElementById('nd-central-l').checked;
-            const lr = document.getElementById('nd-lateral-r').checked, ll = document.getElementById('nd-lateral-l').checked;
-            const container = document.getElementById('th-nd-surgery-container');
-            const select = document.getElementById('th-surgery-nd');
-            
-            if(cr || cl || lr || ll) {
-                container.classList.remove('hidden');
-                select.innerHTML = '<option value="none">ללא דיסקציה נוספת</option>';
-                if(cr || cl) {
-                    if(cr && cl) select.innerHTML += '<option value="central_bi">Central Neck Dissection (דו-צדדית)</option>';
-                    else select.innerHTML += '<option value="central_uni">Central Neck Dissection (חד-צדדית)</option>';
-                }
-                if(lr || ll) {
-                    if(lr && ll) select.innerHTML += '<option value="lateral_bi">Lateral Neck Dissection (דו-צדדית)</option>';
-                    else select.innerHTML += '<option value="lateral_uni">Lateral Neck Dissection (חד-צדדית)</option>';
-                }
-                if((cr||cl) && (lr||ll)) select.innerHTML += '<option value="comprehensive" selected>Comprehensive (Central + Lateral)</option>';
-                else select.selectedIndex = 1;
-            } else {
-                container.classList.add('hidden');
-            }
-        };
-
         const formsHTML = {
             'thyroid': `
                 <div class="grid sm:grid-cols-2 gap-x-6 gap-y-5 fade-in">
-                    <!-- Diagnosis -->
                     <div>
                         <label class="block text-xs font-bold mb-1">סוג מחלה / חשד</label>
                         <select id="th-disease-type" class="w-full border border-slate-300 p-2.5 rounded-lg bg-white font-bold text-slate-800 shadow-sm focus:border-teal-600 focus:outline-none" onchange="toggleThyroidSubtypes(this.value)">
@@ -475,7 +469,7 @@
                             <label class="block text-xs font-bold mb-1">Bethesda</label>
                             <select id="th-bethesda-mal" onchange="handleBethesdaChange(this.value)" class="w-full border border-slate-300 p-2.5 rounded-lg font-mono text-sm" dir="ltr">
                                 <option value="">Unknown</option><option value="3">III (AUS/FLUS)</option><option value="4">IV (Follicular)</option>
-                                <option value="5">V (Suspicious)</option><option value="6">VI (Malignant)</option><option value="medullary">VI (Medullary Carcinoma)</option>
+                                <option value="5">V (Suspicious)</option><option value="6">VI (Papillary Carcinoma)</option><option value="medullary">VI (Medullary Carcinoma)</option>
                             </select>
                         </div>
                         <div>
@@ -491,9 +485,9 @@
                         <div><label class="block text-xs font-bold mb-1">Afirma</label><select id="th-afirma-ben" class="w-full border border-slate-300 p-2.5 rounded-lg font-mono text-sm" dir="ltr"><option value="">Unknown</option><option value="4">~4% risk</option></select></div>
                     </div>
 
-                    <!-- MTC Labs (Hidden by default) -->
+                    <!-- MTC Labs (Additional) -->
                     <div id="mtc-labs-container" class="col-span-2 bg-purple-50 p-4 rounded-xl border border-purple-200 hidden">
-                        <h4 class="text-xs font-bold text-purple-900 mb-3 border-b border-purple-200 pb-1">MTC Specific Labs</h4>
+                        <h4 class="text-xs font-bold text-purple-900 mb-3 border-b border-purple-200 pb-1">בדיקות נוספות לחשד למדולרי (MTC)</h4>
                         <div class="grid grid-cols-3 gap-4">
                             <div><label class="block text-xs font-bold text-slate-700 mb-1">Calcitonin (pg/mL)</label><input type="number" id="lab-calcitonin" class="w-full border border-slate-300 p-2 rounded-lg text-sm font-mono text-center"></div>
                             <div><label class="block text-xs font-bold text-slate-700 mb-1">CEA (ng/mL)</label><input type="number" id="lab-cea" class="w-full border border-slate-300 p-2 rounded-lg text-sm font-mono text-center"></div>
@@ -504,8 +498,16 @@
                     <div><label class="block text-xs font-bold mb-1">גודל (ס"מ)</label><input type="number" step="0.1" min="0" id="th-size" class="w-full border border-slate-300 p-2.5 rounded-lg"></div>
                     <div><label class="block text-xs font-bold mb-1">מיקום</label><select id="th-location" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm"><option value="right">ימין</option><option value="left">שמאל</option><option value="isthmus">איסתמוס</option><option value="bilateral">דו-צדדי</option></select></div>
 
-                    <div class="col-span-2 flex flex-wrap gap-6 mt-1"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="th-retrosternal" class="checkbox-custom"> ירידה רטרוסטרנלית</label></div>
+                    <div class="col-span-2 flex flex-wrap gap-6 mt-1">
+                        <label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="th-retrosternal" class="checkbox-custom" onchange="document.getElementById('thoracic-standby-container').classList.toggle('hidden', !this.checked)"> ירידה רטרוסטרנלית</label>
+                    </div>
                     
+                    <div id="thoracic-standby-container" class="col-span-2 hidden bg-amber-50 p-3 rounded-lg border border-amber-200">
+                        <label class="flex items-center gap-2 text-sm font-bold text-amber-900">
+                            <input type="checkbox" id="th-thoracic-standby" class="checkbox-custom accent-amber-600"> נדרש גיבוי או נוכחות כירורג חזה (Thoracic Surgeon Standby)
+                        </label>
+                    </div>
+
                     <div id="th-ete-container" class="col-span-2">
                         <label class="flex items-center gap-1.5 text-sm font-medium mb-2"><input type="checkbox" id="th-ete" class="checkbox-custom" onchange="document.getElementById('ete-targets').classList.toggle('hidden', !this.checked)"> מעורבות איברים (Gross ETE)</label>
                         <div id="ete-targets" class="hidden bg-rose-50 p-4 rounded-xl border border-rose-200">
@@ -518,10 +520,11 @@
                         </div>
                     </div>
 
-                    <div class="col-span-2"><h4 class="font-bold text-teal-800 border-b border-teal-100 pb-1 mt-3 text-sm">גרורות צוואריות (Neck Nodes)</h4></div>
+                    <!-- Neck Dissection always available to select -->
+                    <div class="col-span-2"><h4 class="font-bold text-teal-800 border-b border-teal-100 pb-1 mt-3 text-sm">גרורות צוואריות (Neck Nodes & Dissection)</h4></div>
                     <div class="col-span-2 grid sm:grid-cols-2 gap-4 bg-teal-50/50 p-4 rounded-xl border border-teal-100">
-                        <div><strong class="text-xs font-bold block mb-3 text-teal-900">Central Compartment</strong><div class="flex gap-6"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-r" onchange="checkND()" class="accent-teal-700 w-4 h-4"> ימין</label><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-l" onchange="checkND()" class="accent-teal-700 w-4 h-4"> שמאל</label></div></div>
-                        <div><strong class="text-xs font-bold block mb-3 text-teal-900">Lateral Compartment</strong><div class="flex gap-6"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-lateral-r" onchange="checkND()" class="accent-teal-700 w-4 h-4"> ימין</label><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-lateral-l" onchange="checkND()" class="accent-teal-700 w-4 h-4"> שמאל</label></div></div>
+                        <div><strong class="text-xs font-bold block mb-3 text-teal-900">Central Compartment (Level VI)</strong><div class="flex gap-6"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-r" class="accent-teal-700 w-4 h-4"> ימין</label><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-l" class="accent-teal-700 w-4 h-4"> שמאל</label></div></div>
+                        <div><strong class="text-xs font-bold block mb-3 text-teal-900">Lateral Compartment (Levels II-V)</strong><div class="flex gap-6"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-lateral-r" class="accent-teal-700 w-4 h-4"> ימין</label><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-lateral-l" class="accent-teal-700 w-4 h-4"> שמאל</label></div></div>
                     </div>
 
                     <div class="col-span-2"><h4 class="font-bold text-teal-800 border-b border-teal-100 pb-1 mt-3 text-sm">מעבדה מקיפה</h4></div>
@@ -537,14 +540,19 @@
                     </div>
                     
                     <div class="col-span-2"><h4 class="font-bold text-teal-800 border-b border-teal-100 pb-1 mt-4 text-sm">תוכנית ניתוחית סופית</h4></div>
-                    <div class="col-span-2">
+                    <div class="col-span-2 space-y-3">
                         <select id="th-surgery-type" class="w-full border-2 border-teal-600 p-3 rounded-xl font-bold text-teal-900 bg-teal-50 shadow-sm text-base focus:outline-none">
                             <option value="lobectomy">כריתת אונה (Thyroid Lobectomy)</option><option value="total">כריתה שלמה (Total Thyroidectomy)</option><option value="completion">השלמת כריתה (Completion Thyroidectomy)</option>
                         </select>
-                        <div id="th-nd-surgery-container" class="hidden mt-3 pt-3 border-t border-teal-200">
-                            <label class="block text-xs font-bold mb-1 text-teal-800">דיסקציה צווארית מתוכננת:</label>
+                        <div id="th-nd-surgery-container" class="mt-2">
+                            <label class="block text-xs font-bold mb-1 text-teal-800">בחירת דיסקציה צווארית נלווית:</label>
                             <select id="th-surgery-nd" class="w-full border border-teal-400 p-3 rounded-xl font-bold text-teal-900 bg-white shadow-sm focus:outline-none">
-                                <option value="none">ללא</option>
+                                <option value="none">ללא דיסקציה צווארית</option>
+                                <option value="central_uni">Central Neck Dissection (חד-צדדית)</option>
+                                <option value="central_bi">Central Neck Dissection (דו-צדדית)</option>
+                                <option value="lateral_uni">Lateral Neck Dissection (חד-צדדית)</option>
+                                <option value="lateral_bi">Lateral Neck Dissection (דו-צדדית)</option>
+                                <option value="comprehensive">Comprehensive (Central + Lateral)</option>
                             </select>
                         </div>
                     </div>
@@ -568,6 +576,11 @@
                 Array.from(document.querySelectorAll('.thinner-cb:checked')).forEach(cb => thinners.push(cb.value));
             }
 
+            let consultsArr = Array.from(document.querySelectorAll('.preop-consult-cb:checked')).map(cb => cb.value);
+            if(document.getElementById('consult-other-cb').checked && document.getElementById('consult-other-text').value.trim()) {
+                consultsArr.push(`אחר: ${document.getElementById('consult-other-text').value.trim()}`);
+            }
+
             let payload = { 
                 site, age: document.getElementById('patient-age').value, gender: document.getElementById('patient-gender').value,
                 surgeryDate: document.getElementById('surgery-date').value || null,
@@ -576,7 +589,7 @@
                 preop: {
                     thinners: thinners,
                     tests: Array.from(document.querySelectorAll('.preop-test-cb:checked')).map(cb => cb.value),
-                    consults: Array.from(document.querySelectorAll('.preop-consult-cb:checked')).map(cb => cb.value)
+                    consults: consultsArr
                 },
                 clinical: {}
             };
@@ -592,13 +605,14 @@
                         size: parseFloat(document.getElementById('th-size').value) || 0,
                         location: document.getElementById('th-location').value,
                         retrosternal: document.getElementById('th-retrosternal').checked,
+                        thoracicStandby: document.getElementById('th-retrosternal').checked ? document.getElementById('th-thoracic-standby').checked : false,
                         hasETE: isMal ? document.getElementById('th-ete').checked : false,
                         eteTargets: isMal ? { strap: document.getElementById('ete-strap').checked, trachea: document.getElementById('ete-trachea').checked, larynx: document.getElementById('ete-larynx').checked, esophagus: document.getElementById('ete-esophagus').checked } : null,
                         nd: { centralR: document.getElementById('nd-central-r').checked, centralL: document.getElementById('nd-central-l').checked, lateralR: document.getElementById('nd-lateral-r').checked, lateralL: document.getElementById('nd-lateral-l').checked },
                         labs: { tsh: document.getElementById('lab-tsh').value, ft4: document.getElementById('lab-ft4').value, ca: document.getElementById('lab-ca').value, pth: document.getElementById('lab-pth').value, tg: document.getElementById('lab-tg').value, tgab: document.getElementById('lab-tgab').value, tpo: document.getElementById('lab-tpo').value, trab: document.getElementById('lab-trab').value },
                         mtc: (isMal && document.getElementById('th-bethesda-mal').value === 'medullary') ? { calcitonin: document.getElementById('lab-calcitonin').value, cea: document.getElementById('lab-cea').value, meta: document.getElementById('lab-meta').value } : null,
                         surgery: document.getElementById('th-surgery-type').value,
-                        ndSurgery: document.getElementById('th-nd-surgery-container').classList.contains('hidden') ? 'none' : document.getElementById('th-surgery-nd').value
+                        ndSurgery: document.getElementById('th-surgery-nd').value
                     };
                 }
             } else {
@@ -617,7 +631,7 @@
         }
 
         // ==========================================
-        // תצוגת מטופל דינמית
+        // PATIENT DASHBOARD & DATA FETCHING
         // ==========================================
         async function handleFetchPatientData() {
             const inputCode = document.getElementById('patient-code-input').value.trim().toUpperCase();
@@ -636,33 +650,31 @@
         }
 
         function buildDiseaseSummaryAndAJCC(r) {
-            if(r.mode === 'override' || r.site !== 'thyroid') return "סיכום הנתונים מבוסס על הערכת המנתח שלך לקראת הפעולה. לקבלת סטייג'ינג רשמי יש להמתין לתוצאות הפתולוגיה הסופיות.";
+            if(r.mode === 'override' || r.site !== 'thyroid') return "סיכום הנתונים מבוסס על הערכת המנתח שלך לקראת הפעולה.";
             const c = r.clinical;
             const age = parseInt(r.age);
             let summary = `אובחן ממצא בבלוטת התריס בגודל של כ-${c.size} ס"מ (אונה ${c.location === 'right' ? 'ימנית' : c.location === 'left' ? 'שמאלית' : 'דו צדדי / איסתמוס'}). `;
-            if(c.diseaseType === 'benign') return summary + `הממצא בעל מאפיינים שפירים. ההחלטה הניתוחית נובעת מגודל, תסמינים (כגון לחץ) או פעילות יתר.`;
+            if(c.diseaseType === 'benign') return summary + `הממצא בעל מאפיינים שפירים.`;
             
             const isMTC = c.bethesda === 'medullary';
-            summary += isMTC ? "הניקור העלה חשד לקרצינומה מדולרית (MTC). " : "הניקור העלה חשד לממאירות או סיכון המצדיק ניתוח. ";
+            summary += isMTC ? "הניקור העלה חשד לקרצינומה מדולרית (MTC). " : "הניקור העלה חשד לממאירות (Papillary Carcinoma). ";
+            if(c.retrosternal) summary += "קיימת ירידה רטרוסטרנלית של הבלוטה לבית החזה" + (c.thoracicStandby ? " (עם גיבוי כירורג חזה)" : "") + ". ";
             if(c.hasETE) summary += "קיימת עדות למעורבות מחוץ לקופסית הבלוטה. ";
-            
-            const hasND = c.nd.centralR || c.nd.centralL || c.nd.lateralR || c.nd.lateralL;
-            if(hasND) summary += "הודגמו בלוטות לימפה חשודות בצוואר המצריכות הרחבה של הניתוח. ";
 
-            // Simplified AJCC 8th Edition Clinical Staging Estimation
             let stage = "I";
             let t = 1;
             if(c.hasETE) t = 4; else if(c.size > 4) t = 3; else if(c.size > 2) t = 2;
-            let n = hasND ? 1 : 0; // simplified, disregarding N1a vs N1b for pure staging text
+            let hasND = (c.nd?.centralR || c.nd?.centralL || c.nd?.lateralR || c.nd?.lateralL) || (c.ndSurgery && c.ndSurgery !== 'none');
+            let n = hasND ? 1 : 0;
 
-            if(!isMTC) { // DTC
+            if(!isMTC) {
                 if(age < 55) { stage = "I (לפי גיל)"; } 
                 else {
                     if(t <= 2 && n === 0) stage = "I";
                     else if((t <= 2 && n === 1) || t === 3) stage = "II";
                     else if(t === 4) stage = "III/IV";
                 }
-            } else { // MTC
+            } else {
                 if(t === 1 && n === 0) stage = "I";
                 else if((t === 2 || t === 3) && n === 0) stage = "II";
                 else if(n === 1) stage = "III";
@@ -678,7 +690,7 @@
                 targetDate = new Date(surgeryDate);
                 targetDate.setDate(targetDate.getDate() - daysOffset);
             } else {
-                targetDate.setDate(targetDate.getDate() + 1); // fallback to tomorrow
+                targetDate.setDate(targetDate.getDate() + 1);
             }
             const dateStr = targetDate.toISOString().replace(/-|:|\.\d+/g, "").substring(0,8);
             const icsData = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//THRIVE//NONSGML v1.0//EN\nBEGIN:VEVENT\nDTSTART;VALUE=DATE:${dateStr}\nSUMMARY:${title}\nDESCRIPTION:${desc}\nEND:VEVENT\nEND:VCALENDAR`;
@@ -686,29 +698,27 @@
         }
 
         function buildComplications(r) {
-            if(r.mode === 'override' || r.site !== 'thyroid') return `<p class="text-sm">הרופא ישוחח עמך פרטנית על הסיבוכים הספציפיים במעמד ההסכמה לניתוח.</p>`;
+            if(r.mode === 'override' || r.site !== 'thyroid') return `<p class="text-sm">הרופא ישוחח עמך פרטנית על הסיבוכים.</p>`;
             let html = "";
             const mkAccordion = (title, content) => `<details class="group bg-white rounded-lg mb-3 border border-rose-100 overflow-hidden cursor-pointer shadow-sm"><summary class="px-4 py-3 font-bold text-rose-900 bg-rose-50/50 hover:bg-rose-100 transition flex justify-between items-center outline-none"><span>${title}</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary><div class="px-4 py-3 text-sm text-slate-700 leading-relaxed border-t border-rose-50">${content}</div></details>`;
             
-            // Bleeding
-            html += mkAccordion('דימום בצוואר (המטומה)', '<strong>שכיחות:</strong> כ-1-2%.<br><strong>השפעה:</strong> מכיוון שהצוואר הוא חלל סגור, דימום עלול ללחוץ על קנה הנשימה. אנו משגיחים בקפידה באשפוז. במקרה נדיר של דימום, לעיתים יש צורך בחזרה לחדר ניתוח לעצירתו. ההשפעה לטווח ארוך היא אפסית.');
-            // Voice
-            html += mkAccordion('פגיעה בעצב מיתר הקול (צרידות)', `<strong>שכיחות:</strong> צרידות זמנית (חולפת תוך שבועות-חודשים) מופיעה בכ-5-10%. צרידות קבועה נדירה (1-2%).<br><strong>השפעה:</strong> העצב החוזר (RLN) עובר צמוד לבלוטה. אנו משתמשים במכשור ניטור עצבי (NIM) לאורכו של הניתוח לזיהוי ושמירה עליו. פגיעה חד-צדדית גורמת לצרידות. <em>רק בניתוח דו-צדדי (כריתה מלאה)</em> קיימת סכנה תיאורטית נדירה לפגיעה בשני העצבים שעלולה להצריך התערבות נשימתית (פיום קנה).`);
-            // Calcium - conditional
-            if(r.clinical.surgery === 'total' || r.clinical.surgery === 'completion' || r.clinical.ndSurgery?.includes('central')) {
-                html += mkAccordion('ירידה בסידן (היפופראתירואידיזם)', `<strong>שכיחות:</strong> זמנית (חולפת) בכ-20-30%. קבועה נדירה (כ-2%).<br><strong>השפעה:</strong> בלוטות הסידן (Parathyroids) נחות על בלוטת התריס. בכריתה שלמה או בניקוי לימפתי מרכזי, אספקת הדם אליהן עלולה להיפגע זמנית. תרגיש עקצוצים סביב השפתיים או באצבעות, ונדאג לספק לך כדורי סידן וויטמין D עד להתאוששות הבלוטות. במקרים נדירים תזדקק לכדורים לכל החיים.`);
-            } else if (r.clinical.surgery === 'lobectomy') {
-                html += mkAccordion('ירידה בסידן - נדיר מאוד', `בכריתה של אונה אחת בלבד (הניתוח שלך), הבלוטות בצד השני נשארות שלמות, ולכן ירידה בסידן נדירה ביותר.`);
+            html += mkAccordion('דימום בצוואר (המטומה)', '<strong>שכיחות:</strong> כ-1-2%.<br><strong>השפעה:</strong> הצوואר חלל סגור, דימום עלול ללחוץ על נשימה. אנו משגיחים בקפידה.');
+            html += mkAccordion('פגיעה בעצב מיתר הקול (צרידות)', `<strong>שכיחות:</strong> זמנית 5-10%, קבועה 1-2%.<br><strong>השפעה:</strong> אנו משתמשים בניטור עצבי (NIM).`);
+            
+            if(r.clinical?.surgery === 'total' || r.clinical?.surgery === 'completion' || r.clinical?.ndSurgery?.includes('central')) {
+                html += mkAccordion('ירידה בסידן (היפופראתירואידיזם)', `<strong>שכיחות:</strong> זמנית 20-30%, קבועה כ-2%.<br><strong>השפעה:</strong> טופל בכדורי סידן וויטמין D עד להתאוששות.`);
+            } else {
+                html += mkAccordion('ירידה בסידן - נדיר מאוד', `בכריתת אונה בלבד, הבלוטות בצד השני שלמות.`);
             }
-            // Lateral Neck Dissection - conditional
-            if(r.clinical.ndSurgery && r.clinical.ndSurgery.includes('lateral')) {
-                html += mkAccordion('סיבוכי דיסקציה צווארית צידית (Lateral)', `<ul class="list-disc pr-5 space-y-1"><li><strong>חולשת כתף:</strong> פגיעה בעצב ה-SAN עלולה לגרום לקושי בהרמת היד מעל גובה הכתף. לרוב אנו מצליחים לשמר את העצב, ונעזרים בפיזיותרפיה לשיקום.</li><li><strong>דלף נוזל לימפתי (Chyle Leak):</strong> בעיקר בניתוחים בצד שמאל של הצוואר. מצריך לעיתים דיאטה נטולת שומן או ניקוז ממושך.</li><li><strong>חוסר תחושה:</strong> אזור הצלקת והתנוך עלול להישאר רדום בשל חיתוך עצבי תחושה קטנים בצוואר. התחושה משתפרת לאט חודשים ארוכים.</li></ul>`);
+            
+            if(r.clinical?.ndSurgery && r.clinical.ndSurgery !== 'none') {
+                html += mkAccordion('סיבוכי דיסקציה צווארית', `<ul><li><strong>חולשת כתף:</strong> אפשרות פגיעה עצבית זמנית ב-SAN.</li><li><strong>דלף לימפתי:</strong> בניתוחים נרחבים.</li><li><strong>חוסר תחושה עורית מקומית.</strong></li></ul>`);
             }
             return html;
         }
 
         function renderPatientRecord(r) {
-            const genderStr = r.gender === 'female' ? { you: 'את', referred: 'הופנית', invited: 'מוזמנת', scheduled: 'מתוכננת' } : { you: 'אתה', referred: 'הופנית', invited: 'מוזמן', scheduled: 'מתוכנן' };
+            const genderStr = r.gender === 'female' ? { referred: 'הופנית' } : { referred: 'הופנית' };
             document.getElementById('out-banner-tag').innerText = `מלווה מטופל - ${r.doctorName}`;
             document.getElementById('out-surgery-date-badge').innerText = r.surgeryDate ? `תאריך ניתוח: ${new Date(r.surgeryDate).toLocaleDateString('he-IL')}` : 'טרם נקבע תאריך';
             
@@ -717,21 +727,19 @@
             
             document.getElementById('out-disease-summary').innerHTML = buildDiseaseSummaryAndAJCC(r);
 
-            // Pathway Accordions
             const mkAccordion = (title, content, icon) => `<details class="group bg-slate-50 rounded-lg border border-slate-200 overflow-hidden cursor-pointer shadow-sm mb-2"><summary class="px-4 py-3 font-bold text-teal-900 hover:bg-slate-100 transition flex justify-between items-center outline-none"><div class="flex items-center gap-2"><i data-lucide="${icon}" class="w-4 h-4 text-teal-600"></i><span>${title}</span></div><i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary><div class="px-4 py-3 text-sm text-slate-700 leading-relaxed border-t border-slate-200 bg-white">${content}</div></details>`;
             
             let pathway = "";
-            pathway += mkAccordion('טרום ניתוח והכנה', `ימים ספורים לפני הניתוח יש להשלים את בדיקות הדם וההדמיות. תתבקש/י להיות בצום מלא (בלי אוכל ומים) 8 שעות לפני הניתוח, ולהפסיק מדללי דם על פי ההנחיות בצ'קליסט מטה.`, 'clock');
-            pathway += mkAccordion('קבלה ביום הניתוח', `הגעה למחלקת קבלת חולים בבוקר הניתוח. שם תעבור/י קבלה על ידי אחות, בדיקת רופא מרדים לחתימה על טופס הרדמה, ושיחה קצרה אחרונה עם ד"ר ${r.doctorName.split(' ').pop()} לוודא שאין שאלות אחרונות.`, 'hospital');
-            pathway += mkAccordion('ההרדמה והניתוח עצמו', `הניתוח מתבצע בהרדמה כללית מלאה – אינך חש/ה דבר. לאחר שתרדם/י, הצוות יחטא את הצוואר ויבצע חתך רוחבי תחתון בקפל צווארי (למקסום אסתטיקה). הבלוטה מופרדת בזהירות מקנה הנשימה, מכלי הדם ומהעצבים האחראים על מיתרי הקול (המונטרים אלקטרונית). אם נדרשת הוצאת בלוטות לימפה (דיסקציה), היא תבוצע מאותו החתך או בהרחבה שלו. בסיום, החתך יתפר בתפרים נמסים או מיוחדים, ולעיתים יושאר נקז קטן.`, 'activity');
-            pathway += mkAccordion('התאוששות', `מיד לאחר סיום הניתוח וההתעוררות, תועבר/י לחדר התאוששות למשך כשעתיים. הצוות יעקוב אחר מדדים, נשימה ורמות כאב, וייתן משככי כאבים לוריד במידת הצורך. צרידות קלה וכאב בגרון שכיחים בשלב זה.`, 'bed');
-            pathway += mkAccordion('אשפוז במחלקה', `במחלקה תתחיל/י לשתות, לאכול ולרדת מהמיטה. הצוות יעקוב אחר הניקוז מהצוואר (אם הושאר נקז) ואחר רמות הסידן בדם. ${r.clinical?.surgery==='lobectomy' ? 'לרוב, השחרור מתבצע למחרת הניתוח.' : 'מאחר ומדובר בכריתה נרחבת, ננטר סידן בקפידה, והשחרור לרוב אורך 1-3 ימים.'}`, 'home');
-            pathway += mkAccordion('שחרור, החלמה ותשובה פתולוגית', `בשחרור תקבל/י הנחיות לטיפול בצלקת. התשובה הפתולוגית הסופית – המפרטת את סוג התאים ואת הצורך בהמשך טיפול (כגון יוד רדיואקטיבי במידת הצורך) – מתקבלת לרוב כעבור 2-4 שבועות. ביקורת ראשונה במרפאה תיקבע בסמוך.`, 'microscope');
+            pathway += mkAccordion('טרום ניתוח והכנה', `ימים ספורים לפני הניתוח יש להשלים את הבדיקות והאישורים. צום מלא 8 שעות לפני הניתוח.`, 'clock');
+            pathway += mkAccordion('קבלה ביום הניתוח', `הגעה למחלקת קבלת חולים בבוקר הניתוח, בדיקת מרדים ושיחה עם המנתח.`, 'hospital');
+            pathway += mkAccordion('ההרדמה והניתוח עצמו', `הניתוח בהרדמה כללית. חתך צווארי רוחבי מדויק, הפרדת בלוטה תוך ניטור עצבי וסגירה אסתטית.`, 'activity');
+            pathway += mkAccordion('התאוששות', `השגחה בחדר התאוששות למשך כשעתיים ומתן משככי כאבים לפי הצורך.`, 'bed');
+            pathway += mkAccordion('אשפוז במחלקה', `מעקב מדדים, תזונה הדרגתית, בדיקות דם לסידן.`, 'home');
+            pathway += mkAccordion('שחרור, החלמה ותשובה פתולוגית', `קבלת הנחיות לשחרור ומעקב פתולוגי.`, 'microscope');
             document.getElementById('out-pathway-container').innerHTML = pathway;
 
             document.getElementById('out-complications-container').innerHTML = buildComplications(r);
 
-            // Tasks
             const clContainer = document.getElementById('checklist-container'); clContainer.innerHTML = '';
             let tasksHTML = ""; let taskIdx = 0;
             const addTask = (text, icsParams = null) => {
@@ -750,15 +758,15 @@
                     r.preop.thinners.forEach(bt => {
                         let text = "", days = 0;
                         if(bt === 'aspirin') { text = "הפסקת אספירין / קרטיה - 7 ימים לפני הניתוח"; days = 7; }
-                        else if(bt === 'plavix') { text = "הפסקת פלביקס / קלופידוגרל - 7 ימים לפני הניתוח"; days = 7; }
-                        else if(bt === 'eliquis') { text = "הפסקת אליקוויס / קסרלטו - כ-72 שעות (3 ימים) לפני הניתוח"; days = 3; }
-                        else if(bt === 'coumadin') { text = "הפסקת קומדין - 5 ימים לפני הניתוח (וודא אישור לגשר קלקסן)"; days = 5; }
+                        else if(bt === 'plavix') { text = "הפסקת פלביקס - 7 ימים לפני הניתוח"; days = 7; }
+                        else if(bt === 'eliquis') { text = "הפסקת אליקוויס / קסרלטו - 3 ימים לפני הניתוח"; days = 3; }
+                        else if(bt === 'coumadin') { text = "הפסקת קומדין - 5 ימים לפני הניתוח"; days = 5; }
                         else if(bt === 'clexane') { text = "הפסקת קלקסן - 24 שעות לפני הניתוח"; days = 1; }
                         addTask(text, { title: "להפסיק מדלל דם", days: days });
                     });
                 }
-                (r.preop.tests || []).forEach(t => addTask('השלמת בדיקה: ' + t));
-                (r.preop.consults || []).forEach(c => addTask('השגת אישור / ייעוץ: ' + c));
+                (r.preop.tests || []).forEach(t => addTask('השלמת: ' + t));
+                (r.preop.consults || []).forEach(c => addTask('אישור / ייעוץ: ' + c));
             }
             addTask('צום מוחלט 8 שעות לפני הניתוח', { title: "צום לפני ניתוח", days: 1 });
             clContainer.innerHTML = tasksHTML;
@@ -773,13 +781,13 @@
         };
 
         // ==========================================
-        // Gemini Chatbot Integration
+        // GEMINI CHATBOT INTEGRATION
         // ==========================================
         function toggleChat() {
             const widget = document.getElementById('chat-widget');
             widget.classList.toggle('chat-hidden'); widget.classList.toggle('chat-visible');
             if(widget.classList.contains('chat-visible') && document.getElementById('chat-messages').children.length === 0) {
-                appendMsg('bot', "שלום! אני ה-AI של THRIVE. עברתי על התיק הרפואי שלך. אפשר לשאול אותי שאלות על הניתוח המתוכנן שלך, על סיבוכים, התאוששות וכל פרט קליני. אני מסתמך על ההנחיות הבינלאומיות (ATA guidelines). במה אוכל לעזור?");
+                appendMsg('bot', "שלום! אני ה-AI של THRIVE. עברתי על התיק הרפואי שלך. אפשר לשאול אותי שאלות על הניתוח, הסיבוכים וההתאוששות.");
             }
         }
         
@@ -792,16 +800,10 @@
             appendMsg('user', text); 
             input.value = ''; input.disabled = true; btn.innerHTML = `<i class="lucide-loader w-4 h-4 animate-spin text-white"></i>`;
             
-            // Build Context Prompt
             const contextData = JSON.stringify(currentRecord);
             const systemPrompt = `You are a specialized medical AI assistant for THRIVE, supporting patients undergoing head and neck oncology surgeries.
-The current patient's clinical file (JSON): ${contextData}.
-Instructions:
-1. Address the patient in empathetic, professional Hebrew.
-2. Based your answers on the latest ATA (American Thyroid Association) guidelines or UpToDate when discussing thyroid cancer, complications, and pathways.
-3. Answer the patient's question accurately using their specific JSON context (e.g. if they ask about calcium drops and they are only having a lobectomy, reassure them it's extremely rare).
-4. Do NOT provide exact surgical dates or times if not in the JSON. Tell them to contact the doctor.
-5. If the question is outside standard guidelines or involves life-threatening symptoms, instruct them to contact their surgical team via the form or ER.`;
+Current patient clinical file (JSON): ${contextData}.
+Instructions: Address the patient in empathetic, professional Hebrew based on ATA guidelines.`;
 
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -814,9 +816,9 @@ Instructions:
                 const data = await res.json();
                 if(data.error) throw new Error(data.error.message);
                 const reply = data.candidates[0].content.parts[0].text;
-                appendMsg('bot', marked.parse(reply)); // Using marked.js to render bold/bullets properly
+                appendMsg('bot', marked.parse(reply));
             } catch (err) {
-                appendMsg('bot', "מצטער, הייתה לי שגיאה בתקשורת עם השרת הרפואי. נסה שוב או פנה לצוות.");
+                appendMsg('bot', "שגיאה בתקשורת עם השרת. נסה שוב.");
             } finally {
                 input.disabled = false; btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i>`; lucide.createIcons();
                 input.focus();
@@ -825,10 +827,8 @@ Instructions:
         
         function appendMsg(sender, text) {
             const div = document.createElement('div');
-            // user: teal, right aligned. bot: white/border, left-ish.
             div.className = sender === 'user' ? "mr-auto bg-teal-100 text-teal-900 p-3 rounded-xl rounded-tl-none max-w-[85%] shadow-sm" : "ml-auto bg-white border border-slate-200 text-slate-700 p-3 rounded-xl rounded-tr-none max-w-[85%] shadow-sm bot-msg prose prose-sm prose-teal";
-            if(sender === 'bot') div.innerHTML = text; // innerHTML for markdown
-            else div.innerText = text; 
+            if(sender === 'bot') div.innerHTML = text; else div.innerText = text; 
             document.getElementById('chat-messages').appendChild(div); 
             document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }
