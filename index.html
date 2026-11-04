@@ -384,7 +384,7 @@
             if (viewName === 'doctor' && !activeDoctor) document.getElementById('view-doctor-auth').classList.remove('hidden');
             else document.getElementById('view-' + viewName).classList.remove('hidden');
             if (viewName === 'patient') document.getElementById('patient-login').classList.remove('hidden');
-            lucide.createIcons();
+            try { lucide.createIcons(); } catch(e){}
         }
 
         function switchAuthTab(tab) {
@@ -502,7 +502,6 @@
                         <div><label class="block text-xs font-bold mb-1">Afirma</label><select id="th-afirma-ben" class="w-full border border-slate-300 p-2.5 rounded-lg font-mono text-sm" dir="ltr"><option value="">Unknown</option><option value="4">~4% risk</option></select></div>
                     </div>
 
-                    <!-- MTC Labs (Attached inside standard labs section or highlighted) -->
                     <div id="mtc-labs-container" class="col-span-2 bg-purple-50 p-4 rounded-xl border border-purple-200 hidden">
                         <h4 class="text-xs font-bold text-purple-900 mb-3 border-b border-purple-200 pb-1">בדיקות דם ייעודיות למדולרי (MTC)</h4>
                         <div class="grid grid-cols-3 gap-4">
@@ -643,7 +642,7 @@
                 document.getElementById('qrcode-container').innerHTML = '';
                 new QRCode(document.getElementById('qrcode-container'), { text: code, width: 140, height: 140, colorDark : "#0f766e", colorLight : "#ffffff" });
                 document.getElementById('code-result').classList.remove('hidden'); document.getElementById('code-result').scrollIntoView({ behavior: 'smooth' });
-            } catch (err) { alert('שגיאה בשמירה'); } finally { btn.disabled = false; btn.innerHTML = `הפק רשומה`; }
+            } catch (err) { alert('שגיאה בשמירה: ' + err.message); } finally { btn.disabled = false; btn.innerHTML = `הפק רשומה`; }
         }
 
         // ==========================================
@@ -652,26 +651,46 @@
         async function handleFetchPatientData() {
             const inputCode = document.getElementById('patient-code-input').value.trim().toUpperCase();
             if (!inputCode) return;
-            document.getElementById('btn-fetch-patient').innerHTML = `טוען...`;
+            const btn = document.getElementById('btn-fetch-patient');
+            btn.innerHTML = `טוען...`;
             try {
                 const snapshot = await db.ref('records/' + inputCode).once('value');
-                if (!snapshot.exists()) return alert('קוד שגוי או פג תוקף.');
+                if (!snapshot.exists()) {
+                    alert('קוד שגוי או פג תוקף.');
+                    btn.innerHTML = `הצג נתונים`;
+                    return;
+                }
+                
                 const wrapper = snapshot.val();
-                const record = wrapper.data ? wrapper.data : wrapper; // handle both direct and nested data structures
-                record.code = inputCode; currentRecord = record;
+                const record = wrapper.data ? wrapper.data : wrapper; 
+                record.code = inputCode; 
+                currentRecord = record;
                 
                 showView('patient-data-display');
-                document.getElementById('floating-chat-btn').classList.remove('hidden'); document.getElementById('floating-chat-btn').classList.add('flex');
+                document.getElementById('floating-chat-btn').classList.remove('hidden'); 
+                document.getElementById('floating-chat-btn').classList.add('flex');
                 
-                renderPatientRecord(record);
-            } catch (err) { alert('שגיאה בשליפה'); } finally { document.getElementById('btn-fetch-patient').innerHTML = `הצג נתונים`; }
+                // מפרידים את השגיאה של הרינדור משגיאת השרת
+                try {
+                    renderPatientRecord(record);
+                } catch(renderErr) {
+                    console.error("Render Error:", renderErr);
+                    alert("הנתונים נשלפו, אך הייתה בעיה בהצגתם: " + renderErr.message);
+                }
+                
+            } catch (err) { 
+                console.error("Fetch Error:", err);
+                alert('שגיאה בחיבור לשרת (Firebase): ' + (err.message || "נא לוודא חיבור לאינטרנט וסביבת עבודה חוקית.")); 
+            } finally { 
+                btn.innerHTML = `הצג נתונים`; 
+            }
         }
 
         function buildDiseaseSummaryAndAJCC(r) {
             if(r.mode === 'override' || r.site !== 'thyroid') return "סיכום הנתונים מבוסס על הערכת המנתח שלך לקראת הפעולה.";
-            const c = r.clinical;
-            const age = parseInt(r.age);
-            let summary = `אובחן ממצא בבלוטת התריס בגודל של כ-${c.size} ס"מ (אונה ${c.location === 'right' ? 'ימנית' : c.location === 'left' ? 'שמאלית' : 'דו צדדי / איסתמוס'}). `;
+            const c = r.clinical || {};
+            const age = parseInt(r.age) || 0;
+            let summary = `אובחן ממצא בבלוטת התריס בגודל של כ-${c.size || 0} ס"מ (אונה ${c.location === 'right' ? 'ימנית' : c.location === 'left' ? 'שמאלית' : 'דו צדדי / איסתמוס'}). `;
             if(c.diseaseType === 'benign') return summary + `הממצא בעל מאפיינים שפירים.`;
             
             const isMTC = c.bethesda === 'medullary';
@@ -681,7 +700,7 @@
 
             let stage = "I";
             let t = 1;
-            if(c.hasETE) t = 4; else if(c.size > 4) t = 3; else if(c.size > 2) t = 2;
+            if(c.hasETE) t = 4; else if((c.size || 0) > 4) t = 3; else if((c.size || 0) > 2) t = 2;
             let hasND = (c.nd?.centralR || c.nd?.centralL || c.nd?.lateralR || c.nd?.lateralL) || (c.ndSurgery && c.ndSurgery !== 'none');
             let n = hasND ? 1 : 0;
 
@@ -723,13 +742,14 @@
             html += mkAccordion('דימום בצוואר (המטומה)', '<strong>שכיחות:</strong> כ-1-2%.<br><strong>השפעה:</strong> הצוואר הוא חלל סגור, דימום עלול ללחוץ על נשימה. אנו משגיחים בקפידה.');
             html += mkAccordion('פגיעה בעצב מיתר הקול (צרידות)', `<strong>שכיחות:</strong> זמנית 5-10%, קבועה 1-2%.<br><strong>השפעה:</strong> אנו משתמשים בניטור עצבי (NIM).`);
             
-            if(r.clinical?.surgery === 'total' || r.clinical?.surgery === 'completion' || r.clinical?.ndSurgery?.includes('central')) {
+            const ndSurg = r.clinical?.ndSurgery || '';
+            if(r.clinical?.surgery === 'total' || r.clinical?.surgery === 'completion' || ndSurg.includes('central')) {
                 html += mkAccordion('ירידה בסידן (היפופראתירואידיזם)', `<strong>שכיחות:</strong> זמנית 20-30%, קבועה כ-2%.<br><strong>השפעה:</strong> טופל בכדורי סידן וויטמין D עד להתאוששות.`);
             } else {
                 html += mkAccordion('ירידה בסידן - נדיר מאוד', `בכריתת אונה בלבד, הבלוטות בצד השני שלמות.`);
             }
             
-            if(r.clinical?.ndSurgery && r.clinical.ndSurgery !== 'none') {
+            if(ndSurg && ndSurg !== 'none') {
                 html += mkAccordion('סיבוכי דיסקציה צווארית', `<ul><li><strong>חולשת כתף:</strong> אפשרות פגיעה עצבית זמנית ב-SAN.</li><li><strong>דלף לימפתי:</strong> בניתוחים נרחבים.</li><li><strong>חוסר תחושה עורית מקומית.</strong></li></ul>`);
             }
             return html;
@@ -737,10 +757,14 @@
 
         function renderPatientRecord(r) {
             const genderStr = r.gender === 'female' ? { referred: 'הופנית' } : { referred: 'הופנית' };
-            document.getElementById('out-banner-tag').innerText = `מלווה מטופל - ${r.doctorName}`;
+            
+            const docNameRaw = r.doctorName || 'הצוות הרפואי';
+            const docNameClean = docNameRaw.replace("ד\"ר ", "").replace("פרופ' ", "");
+
+            document.getElementById('out-banner-tag').innerText = `מלווה מטופל - ${docNameRaw}`;
             document.getElementById('out-surgery-date-badge').innerText = r.surgeryDate ? `תאריך ניתוח: ${new Date(r.surgeryDate).toLocaleDateString('he-IL')}` : 'טרם נקבע תאריך';
             
-            document.getElementById('out-greeting').innerText = `שלום, ${genderStr.referred} על ידי ד"ר ${r.doctorName.replace("ד\"ר ", "").replace("פרופ' ", "")} לניתוח בלוטת התריס.`;
+            document.getElementById('out-greeting').innerText = `שלום, ${genderStr.referred} על ידי ד"ר ${docNameClean} לניתוח בלוטת התריס.`;
             document.getElementById('out-surgery-primary').innerText = (r.mode === 'override' && r.overrideTitle) ? r.overrideTitle : (r.clinical?.surgery === 'total' ? 'כריתה שלמה (Total Thyroidectomy)' : (r.clinical?.surgery === 'completion' ? 'השלמת כריתה' : 'כריתת אונה (Lobectomy)'));
             
             document.getElementById('out-disease-summary').innerHTML = buildDiseaseSummaryAndAJCC(r);
@@ -761,12 +785,19 @@
             const clContainer = document.getElementById('checklist-container'); clContainer.innerHTML = '';
             let tasksHTML = ""; let taskIdx = 0;
             const addTask = (text, icsParams = null) => {
-                const key = `${r.code}-task-${taskIdx++}`; const checked = localStorage.getItem(key) === 'true';
+                const key = `${r.code}-task-${taskIdx++}`; 
+                
+                // הגנה קריטית: בחלונות אנונימיים מסוימים LocalStorage נחסם וזורק שגיאה שמונעת מהמערכת לעלות!
+                let checked = false;
+                try { checked = localStorage.getItem(key) === 'true'; } catch(e) { console.warn("LocalStorage access blocked"); }
+                
                 const style = checked ? 'line-through text-slate-400' : 'text-slate-800 font-bold';
                 let btnHtml = "";
                 if(icsParams && r.surgeryDate) {
-                    const url = createICSBlobURL(icsParams.title, text, icsParams.days, r.surgeryDate);
-                    btnHtml = `<a href="${url}" download="thrive_reminder.ics" class="ml-2 text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded hover:bg-emerald-200 transition shrink-0 no-print">הוסף ליומן 📅</a>`;
+                    try {
+                        const url = createICSBlobURL(icsParams.title, text, icsParams.days, r.surgeryDate);
+                        btnHtml = `<a href="${url}" download="thrive_reminder.ics" class="ml-2 text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded hover:bg-emerald-200 transition shrink-0 no-print">הוסף ליומן 📅</a>`;
+                    } catch(e) {} // Fallback in case of Date error
                 }
                 tasksHTML += `<div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition"><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 accent-emerald-600" ${checked ? 'checked' : ''} onchange="toggleChecklist(this, '${key}')"><span class="text-sm transition-all ${style}">${text}</span></label>${btnHtml}</div>`;
             };
@@ -780,7 +811,7 @@
                         else if(bt === 'eliquis') { text = "הפסקת אליקוויס / קסרלטו - 3 ימים לפני הניתוח"; days = 3; }
                         else if(bt === 'coumadin') { text = "הפסקת קומדין - 5 ימים לפני הניתוח"; days = 5; }
                         else if(bt === 'clexane') { text = "הפסקת קלקסן - 24 שעות לפני הניתוח"; days = 1; }
-                        addTask(text, { title: "להפסיק מדלל דם", days: days });
+                        if(text) addTask(text, { title: "להפסיק מדלל דם", days: days });
                     });
                 }
                 (r.preop.tests || []).forEach(t => addTask('השלמת: ' + t));
@@ -788,11 +819,12 @@
             }
             addTask('צום מוחלט 8 שעות לפני הניתוח', { title: "צום לפני ניתוח", days: 1 });
             clContainer.innerHTML = tasksHTML;
-            lucide.createIcons();
+            
+            try { lucide.createIcons(); } catch(e) {}
         }
 
         window.toggleChecklist = function(el, key) {
-            localStorage.setItem(key, el.checked);
+            try { localStorage.setItem(key, el.checked); } catch(e) {} // הגנה במקרה של חסימת LocalStorage
             const span = el.nextElementSibling;
             if(el.checked) { span.classList.add('line-through', 'text-slate-400'); span.classList.remove('text-slate-800', 'font-bold'); }
             else { span.classList.remove('line-through', 'text-slate-400'); span.classList.add('text-slate-800', 'font-bold'); }
@@ -838,7 +870,8 @@ Instructions: Address the patient in empathetic, professional Hebrew based on AT
             } catch (err) {
                 appendMsg('bot', "שגיאה בתקשורת עם השרת. נסה שוב.");
             } finally {
-                input.disabled = false; btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i>`; lucide.createIcons();
+                input.disabled = false; btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i>`; 
+                try { lucide.createIcons(); } catch(e){}
                 input.focus();
             }
         }
@@ -862,7 +895,7 @@ Instructions: Address the patient in empathetic, professional Hebrew based on AT
             } catch (err) { alert("שגיאה בשליחה."); } finally { btn.disabled = false; btn.innerHTML = `שלח הודעה`; }
         }
 
-        lucide.createIcons();
+        try { lucide.createIcons(); } catch(e){}
     </script>
 </body>
 </html>
