@@ -38,7 +38,7 @@
             body { background-color: #ffffff !important; color: #000000 !important; }
             .glass-panel { border: none !important; box-shadow: none !important; background: white !important; padding: 0 !important; }
             main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
-            #view-patient, #patient-data-display { display: block !important; }
+            #view-patient, #view-patient-data-display { display: block !important; }
             #patient-login { display: none !important; }
         }
     </style>
@@ -282,7 +282,7 @@
         </div>
         
         <!-- 4. PATIENT DASHBOARD -->
-        <div id="patient-data-display" class="hidden max-w-4xl mx-auto space-y-6 pb-10">
+        <div id="view-patient-data-display" class="hidden max-w-4xl mx-auto space-y-6 pb-10">
             <div class="bg-white p-8 rounded-3xl shadow-sm border-2 border-teal-700 mt-6 relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-2.5 bg-teal-700"></div>
                 <div class="flex justify-between items-center mb-4">
@@ -371,19 +371,56 @@
             if (user) {
                 const snap = await db.ref('doctors/' + user.uid).once('value');
                 if (snap.exists()) { activeDoctor = snap.val(); activeDoctor.uid = user.uid; }
-                document.getElementById('doc-welcome-subtitle').innerText = `מחובר כעת: ${activeDoctor ? activeDoctor.fullName : user.email}`;
+                const subtitle = document.getElementById('doc-welcome-subtitle');
+                if (subtitle) subtitle.innerText = `מחובר כעת: ${activeDoctor ? activeDoctor.fullName : user.email}`;
             } else { activeDoctor = null; }
         });
 
+        // פונקציית הניווט - עכשיו בטוחה ב-100% נגד שגיאות Null
         function showView(viewName) {
-            ['view-landing', 'view-doctor-auth', 'view-doctor', 'view-patient', 'patient-data-display'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById('floating-chat-btn').classList.add('hidden');
-            document.getElementById('chat-widget').classList.replace('chat-visible', 'chat-hidden');
+            const views = [
+                'view-landing', 
+                'view-doctor-auth', 
+                'view-doctor', 
+                'view-patient', 
+                'view-patient-data-display'
+            ];
             
-            if (viewName === 'doctor-auth') document.getElementById('doc-login-form').reset();
-            if (viewName === 'doctor' && !activeDoctor) document.getElementById('view-doctor-auth').classList.remove('hidden');
-            else document.getElementById('view-' + viewName).classList.remove('hidden');
-            if (viewName === 'patient') document.getElementById('patient-login').classList.remove('hidden');
+            // 1. הסתרת כל המסכים באופן בטוח
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            
+            // 2. טיפול בכפתורי הצ'אט
+            const floatBtn = document.getElementById('floating-chat-btn');
+            if (floatBtn) floatBtn.classList.add('hidden');
+            
+            const chatW = document.getElementById('chat-widget');
+            if (chatW && chatW.classList.contains('chat-visible')) {
+                chatW.classList.replace('chat-visible', 'chat-hidden');
+            }
+            
+            // 3. הצגת המסך המבוקש לפי הלוגיקה
+            if (viewName === 'doctor-auth') {
+                const frm = document.getElementById('doc-login-form');
+                if (frm) frm.reset();
+            }
+            
+            if (viewName === 'doctor' && !activeDoctor) {
+                const docAuth = document.getElementById('view-doctor-auth');
+                if (docAuth) docAuth.classList.remove('hidden');
+            } else {
+                // מנסה למצוא את המסך עם או בלי קידומת view
+                const target = document.getElementById('view-' + viewName) || document.getElementById(viewName);
+                if (target) target.classList.remove('hidden');
+            }
+            
+            if (viewName === 'patient') {
+                const pLogin = document.getElementById('patient-login');
+                if (pLogin) pLogin.classList.remove('hidden');
+            }
+            
             try { lucide.createIcons(); } catch(e){}
         }
 
@@ -398,6 +435,7 @@
                 regBtn.classList.replace('text-slate-500', 'text-teal-700'); regBtn.classList.add('border-b-2', 'border-teal-700', 'font-bold'); loginBtn.classList.remove('border-b-2', 'font-bold');
             }
         }
+        
         async function handleDoctorRegister(e) {
             e.preventDefault(); const btn = document.getElementById('btn-register-submit'); btn.disabled = true; btn.innerText = "נרשם...";
             try {
@@ -407,6 +445,7 @@
                 activeDoctor = { ...docData, uid: userCred.user.uid }; showView('doctor');
             } catch (err) { alert(err.message); } finally { btn.disabled = false; btn.innerText = "צור חשבון"; }
         }
+        
         async function handleDoctorLogin(e) {
             e.preventDefault(); const btn = document.getElementById('btn-login-submit'); btn.disabled = true; btn.innerText = "מתחבר...";
             try {
@@ -416,6 +455,7 @@
                 showView('doctor');
             } catch (err) { alert("שגיאה בהתחברות"); } finally { btn.disabled = false; btn.innerText = "התחבר"; }
         }
+        
         async function logoutDoctor() { await auth.signOut(); activeDoctor = null; showView('landing'); }
         function confirmAndGoHome() { showView('landing'); }
 
@@ -666,21 +706,17 @@
                 record.code = inputCode; 
                 currentRecord = record;
                 
+                // מפעיל את המסך החדש עם השם המתוקן ב-HTML
                 showView('patient-data-display');
-                document.getElementById('floating-chat-btn').classList.remove('hidden'); 
-                document.getElementById('floating-chat-btn').classList.add('flex');
                 
-                // מפרידים את השגיאה של הרינדור משגיאת השרת
-                try {
-                    renderPatientRecord(record);
-                } catch(renderErr) {
-                    console.error("Render Error:", renderErr);
-                    alert("הנתונים נשלפו, אך הייתה בעיה בהצגתם: " + renderErr.message);
-                }
+                const chatBtn = document.getElementById('floating-chat-btn');
+                if(chatBtn) { chatBtn.classList.remove('hidden'); chatBtn.classList.add('flex'); }
+                
+                renderPatientRecord(record);
                 
             } catch (err) { 
-                console.error("Fetch Error:", err);
-                alert('שגיאה בחיבור לשרת (Firebase): ' + (err.message || "נא לוודא חיבור לאינטרנט וסביבת עבודה חוקית.")); 
+                console.error("Fetch/Render Error:", err);
+                alert('שגיאה בתהליך הבאת והצגת הנתונים: ' + (err.message || "נא לוודא חיבור לאינטרנט וסביבת עבודה חוקית.")); 
             } finally { 
                 btn.innerHTML = `הצג נתונים`; 
             }
@@ -761,13 +797,20 @@
             const docNameRaw = r.doctorName || 'הצוות הרפואי';
             const docNameClean = docNameRaw.replace("ד\"ר ", "").replace("פרופ' ", "");
 
-            document.getElementById('out-banner-tag').innerText = `מלווה מטופל - ${docNameRaw}`;
-            document.getElementById('out-surgery-date-badge').innerText = r.surgeryDate ? `תאריך ניתוח: ${new Date(r.surgeryDate).toLocaleDateString('he-IL')}` : 'טרם נקבע תאריך';
+            const bTag = document.getElementById('out-banner-tag');
+            if (bTag) bTag.innerText = `מלווה מטופל - ${docNameRaw}`;
             
-            document.getElementById('out-greeting').innerText = `שלום, ${genderStr.referred} על ידי ד"ר ${docNameClean} לניתוח בלוטת התריס.`;
-            document.getElementById('out-surgery-primary').innerText = (r.mode === 'override' && r.overrideTitle) ? r.overrideTitle : (r.clinical?.surgery === 'total' ? 'כריתה שלמה (Total Thyroidectomy)' : (r.clinical?.surgery === 'completion' ? 'השלמת כריתה' : 'כריתת אונה (Lobectomy)'));
+            const dBadge = document.getElementById('out-surgery-date-badge');
+            if (dBadge) dBadge.innerText = r.surgeryDate ? `תאריך ניתוח: ${new Date(r.surgeryDate).toLocaleDateString('he-IL')}` : 'טרם נקבע תאריך';
             
-            document.getElementById('out-disease-summary').innerHTML = buildDiseaseSummaryAndAJCC(r);
+            const greet = document.getElementById('out-greeting');
+            if (greet) greet.innerText = `שלום, ${genderStr.referred} על ידי ד"ר ${docNameClean} לניתוח בלוטת התריס.`;
+            
+            const prim = document.getElementById('out-surgery-primary');
+            if (prim) prim.innerText = (r.mode === 'override' && r.overrideTitle) ? r.overrideTitle : (r.clinical?.surgery === 'total' ? 'כריתה שלמה (Total Thyroidectomy)' : (r.clinical?.surgery === 'completion' ? 'השלמת כריתה' : 'כריתת אונה (Lobectomy)'));
+            
+            const dSum = document.getElementById('out-disease-summary');
+            if (dSum) dSum.innerHTML = buildDiseaseSummaryAndAJCC(r);
 
             const mkAccordion = (title, content, icon) => `<details class="group bg-slate-50 rounded-lg border border-slate-200 overflow-hidden cursor-pointer shadow-sm mb-2"><summary class="px-4 py-3 font-bold text-teal-900 hover:bg-slate-100 transition flex justify-between items-center outline-none"><div class="flex items-center gap-2"><i data-lucide="${icon}" class="w-4 h-4 text-teal-600"></i><span>${title}</span></div><i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary><div class="px-4 py-3 text-sm text-slate-700 leading-relaxed border-t border-slate-200 bg-white">${content}</div></details>`;
             
@@ -778,56 +821,63 @@
             pathway += mkAccordion('התאוששות', `השגחה בחדר התאוששות למשך כשעתיים ומתן משככי כאבים לפי הצורך.`, 'bed');
             pathway += mkAccordion('אשפוז במחלקה', `מעקב מדדים, תזונה הדרגתית, בדיקות דם לסידן.`, 'home');
             pathway += mkAccordion('שחרור, החלמה ותשובה פתולוגית', `קבלת הנחיות לשחרור ומעקב פתולוגי.`, 'microscope');
-            document.getElementById('out-pathway-container').innerHTML = pathway;
+            
+            const pCont = document.getElementById('out-pathway-container');
+            if (pCont) pCont.innerHTML = pathway;
 
-            document.getElementById('out-complications-container').innerHTML = buildComplications(r);
+            const cCont = document.getElementById('out-complications-container');
+            if (cCont) cCont.innerHTML = buildComplications(r);
 
-            const clContainer = document.getElementById('checklist-container'); clContainer.innerHTML = '';
-            let tasksHTML = ""; let taskIdx = 0;
-            const addTask = (text, icsParams = null) => {
-                const key = `${r.code}-task-${taskIdx++}`; 
-                
-                // הגנה קריטית: בחלונות אנונימיים מסוימים LocalStorage נחסם וזורק שגיאה שמונעת מהמערכת לעלות!
-                let checked = false;
-                try { checked = localStorage.getItem(key) === 'true'; } catch(e) { console.warn("LocalStorage access blocked"); }
-                
-                const style = checked ? 'line-through text-slate-400' : 'text-slate-800 font-bold';
-                let btnHtml = "";
-                if(icsParams && r.surgeryDate) {
-                    try {
-                        const url = createICSBlobURL(icsParams.title, text, icsParams.days, r.surgeryDate);
-                        btnHtml = `<a href="${url}" download="thrive_reminder.ics" class="ml-2 text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded hover:bg-emerald-200 transition shrink-0 no-print">הוסף ליומן 📅</a>`;
-                    } catch(e) {} // Fallback in case of Date error
+            const clContainer = document.getElementById('checklist-container');
+            if (clContainer) {
+                clContainer.innerHTML = '';
+                let tasksHTML = ""; let taskIdx = 0;
+                const addTask = (text, icsParams = null) => {
+                    const key = `${r.code}-task-${taskIdx++}`; 
+                    
+                    let checked = false;
+                    try { checked = localStorage.getItem(key) === 'true'; } catch(e) {}
+                    
+                    const style = checked ? 'line-through text-slate-400' : 'text-slate-800 font-bold';
+                    let btnHtml = "";
+                    if(icsParams && r.surgeryDate) {
+                        try {
+                            const url = createICSBlobURL(icsParams.title, text, icsParams.days, r.surgeryDate);
+                            btnHtml = `<a href="${url}" download="thrive_reminder.ics" class="ml-2 text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded hover:bg-emerald-200 transition shrink-0 no-print">הוסף ליומן 📅</a>`;
+                        } catch(e) {}
+                    }
+                    tasksHTML += `<div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition"><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 accent-emerald-600" ${checked ? 'checked' : ''} onchange="toggleChecklist(this, '${key}')"><span class="text-sm transition-all ${style}">${text}</span></label>${btnHtml}</div>`;
+                };
+
+                if(r.preop) {
+                    if(r.preop.thinners && r.preop.thinners.length > 0) {
+                        r.preop.thinners.forEach(bt => {
+                            let text = "", days = 0;
+                            if(bt === 'aspirin') { text = "הפסקת אספירין / קרטיה - 7 ימים לפני הניתוח"; days = 7; }
+                            else if(bt === 'plavix') { text = "הפסקת פלביקס - 7 ימים לפני הניתוח"; days = 7; }
+                            else if(bt === 'eliquis') { text = "הפסקת אליקוויס / קסרלטו - 3 ימים לפני הניתוח"; days = 3; }
+                            else if(bt === 'coumadin') { text = "הפסקת קומדין - 5 ימים לפני הניתוח"; days = 5; }
+                            else if(bt === 'clexane') { text = "הפסקת קלקסן - 24 שעות לפני הניתוח"; days = 1; }
+                            if(text) addTask(text, { title: "להפסיק מדלל דם", days: days });
+                        });
+                    }
+                    (r.preop.tests || []).forEach(t => addTask('השלמת: ' + t));
+                    (r.preop.consults || []).forEach(c => addTask('אישור / ייעוץ: ' + c));
                 }
-                tasksHTML += `<div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition"><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 accent-emerald-600" ${checked ? 'checked' : ''} onchange="toggleChecklist(this, '${key}')"><span class="text-sm transition-all ${style}">${text}</span></label>${btnHtml}</div>`;
-            };
-
-            if(r.preop) {
-                if(r.preop.thinners && r.preop.thinners.length > 0) {
-                    r.preop.thinners.forEach(bt => {
-                        let text = "", days = 0;
-                        if(bt === 'aspirin') { text = "הפסקת אספירין / קרטיה - 7 ימים לפני הניתוח"; days = 7; }
-                        else if(bt === 'plavix') { text = "הפסקת פלביקס - 7 ימים לפני הניתוח"; days = 7; }
-                        else if(bt === 'eliquis') { text = "הפסקת אליקוויס / קסרלטו - 3 ימים לפני הניתוח"; days = 3; }
-                        else if(bt === 'coumadin') { text = "הפסקת קומדין - 5 ימים לפני הניתוח"; days = 5; }
-                        else if(bt === 'clexane') { text = "הפסקת קלקסן - 24 שעות לפני הניתוח"; days = 1; }
-                        if(text) addTask(text, { title: "להפסיק מדלל דם", days: days });
-                    });
-                }
-                (r.preop.tests || []).forEach(t => addTask('השלמת: ' + t));
-                (r.preop.consults || []).forEach(c => addTask('אישור / ייעוץ: ' + c));
+                addTask('צום מוחלט 8 שעות לפני הניתוח', { title: "צום לפני ניתוח", days: 1 });
+                clContainer.innerHTML = tasksHTML;
             }
-            addTask('צום מוחלט 8 שעות לפני הניתוח', { title: "צום לפני ניתוח", days: 1 });
-            clContainer.innerHTML = tasksHTML;
             
             try { lucide.createIcons(); } catch(e) {}
         }
 
         window.toggleChecklist = function(el, key) {
-            try { localStorage.setItem(key, el.checked); } catch(e) {} // הגנה במקרה של חסימת LocalStorage
+            try { localStorage.setItem(key, el.checked); } catch(e) {}
             const span = el.nextElementSibling;
-            if(el.checked) { span.classList.add('line-through', 'text-slate-400'); span.classList.remove('text-slate-800', 'font-bold'); }
-            else { span.classList.remove('line-through', 'text-slate-400'); span.classList.add('text-slate-800', 'font-bold'); }
+            if(span) {
+                if(el.checked) { span.classList.add('line-through', 'text-slate-400'); span.classList.remove('text-slate-800', 'font-bold'); }
+                else { span.classList.remove('line-through', 'text-slate-400'); span.classList.add('text-slate-800', 'font-bold'); }
+            }
         };
 
         // ==========================================
@@ -835,9 +885,12 @@
         // ==========================================
         function toggleChat() {
             const widget = document.getElementById('chat-widget');
-            widget.classList.toggle('chat-hidden'); widget.classList.toggle('chat-visible');
-            if(widget.classList.contains('chat-visible') && document.getElementById('chat-messages').children.length === 0) {
-                appendMsg('bot', "שלום! אני ה-AI של THRIVE. עברתי על התיק הרפואי שלך. אפשר לשאול אותי שאלות על הניתוח, הסיבוכים וההתאוששות.");
+            if (widget) {
+                widget.classList.toggle('chat-hidden'); 
+                widget.classList.toggle('chat-visible');
+                if(widget.classList.contains('chat-visible') && document.getElementById('chat-messages').children.length === 0) {
+                    appendMsg('bot', "שלום! אני ה-AI של THRIVE. עברתי על התיק הרפואי שלך. אפשר לשאול אותי שאלות על הניתוח, הסיבוכים וההתאוששות.");
+                }
             }
         }
         
@@ -877,11 +930,14 @@ Instructions: Address the patient in empathetic, professional Hebrew based on AT
         }
         
         function appendMsg(sender, text) {
-            const div = document.createElement('div');
-            div.className = sender === 'user' ? "mr-auto bg-teal-100 text-teal-900 p-3 rounded-xl rounded-tl-none max-w-[85%] shadow-sm" : "ml-auto bg-white border border-slate-200 text-slate-700 p-3 rounded-xl rounded-tr-none max-w-[85%] shadow-sm bot-msg prose prose-sm prose-teal";
-            if(sender === 'bot') div.innerHTML = text; else div.innerText = text; 
-            document.getElementById('chat-messages').appendChild(div); 
-            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+            const msgCont = document.getElementById('chat-messages');
+            if (msgCont) {
+                const div = document.createElement('div');
+                div.className = sender === 'user' ? "mr-auto bg-teal-100 text-teal-900 p-3 rounded-xl rounded-tl-none max-w-[85%] shadow-sm" : "ml-auto bg-white border border-slate-200 text-slate-700 p-3 rounded-xl rounded-tr-none max-w-[85%] shadow-sm bot-msg prose prose-sm prose-teal";
+                if(sender === 'bot') div.innerHTML = text; else div.innerText = text; 
+                msgCont.appendChild(div); 
+                msgCont.scrollTop = msgCont.scrollHeight;
+            }
         }
 
         async function handleDirectSilentBackgroundDispatch(e) {
