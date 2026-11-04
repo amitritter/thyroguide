@@ -177,25 +177,48 @@
                 <div class="border-t border-slate-200 pt-6 space-y-5">
                     <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-emerald-600"></i> 3. הגדרות והנחיות טרום-ניתוח</h3>
                     <div class="grid sm:grid-cols-2 gap-6">
-                        <!-- Col 1: Tests & Imaging -->
+                        <!-- Col 1: Structured Preop Categories -->
                         <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-4">
                             <div>
-                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">בדיקות דם</h4>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">א. בדיקות דם</h4>
                                 <div class="space-y-2 grid grid-cols-2">
                                     <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="ספירת דם (CBC)"> ספירת דם (CBC)</label>
-                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="כימיה ותפקודי קרישה"> כימיה וקרישה</label>
-                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי תריס (TSH, FT4)"> תפקודי תריס</label>
-                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אק&quot;ג (ECG)"> אק"ג (ECG)</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="כימיה רחבה כולל סידן"> כימיה רחבה כולל סידן</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי קרישה"> תפקודי קרישה</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי תריס"> תפקודי תריס</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="קלציטונין ו-CEA (במפרט מדולרי)"> קלציטונין ו-CEA</label>
                                 </div>
                             </div>
+
                             <div>
-                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">בדיקות דימות ותפקוד</h4>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ב. אק"ג</h4>
+                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אק&quot;ג (ECG)"> ביצוע אק"ג טרום-ניתוחי</label>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ג. צילום חזה</h4>
+                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="צילום חזה"> צילום חזה</label>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ד. הדמיות נוספות</h4>
                                 <div class="space-y-2 grid grid-cols-2">
-                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אולטרסאונד צוואר (US)"> US צוואר</label>
-                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="CT צוואר/חזה"> CT צוואר/חזה</label>
-                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי ריאה (PFT)"> תפקודי ריאה (PFT)</label>
-                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="דופלקס קרוטידים"> דופלקס קרוטידים</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="CT צוואר-חזה"> CT צוואר-חזה</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אולטראסאונד צוואר"> אולטראסאונד</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="MRI צוואר"> MRI צוואר</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="מיפוי תריס"> מיפוי תריס</label>
+                                    <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="PET-CT"> PET-CT</label>
                                 </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ה. דופלקס קרוטידים</h4>
+                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="דופלקס קרוטידים"> דופלקס קרוטידים</label>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ו. תפקודי ריאה</h4>
+                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי ריאה (PFT)"> תפקודי ריאה (PFT)</label>
                             </div>
                         </div>
 
@@ -260,7 +283,6 @@
         
         <!-- 4. PATIENT DASHBOARD -->
         <div id="patient-data-display" class="hidden max-w-4xl mx-auto space-y-6 pb-10">
-            <!-- Header -->
             <div class="bg-white p-8 rounded-3xl shadow-sm border-2 border-teal-700 mt-6 relative overflow-hidden">
                 <div class="absolute right-0 top-0 bottom-0 w-2.5 bg-teal-700"></div>
                 <div class="flex justify-between items-center mb-4">
@@ -271,32 +293,27 @@
                 <p class="text-teal-700 font-bold mt-2 text-lg" id="out-surgery-primary"></p>
             </div>
 
-            <!-- Disease Summary & Staging -->
             <div class="glass-panel p-6 rounded-2xl border border-indigo-100 bg-indigo-50/50 shadow-sm" id="out-disease-summary-container">
                 <h3 class="text-lg font-bold text-indigo-900 mb-2 flex items-center gap-2"><i data-lucide="file-search" class="w-5 h-5"></i> סיכום קליני (לפי נתוני התיק)</h3>
                 <div id="out-disease-summary" class="text-sm text-slate-700 space-y-2"></div>
             </div>
 
-            <!-- Pathway Accordions -->
             <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white">
                 <h3 class="text-xl font-bold text-teal-900 mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="map" class="w-5 h-5"></i> המסלול המתוכנן עבורך</h3>
                 <div id="out-pathway-container" class="space-y-3 mt-4"></div>
             </div>
 
-            <!-- Complications Accordions -->
             <div class="glass-panel p-6 rounded-2xl border border-rose-200 shadow-sm bg-rose-50/30">
                 <h3 class="text-xl font-bold text-rose-900 mb-4 border-b border-rose-200 pb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-5 h-5"></i> סיבוכים וסיכונים אפשריים</h3>
                 <p class="text-sm text-rose-800 mb-4 font-medium">חשוב לנו שתכיר/י את הסיכונים הרלוונטיים לפרוצדורה שלך. אנא לחץ/י על כל סעיף להרחבה.</p>
                 <div id="out-complications-container" class="space-y-3"></div>
             </div>
 
-            <!-- Tasks with Reminders -->
             <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-emerald-50/30">
                 <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="check-square" class="w-5 h-5 text-emerald-600"></i> משימות טרום-ניתוח</h3>
                 <div id="checklist-container" class="space-y-3"></div>
             </div>
 
-            <!-- Contact -->
             <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm no-print">
                 <h3 class="text-xl font-bold text-teal-900 mb-4">פנייה לצוות המטפל</h3>
                 <form onsubmit="handleDirectSilentBackgroundDispatch(event)" class="space-y-4">
@@ -485,9 +502,9 @@
                         <div><label class="block text-xs font-bold mb-1">Afirma</label><select id="th-afirma-ben" class="w-full border border-slate-300 p-2.5 rounded-lg font-mono text-sm" dir="ltr"><option value="">Unknown</option><option value="4">~4% risk</option></select></div>
                     </div>
 
-                    <!-- MTC Labs (Additional) -->
+                    <!-- MTC Labs (Attached inside standard labs section or highlighted) -->
                     <div id="mtc-labs-container" class="col-span-2 bg-purple-50 p-4 rounded-xl border border-purple-200 hidden">
-                        <h4 class="text-xs font-bold text-purple-900 mb-3 border-b border-purple-200 pb-1">בדיקות נוספות לחשד למדולרי (MTC)</h4>
+                        <h4 class="text-xs font-bold text-purple-900 mb-3 border-b border-purple-200 pb-1">בדיקות דם ייעודיות למדולרי (MTC)</h4>
                         <div class="grid grid-cols-3 gap-4">
                             <div><label class="block text-xs font-bold text-slate-700 mb-1">Calcitonin (pg/mL)</label><input type="number" id="lab-calcitonin" class="w-full border border-slate-300 p-2 rounded-lg text-sm font-mono text-center"></div>
                             <div><label class="block text-xs font-bold text-slate-700 mb-1">CEA (ng/mL)</label><input type="number" id="lab-cea" class="w-full border border-slate-300 p-2 rounded-lg text-sm font-mono text-center"></div>
@@ -520,7 +537,6 @@
                         </div>
                     </div>
 
-                    <!-- Neck Dissection always available to select -->
                     <div class="col-span-2"><h4 class="font-bold text-teal-800 border-b border-teal-100 pb-1 mt-3 text-sm">גרורות צוואריות (Neck Nodes & Dissection)</h4></div>
                     <div class="col-span-2 grid sm:grid-cols-2 gap-4 bg-teal-50/50 p-4 rounded-xl border border-teal-100">
                         <div><strong class="text-xs font-bold block mb-3 text-teal-900">Central Compartment (Level VI)</strong><div class="flex gap-6"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-r" class="accent-teal-700 w-4 h-4"> ימין</label><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-l" class="accent-teal-700 w-4 h-4"> שמאל</label></div></div>
@@ -640,7 +656,9 @@
             try {
                 const snapshot = await db.ref('records/' + inputCode).once('value');
                 if (!snapshot.exists()) return alert('קוד שגוי או פג תוקף.');
-                const record = snapshot.val().data; record.code = inputCode; currentRecord = record;
+                const wrapper = snapshot.val();
+                const record = wrapper.data ? wrapper.data : wrapper; // handle both direct and nested data structures
+                record.code = inputCode; currentRecord = record;
                 
                 showView('patient-data-display');
                 document.getElementById('floating-chat-btn').classList.remove('hidden'); document.getElementById('floating-chat-btn').classList.add('flex');
@@ -702,7 +720,7 @@
             let html = "";
             const mkAccordion = (title, content) => `<details class="group bg-white rounded-lg mb-3 border border-rose-100 overflow-hidden cursor-pointer shadow-sm"><summary class="px-4 py-3 font-bold text-rose-900 bg-rose-50/50 hover:bg-rose-100 transition flex justify-between items-center outline-none"><span>${title}</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary><div class="px-4 py-3 text-sm text-slate-700 leading-relaxed border-t border-rose-50">${content}</div></details>`;
             
-            html += mkAccordion('דימום בצוואר (המטומה)', '<strong>שכיחות:</strong> כ-1-2%.<br><strong>השפעה:</strong> הצوואר חלל סגור, דימום עלול ללחוץ על נשימה. אנו משגיחים בקפידה.');
+            html += mkAccordion('דימום בצוואר (המטומה)', '<strong>שכיחות:</strong> כ-1-2%.<br><strong>השפעה:</strong> הצוואר הוא חלל סגור, דימום עלול ללחוץ על נשימה. אנו משגיחים בקפידה.');
             html += mkAccordion('פגיעה בעצב מיתר הקול (צרידות)', `<strong>שכיחות:</strong> זמנית 5-10%, קבועה 1-2%.<br><strong>השפעה:</strong> אנו משתמשים בניטור עצבי (NIM).`);
             
             if(r.clinical?.surgery === 'total' || r.clinical?.surgery === 'completion' || r.clinical?.ndSurgery?.includes('central')) {
