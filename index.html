@@ -151,7 +151,8 @@
                 </div>
             </div>
 
-            <form id="doctor-master-form" onsubmit="handleCreateCode(event)" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
+            <!-- הוספנו novalidate כדי לכבות את החסימה האוטומטית של הדפדפן -->
+            <form id="doctor-master-form" novalidate onsubmit="handleCreateCode(event)" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
                 <!-- 1. Demographics & Dates -->
                 <div class="bg-teal-50 p-6 rounded-xl border border-teal-100 space-y-6">
                     <h3 class="font-bold text-teal-900 border-b border-teal-200 pb-2">1. פרטים דמוגרפיים ואתר הגידול</h3>
@@ -343,7 +344,6 @@
             <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white no-print">
                 <h3 class="text-lg font-bold text-teal-900 mb-4 flex items-center gap-2"><i data-lucide="video" class="w-5 h-5 text-teal-600"></i> אנימציה רפואית: כיצד מתבצע הניתוח</h3>
                 <div class="aspect-w-16 aspect-h-9 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 relative flex items-center justify-center">
-                    <!-- Placeholder לוידאו. במערכת האמיתית ניתן להחליף את ה-iframe ללינק YouTube של בית החולים -->
                     <div class="text-center p-10">
                         <i data-lucide="youtube" class="w-12 h-12 text-rose-500 mx-auto mb-2 opacity-80"></i>
                         <p class="text-sm text-slate-500 font-bold">כאן יוצג סרטון אנימציה אנטומי הממחיש את הפעולה.</p>
@@ -401,7 +401,6 @@
 
     <script>
         // המפתח של Gemini: שים לב - יש צורך להכניס מפתח חוקי אמיתי (מתחיל ב-AIza). 
-        // במקרה של שגיאת התחברות (למשל מפתח שגוי), הבוט יחזיר תשובת Fallback אוטומטית כדי לא לקרוס.
         const GEMINI_API_KEY = "YOUR_VALID_GEMINI_API_KEY_HERE"; 
 
         const firebaseConfig = {
@@ -742,9 +741,17 @@
         }
 
         async function handleCreateCode(e) {
-            e.preventDefault(); const btn = document.getElementById('btn-master-submit');
+            e.preventDefault(); 
+            const btn = document.getElementById('btn-master-submit');
+            
+            const age = document.getElementById('patient-age').value;
+            const gender = document.getElementById('patient-gender').value;
             const site = document.getElementById('primary-site-selector').value;
-            if(!site) return alert("חובה לבחור את סוג הגידול");
+            
+            // בדיקות ולידציה עם התראה קופצת
+            if (!age) return alert("שגיאה: חובה להזין את גיל המטופל (בשלב 1).");
+            if (!gender) return alert("שגיאה: חובה לבחור את מין המטופל (בשלב 1).");
+            if (!site) return alert("שגיאה: חובה לבחור את סוג הגידול / איבר מטרה (בשלב 1).");
             
             let thinners = [];
             if(document.getElementById('preop-stop-blood').checked) { Array.from(document.querySelectorAll('.thinner-cb:checked')).forEach(cb => thinners.push(cb.value)); }
@@ -752,10 +759,11 @@
             if(document.getElementById('consult-other-cb').checked && document.getElementById('consult-other-text').value.trim()) { consultsArr.push(`אחר: ${document.getElementById('consult-other-text').value.trim()}`); }
 
             let payload = { 
-                site, age: document.getElementById('patient-age').value, gender: document.getElementById('patient-gender').value,
+                site, age, gender,
                 surgeryDate: document.getElementById('surgery-date').value || null,
                 mode: document.querySelector('input[name="input_mode"]:checked').value,
-                doctorName: activeDoctor ? activeDoctor.fullName : 'צוות רפואי', doctorEmail: activeDoctor ? activeDoctor.email : '',
+                doctorName: activeDoctor ? activeDoctor.fullName : 'צוות רפואי', 
+                doctorEmail: activeDoctor ? activeDoctor.email : '',
                 preop: { thinners: thinners, tests: Array.from(document.querySelectorAll('.preop-test-cb:checked')).map(cb => cb.value), consults: consultsArr },
                 clinical: {}
             };
@@ -784,7 +792,7 @@
                 document.getElementById('generated-code').innerText = code; document.getElementById('qrcode-container').innerHTML = '';
                 new QRCode(document.getElementById('qrcode-container'), { text: code, width: 140, height: 140, colorDark : "#0f766e", colorLight : "#ffffff" });
                 document.getElementById('code-result').classList.remove('hidden'); document.getElementById('code-result').scrollIntoView({ behavior: 'smooth' });
-            } catch (err) { alert('שגיאה בשמירה: ' + err.message); } finally { btn.disabled = false; btn.innerHTML = `הפק רשומה`; }
+            } catch (err) { alert('שגיאה בשמירה: ' + err.message); } finally { btn.disabled = false; btn.innerHTML = `<i data-lucide="shield-check" class="w-6 h-6"></i> הפק רשומה וקוד גישה למטופל`; try { lucide.createIcons(); } catch(e){} }
         }
 
         // ==========================================
