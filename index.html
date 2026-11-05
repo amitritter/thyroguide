@@ -139,19 +139,40 @@
                 </div>
             </div>
 
-            <!-- טעינת רשומה קיימת לעריכה -->
-            <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl shadow-sm flex items-center justify-between gap-4 flex-wrap">
-                <div>
-                    <h3 class="font-bold text-indigo-900 text-sm">עריכת רשומה קיימת</h3>
-                    <p class="text-xs text-indigo-700">הזן קוד גישה קיים כדי לטעון נתונים לתיקון</p>
+            <!-- אזור טעינה חכמה (קוד או AI) -->
+            <div class="grid md:grid-cols-2 gap-4">
+                <!-- טעינת רשומה קיימת -->
+                <div class="bg-indigo-50 border border-indigo-200 p-5 rounded-xl shadow-sm flex flex-col justify-center gap-3">
+                    <div>
+                        <h3 class="font-bold text-indigo-900 text-sm flex items-center gap-2"><i data-lucide="folder-open" class="w-4 h-4"></i> עריכת רשומה קיימת</h3>
+                        <p class="text-xs text-indigo-700 mt-1">הזן קוד גישה קיים כדי לטעון נתונים לתיקון.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="load-record-input" placeholder="קוד (לדוג: AB12C3)" class="w-full border border-indigo-300 rounded-lg px-3 py-2 text-sm uppercase tracking-widest font-mono text-center">
+                        <button type="button" onclick="loadExistingRecordForEdit()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-indigo-700">טען</button>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 flex-1 max-w-xs">
-                    <input type="text" id="load-record-input" placeholder="קוד (לדוג: AB12C3)" class="w-full border border-indigo-300 rounded-lg px-3 py-2 text-sm uppercase tracking-widest font-mono text-center">
-                    <button type="button" onclick="loadExistingRecordForEdit()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-indigo-700">טען</button>
+
+                <!-- AI Scanner Tool -->
+                <div class="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 p-5 rounded-xl shadow-sm flex flex-col justify-center gap-3 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 bottom-0 w-1.5 bg-teal-500"></div>
+                    <div>
+                        <h3 class="font-bold text-teal-900 text-sm flex items-center gap-2">
+                            <i data-lucide="scan-line" class="w-4 h-4 text-teal-600"></i> סריקה ומילוי חכם (AI)
+                        </h3>
+                        <p class="text-xs text-teal-700 mt-1">צילום דו"ח (אולטרסאונד/פתולוגיה) ישירות לטופס.</p>
+                    </div>
+                    <div class="relative mt-auto">
+                        <!-- capture="environment" מאפשר פתיחת מצלמה ישירה בנייד -->
+                        <input type="file" id="ai-file-upload" accept="image/*,application/pdf" capture="environment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleAIExtraction(event)">
+                        <button id="ai-scan-btn" type="button" class="w-full bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-teal-800 flex items-center justify-center gap-2 pointer-events-none relative z-0">
+                            <i data-lucide="camera" class="w-4 h-4"></i> בחר קובץ / הפעל מצלמה
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- הוספנו novalidate כדי לכבות את החסימה האוטומטית של הדפדפן -->
+            <!-- הטופס הראשי -->
             <form id="doctor-master-form" novalidate onsubmit="handleCreateCode(event)" class="glass-panel p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
                 <!-- 1. Demographics & Dates -->
                 <div class="bg-teal-50 p-6 rounded-xl border border-teal-100 space-y-6">
@@ -311,7 +332,6 @@
         
         <!-- 4. PATIENT DASHBOARD -->
         <div id="view-patient-data-display" class="hidden max-w-4xl mx-auto space-y-6 pb-10">
-            <!-- אזור כלים עליון למטופל (תרגום והדפסה) -->
             <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-200 no-print mt-4">
                 <div id="google_translate_element"></div>
                 <button onclick="window.print()" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
@@ -340,7 +360,6 @@
                 <div id="out-pathway-container" class="space-y-3 mt-4"></div>
             </div>
 
-            <!-- סרטון אנטומיה -->
             <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white no-print">
                 <h3 class="text-lg font-bold text-teal-900 mb-4 flex items-center gap-2"><i data-lucide="video" class="w-5 h-5 text-teal-600"></i> אנימציה רפואית: כיצד מתבצע הניתוח</h3>
                 <div class="aspect-w-16 aspect-h-9 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 relative flex items-center justify-center">
@@ -400,7 +419,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-        // המפתח של Gemini: שים לב - יש צורך להכניס מפתח חוקי אמיתי (מתחיל ב-AIza). 
+        // המפתח של Gemini: הזינו כאן את המפתח האמיתי שלכם כדי לאפשר את הצ'אט ואת סריקת המסמכים (AI)
         const GEMINI_API_KEY = "YOUR_VALID_GEMINI_API_KEY_HERE"; 
 
         const firebaseConfig = {
@@ -465,8 +484,7 @@
         async function handleDoctorRegister(e) {
             e.preventDefault(); 
             const btn = document.getElementById('btn-register-submit'); 
-            btn.disabled = true; 
-            btn.innerText = "נרשם...";
+            btn.disabled = true; btn.innerText = "נרשם...";
             try {
                 const userCred = await auth.createUserWithEmailAndPassword(document.getElementById('reg-email').value.trim(), document.getElementById('reg-password').value);
                 const docData = { 
@@ -480,37 +498,149 @@
                 await db.ref('doctors/' + userCred.user.uid).set(docData);
                 activeDoctor = { ...docData, uid: userCred.user.uid }; 
                 showView('doctor');
-            } catch (err) { 
-                alert("שגיאה בהרשמה: " + err.message); 
-            } finally { 
-                btn.disabled = false; 
-                btn.innerText = "צור חשבון"; 
-            }
+            } catch (err) { alert("שגיאה בהרשמה: " + err.message); } 
+            finally { btn.disabled = false; btn.innerText = "צור חשבון"; }
         }
 
         async function handleDoctorLogin(e) {
             e.preventDefault(); 
             const btn = document.getElementById('btn-login-submit'); 
-            btn.disabled = true; 
-            btn.innerText = "מתחבר...";
+            btn.disabled = true; btn.innerText = "מתחבר...";
             try {
                 const userCred = await auth.signInWithEmailAndPassword(document.getElementById('login-email').value.trim(), document.getElementById('login-password').value);
                 const snap = await db.ref('doctors/' + userCred.user.uid).once('value');
-                if (snap.exists()) { 
-                    activeDoctor = snap.val(); 
-                    activeDoctor.uid = userCred.user.uid; 
-                }
+                if (snap.exists()) { activeDoctor = snap.val(); activeDoctor.uid = userCred.user.uid; }
                 showView('doctor');
-            } catch (err) { 
-                alert("שגיאה בהתחברות: אימייל או סיסמה שגויים."); 
-            } finally { 
-                btn.disabled = false; 
-                btn.innerText = "התחבר"; 
-            }
+            } catch (err) { alert("שגיאה בהתחברות: אימייל או סיסמה שגויים."); } 
+            finally { btn.disabled = false; btn.innerText = "התחבר"; }
         }
         
         async function logoutDoctor() { await auth.signOut(); activeDoctor = null; showView('landing'); }
         function confirmAndGoHome() { showView('landing'); }
+
+        // ==========================================
+        // AI DOCUMENT SCANNING (GEMINI VISION)
+        // ==========================================
+        async function handleAIExtraction(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const btn = document.getElementById('ai-scan-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="lucide-loader w-5 h-5 animate-spin"></i> מנתח מסמך...`;
+            btn.disabled = true;
+
+            try {
+                if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('YOUR_VALID_GEMINI')) {
+                    throw new Error("אנא הזן מפתח GEMINI_API_KEY תקין בקוד כדי להשתמש בסריקה חכמה.");
+                }
+
+                // המרת הקובץ ל-Base64 כדי שג'מיני יוכל לקרוא אותו (תומך PDF ותמונות)
+                const reader = new FileReader();
+                const base64Promise = new Promise((resolve) => {
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                });
+                reader.readAsDataURL(file);
+                const base64Data = await base64Promise;
+
+                // יצירת פרומפט מדויק שמנחה את המודל להוציא רק JSON במבנה שאנחנו צריכים
+                const prompt = `You are a medical data extraction assistant for an oncology surgery app. 
+                Analyze the attached medical document (ultrasound, pathology report, or clinical note). The document may be in Hebrew or English.
+                Extract the following parameters and return them EXACTLY as a strict JSON object (no markdown, no extra text, just the JSON).
+                If a specific value is not found in the text, use null.
+                {
+                    "age": <number, extract if present>,
+                    "gender": <"male" or "female", extract if present>,
+                    "site": <"thyroid" or null>,
+                    "diseaseType": <"malignant" or "benign">,
+                    "size": <number in cm, extract the largest dimension found>,
+                    "location": <"right", "left", "isthmus", or "bilateral">,
+                    "bethesda": <"1", "2", "3", "4", "5", "6", or "medullary">,
+                    "hasETE": <boolean, true if there is extra-thyroidal extension (ETE) or capsule invasion>,
+                    "retrosternal": <boolean, true if there is retrosternal or plunging extension>
+                }`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inlineData: { mimeType: file.type, data: base64Data } }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+                
+                let jsonText = data.candidates[0].content.parts[0].text;
+                // ניקוי המעטפת (markdown) במקרה שהמודל מחזיר את ה-JSON כבלוק קוד
+                jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const extracted = JSON.parse(jsonText);
+
+                // אכלוס אוטומטי של הטופס:
+                if(extracted.age) document.getElementById('patient-age').value = extracted.age;
+                if(extracted.gender) document.getElementById('patient-gender').value = extracted.gender;
+                
+                if(extracted.site) {
+                    const siteSel = document.getElementById('primary-site-selector');
+                    siteSel.value = extracted.site;
+                    siteSel.dispatchEvent(new Event('change')); 
+                }
+                
+                // ממתין קצת כדי שהממשק הדינמי של בלוטת התריס ירונדר לפני שנמלא אותו
+                setTimeout(() => { 
+                    if(extracted.diseaseType) {
+                        const dType = document.getElementById('th-disease-type');
+                        if(dType) {
+                            dType.value = extracted.diseaseType;
+                            dType.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    if(extracted.size) {
+                        const sizeEl = document.getElementById('th-size');
+                        if(sizeEl) sizeEl.value = extracted.size;
+                    }
+                    if(extracted.location) {
+                        const locEl = document.getElementById('th-location');
+                        if(locEl) locEl.value = extracted.location;
+                    }
+                    if(extracted.bethesda) {
+                        const bEl = extracted.diseaseType === 'malignant' ? document.getElementById('th-bethesda-mal') : document.getElementById('th-bethesda-ben');
+                        if(bEl) {
+                            bEl.value = extracted.bethesda;
+                            bEl.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    if(extracted.hasETE) {
+                        const eteEl = document.getElementById('th-ete');
+                        if(eteEl) {
+                            eteEl.checked = extracted.hasETE;
+                            eteEl.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    if(extracted.retrosternal) {
+                        const retroEl = document.getElementById('th-retrosternal');
+                        if(retroEl) {
+                            retroEl.checked = extracted.retrosternal;
+                            retroEl.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    alert("הנתונים חולצו מתוך המסמך והוזנו לטופס בהצלחה!\nאנא עבור על השדות וודא את תקינותם.");
+                }, 200);
+
+            } catch(err) {
+                console.error(err);
+                alert("שגיאה בניתוח המסמך: " + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                event.target.value = ""; // מאפס את שדה הקובץ כדי שאפשר יהיה להעלות שוב
+            }
+        }
 
         // ==========================================
         // UI & CLINICAL ENGINE
@@ -543,18 +673,6 @@
                 mtcContainer.classList.add('hidden');
                 afirmaSelect.disabled = false; afirmaSelect.classList.remove('bg-slate-100', 'text-slate-400');
             }
-        };
-
-        window.checkLabValue = function(id, min, max) {
-            const input = document.getElementById(id);
-            const val = parseFloat(input.value);
-            const container = input.parentElement;
-            let icon = container.querySelector('.lab-alert');
-            if(!icon) { icon = document.createElement('div'); icon.className = 'lab-alert absolute left-3 top-[32px] text-rose-600 font-extrabold text-sm pointer-events-none'; container.style.position = 'relative'; container.appendChild(icon); }
-            if(isNaN(val)) { input.classList.remove('text-rose-600', 'border-rose-500', 'bg-rose-50'); icon.innerHTML = ''; } 
-            else if (val < min) { input.classList.add('text-rose-600', 'border-rose-500', 'bg-rose-50'); icon.innerHTML = '↓'; } 
-            else if (val > max) { input.classList.add('text-rose-600', 'border-rose-500', 'bg-rose-50'); icon.innerHTML = '↑'; } 
-            else { input.classList.remove('text-rose-600', 'border-rose-500', 'bg-rose-50'); icon.innerHTML = ''; }
         };
 
         const formsHTML = {
@@ -748,7 +866,6 @@
             const gender = document.getElementById('patient-gender').value;
             const site = document.getElementById('primary-site-selector').value;
             
-            // בדיקות ולידציה עם התראה קופצת
             if (!age) return alert("שגיאה: חובה להזין את גיל המטופל (בשלב 1).");
             if (!gender) return alert("שגיאה: חובה לבחור את מין המטופל (בשלב 1).");
             if (!site) return alert("שגיאה: חובה לבחור את סוג הגידול / איבר מטרה (בשלב 1).");
@@ -1011,7 +1128,7 @@
             const systemPrompt = `You are a specialized medical AI assistant for THRIVE, supporting patients undergoing head and neck oncology surgeries. Current patient clinical file (JSON): ${contextData}. Address the patient in empathetic, professional Hebrew based on ATA guidelines.`;
 
             try {
-                if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('YOUR_VALID_GEMINI_API_KEY_HERE')) {
+                if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('YOUR_VALID_GEMINI')) {
                     throw new Error("Invalid API Key");
                 }
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -1024,7 +1141,7 @@
                 appendMsg('bot', marked.parse(reply));
             } catch (err) {
                 console.error("Gemini API Error:", err);
-                appendMsg('bot', "מערכת ה-AI המרכזית שלנו זמנית לא מחוברת (שגיאת שרת / מפתח חסר). בינתיים, אנא פנה/י לצוות המטפל דרך טופס 'פנייה ישירה' בתחתית העמוד, ונענה בהקדם האפשרי.");
+                appendMsg('bot', "מערכת ה-AI המרכזית שלנו זמנית לא מחוברת. בינתיים, אנא פנה/י לצוות המטפל דרך טופס 'פנייה ישירה' בתחתית העמוד.");
             } finally {
                 input.disabled = false; btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i>`; 
                 try { lucide.createIcons(); } catch(e){}
