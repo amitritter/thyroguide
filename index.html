@@ -160,12 +160,19 @@
                         <h3 class="font-bold text-teal-900 text-sm flex items-center gap-2">
                             <i data-lucide="scan-line" class="w-4 h-4 text-teal-600"></i> סריקה ומילוי חכם (AI)
                         </h3>
-                        <p class="text-xs text-teal-700 mt-1">צילום דו"ח (אולטרסאונד/פתולוגיה) ישירות לטופס.</p>
+                        <p class="text-xs text-teal-700 mt-1">העלה קובץ או הפעל מצלמה לסריקת מסמכים רפואיים.</p>
                     </div>
-                    <div class="relative mt-auto">
-                        <input type="file" id="ai-file-upload" accept="image/*,application/pdf" capture="environment" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleAIExtraction(event)">
-                        <button id="ai-scan-btn" type="button" class="w-full bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-teal-800 flex items-center justify-center gap-2 pointer-events-none relative z-0">
-                            <i data-lucide="camera" class="w-4 h-4"></i> בחר קובץ / הפעל מצלמה
+                    
+                    <!-- NEW UI: Two distinct buttons for Desktop (File vs Camera) -->
+                    <div class="flex gap-2 mt-auto">
+                        <input type="file" id="ai-file-upload" accept="image/*,application/pdf" class="hidden" onchange="handleAIExtractionFile(event)">
+                        
+                        <button type="button" id="btn-scan-file" onclick="document.getElementById('ai-file-upload').click()" class="flex-1 bg-teal-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow hover:bg-teal-800 flex items-center justify-center gap-2">
+                            <i data-lucide="upload" class="w-4 h-4"></i> קובץ
+                        </button>
+                        
+                        <button type="button" id="btn-scan-camera" onclick="openCameraModal()" class="flex-1 bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow hover:bg-emerald-700 flex items-center justify-center gap-2">
+                            <i data-lucide="camera" class="w-4 h-4"></i> מצלמה
                         </button>
                     </div>
                 </div>
@@ -331,8 +338,13 @@
         
         <!-- 4. PATIENT DASHBOARD -->
         <div id="view-patient-data-display" class="hidden max-w-4xl mx-auto space-y-6 pb-10">
+            
+            <!-- NEW UI: Google Translate with Icon -->
             <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-200 no-print mt-4">
-                <div id="google_translate_element"></div>
+                <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-inner">
+                    <i data-lucide="languages" class="w-5 h-5 text-indigo-600"></i>
+                    <div id="google_translate_element"></div>
+                </div>
                 <button onclick="window.print()" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition">
                     <i data-lucide="printer" class="w-4 h-4"></i> הדפס מסמך סיכום
                 </button>
@@ -412,13 +424,35 @@
         </div>
     </div>
 
+    <!-- CAMERA MODAL (WebRTC) -->
+    <div id="camera-modal" class="fixed inset-0 bg-black/80 z-[100] hidden flex-col items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-5 rounded-2xl w-[95%] max-w-lg shadow-2xl border border-slate-200">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2"><i data-lucide="camera" class="w-5 h-5"></i> צילום מסמך</h3>
+                <button onclick="closeCameraModal()" class="text-slate-400 hover:text-rose-500 transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="relative bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center min-h-[300px]">
+                <video id="camera-preview" class="w-full max-h-[60vh] object-contain" autoplay playsinline></video>
+                <div id="camera-loading" class="absolute inset-0 flex flex-col items-center justify-center text-white/70">
+                    <i class="lucide-loader w-8 h-8 animate-spin mb-2"></i> מתחבר למצלמה...
+                </div>
+            </div>
+            <canvas id="camera-canvas" class="hidden"></canvas>
+            <div class="mt-5 flex justify-center">
+                <button onclick="captureCameraImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-full font-bold flex items-center gap-2 shadow-lg transition transform hover:scale-105">
+                    <i data-lucide="camera" class="w-5 h-5"></i> צלם מסמך עכשיו
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-        // המפתח שהצגת שולב כאן 
+        // מפתח ה-API כפי שסיפקת - בשימוש עם ה-SDK הרשמי בקוד למטה
         const GEMINI_API_KEY = "AQ.Ab8RN6Khi5KzZaPSOHuKX1xIkMv1u06u8SCCiGj3ywzCVNcGcw"; 
 
         const firebaseConfig = {
@@ -434,6 +468,7 @@
 
         let currentRecord = null;
         let activeDoctor = null;
+        let videoStream = null;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -518,26 +553,78 @@
         function confirmAndGoHome() { showView('landing'); }
 
         // ==========================================
-        // AI DOCUMENT SCANNING (OFFICIAL GEMINI SDK)
+        // WEBRTC CAMERA LOGIC 
         // ==========================================
-        async function handleAIExtraction(event) {
+        async function openCameraModal() {
+            const modal = document.getElementById('camera-modal');
+            const video = document.getElementById('camera-preview');
+            const loading = document.getElementById('camera-loading');
+            
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            loading.classList.remove('hidden');
+            
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = videoStream;
+                video.onloadedmetadata = () => { loading.classList.add('hidden'); };
+            } catch (err) {
+                console.error("Camera Error:", err);
+                alert("לא ניתן לגשת למצלמה. ודא שאישרת הרשאות מצלמה בדפדפן.");
+                closeCameraModal();
+            }
+        }
+
+        function closeCameraModal() {
+            const modal = document.getElementById('camera-modal');
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+        }
+
+        function captureCameraImage() {
+            const video = document.getElementById('camera-preview');
+            const canvas = document.getElementById('camera-canvas');
+            if(!videoStream) return;
+            
+            canvas.width = video.videoWidth; 
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
+            closeCameraModal();
+            processAIExtractionBase64(base64Data, "image/jpeg");
+        }
+
+        // ==========================================
+        // AI DOCUMENT SCANNING (SDK)
+        // ==========================================
+        function handleAIExtractionFile(event) {
             const file = event.target.files[0];
             if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64Data = reader.result.split(',')[1];
+                processAIExtractionBase64(base64Data, file.type);
+            };
+            reader.readAsDataURL(file);
+        }
 
-            const btn = document.getElementById('ai-scan-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="lucide-loader w-5 h-5 animate-spin"></i> מנתח מסמך באמצעות SDK...`;
-            btn.disabled = true;
+        async function processAIExtractionBase64(base64Data, mimeType) {
+            const btnFile = document.getElementById('btn-scan-file');
+            const btnCam = document.getElementById('btn-scan-camera');
+            
+            const origFileHTML = btnFile.innerHTML;
+            const origCamHTML = btnCam.innerHTML;
+            
+            btnFile.disabled = true; btnCam.disabled = true;
+            btnFile.innerHTML = `<i class="lucide-loader w-4 h-4 animate-spin"></i> מנתח...`;
+            btnCam.innerHTML = `ממתין ל-AI...`;
 
             try {
-                const reader = new FileReader();
-                const base64Promise = new Promise((resolve) => {
-                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                });
-                reader.readAsDataURL(file);
-                const base64Data = await base64Promise;
-
-                // ייבוא דינמי של ה-SDK מבלי לשבור את מבנה הדף
+                // ייבוא דינמי של ה-SDK הרשמי
                 const { GoogleGenerativeAI } = await import('https://esm.run/@google/generative-ai');
                 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
                 
@@ -557,7 +644,7 @@
                     "retrosternal": <boolean, true if there is retrosternal or plunging extension>
                 }`;
 
-                // שימוש באובייקט config ייעודי להבטחת קבלת JSON נקי מה-SDK
+                // שימוש בהגדרת JSON Mode של ה-SDK
                 const model = genAI.getGenerativeModel({ 
                     model: "gemini-1.5-flash",
                     generationConfig: { responseMimeType: "application/json" }
@@ -565,7 +652,7 @@
 
                 const result = await model.generateContent([
                     prompt, 
-                    { inlineData: { mimeType: file.type, data: base64Data } }
+                    { inlineData: { mimeType: mimeType, data: base64Data } }
                 ]);
 
                 const jsonText = result.response.text();
@@ -584,10 +671,7 @@
                 setTimeout(() => { 
                     if(extracted.diseaseType) {
                         const dType = document.getElementById('th-disease-type');
-                        if(dType) {
-                            dType.value = extracted.diseaseType;
-                            dType.dispatchEvent(new Event('change'));
-                        }
+                        if(dType) { dType.value = extracted.diseaseType; dType.dispatchEvent(new Event('change')); }
                     }
                     if(extracted.size) {
                         const sizeEl = document.getElementById('th-size');
@@ -599,35 +683,27 @@
                     }
                     if(extracted.bethesda) {
                         const bEl = extracted.diseaseType === 'malignant' ? document.getElementById('th-bethesda-mal') : document.getElementById('th-bethesda-ben');
-                        if(bEl) {
-                            bEl.value = extracted.bethesda;
-                            bEl.dispatchEvent(new Event('change'));
-                        }
+                        if(bEl) { bEl.value = extracted.bethesda; bEl.dispatchEvent(new Event('change')); }
                     }
                     if(extracted.hasETE) {
                         const eteEl = document.getElementById('th-ete');
-                        if(eteEl) {
-                            eteEl.checked = extracted.hasETE;
-                            eteEl.dispatchEvent(new Event('change'));
-                        }
+                        if(eteEl) { eteEl.checked = extracted.hasETE; eteEl.dispatchEvent(new Event('change')); }
                     }
                     if(extracted.retrosternal) {
                         const retroEl = document.getElementById('th-retrosternal');
-                        if(retroEl) {
-                            retroEl.checked = extracted.retrosternal;
-                            retroEl.dispatchEvent(new Event('change'));
-                        }
+                        if(retroEl) { retroEl.checked = extracted.retrosternal; retroEl.dispatchEvent(new Event('change')); }
                     }
                     alert("הנתונים חולצו בהצלחה באמצעות ה-SDK!\nאנא עבור על השדות וודא את תקינותם.");
                 }, 200);
 
             } catch(err) {
                 console.error(err);
-                alert("שגיאה בניתוח המסמך: " + err.message);
+                alert("שגיאה בניתוח המסמך. ייתכן שמפתח ה-API הנוכחי עדיין חסום לקריאות צד-לקוח. פרטי שגיאה:\n" + err.message);
             } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                event.target.value = ""; 
+                btnFile.innerHTML = origFileHTML;
+                btnCam.innerHTML = origCamHTML;
+                btnFile.disabled = false; btnCam.disabled = false;
+                document.getElementById('ai-file-upload').value = ""; 
             }
         }
 
@@ -1010,7 +1086,10 @@
         }
 
         function renderPatientRecord(r) {
-            const genderStr = r.gender === 'female' ? { referred: 'הופנית' } : { referred: 'הופנית' };
+            // הוספת פנייה נפרדת לפי מין
+            const isMale = (r.gender === 'male');
+            const welcomeGreeting = isMale ? 'ברוך הבא' : 'ברוכה הבאה';
+            
             const docNameRaw = r.doctorName || 'הצוות הרפואי';
             const docNameClean = docNameRaw.replace("ד\"ר ", "").replace("פרופ' ", "");
 
@@ -1020,7 +1099,7 @@
             if (dBadge) dBadge.innerText = r.surgeryDate ? `תאריך ניתוח: ${new Date(r.surgeryDate).toLocaleDateString('he-IL')}` : 'טרם נקבע תאריך';
             
             const greet = document.getElementById('out-greeting');
-            if (greet) greet.innerText = `שלום, ${genderStr.referred} על ידי ד"ר ${docNameClean} לניתוח בלוטת התריס.`;
+            if (greet) greet.innerText = `${welcomeGreeting}, הופנית על ידי ד"ר ${docNameClean} לניתוח בלוטת התריס.`;
             
             let primTitle = (r.clinical?.surgery === 'total' ? 'כריתה שלמה (Total Thyroidectomy)' : (r.clinical?.surgery === 'completion' ? 'השלמת כריתה' : 'כריתת אונה (Lobectomy)'));
             if(r.clinical?.ndSurgery && r.clinical.ndSurgery !== 'none') primTitle += " + דיסקציה (ניקוי) בלוטות לימפה בצוואר";
@@ -1092,7 +1171,7 @@
         };
 
         // ==========================================
-        // GEMINI CHATBOT INTEGRATION (OFFICIAL SDK)
+        // GEMINI CHATBOT INTEGRATION (SDK)
         // ==========================================
         function toggleChat() {
             const widget = document.getElementById('chat-widget');
@@ -1117,7 +1196,7 @@
             const systemPrompt = `You are a specialized medical AI assistant for THRIVE, supporting patients undergoing head and neck oncology surgeries. Current patient clinical file (JSON): ${contextData}. Address the patient in empathetic, professional Hebrew based on ATA guidelines.`;
 
             try {
-                // ייבוא דינמי של ה-SDK
+                // שימוש ב-SDK של גוגל גם עבור פונקציית הצ'אט
                 const { GoogleGenerativeAI } = await import('https://esm.run/@google/generative-ai');
                 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
                 
@@ -1132,7 +1211,7 @@
                 appendMsg('bot', marked.parse(reply));
             } catch (err) {
                 console.error("Gemini SDK Error:", err);
-                appendMsg('bot', "מערכת ה-AI המרכזית שלנו זמנית לא מחוברת. בינתיים, אנא פנה/י לצוות המטפל דרך טופס 'פנייה ישירה' בתחתית העמוד.");
+                appendMsg('bot', "שגיאת חיבור ל-AI: נראה שמפתח ה-API עדיין מוגבל לקריאות חיצוניות. בינתיים, אנא פנה/י לצוות המטפל דרך טופס 'פנייה ישירה' בתחתית העמוד.");
             } finally {
                 input.disabled = false; btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i>`; 
                 try { lucide.createIcons(); } catch(e){}
