@@ -10,6 +10,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     
+    <!-- ייבוא רשמי של ה-SDK של גוגל בצד הלקוח -->
+    <script type="importmap">
+    {
+        "imports": {
+            "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+    }
+    </script>
+
     <!-- Google Translate Script -->
     <script type="text/javascript">
         function googleTranslateElementInit() {
@@ -163,7 +172,6 @@
                         <p class="text-xs text-teal-700 mt-1">העלה קובץ או הפעל מצלמה לסריקת מסמכים רפואיים.</p>
                     </div>
                     
-                    <!-- NEW UI: Two distinct buttons for Desktop (File vs Camera) -->
                     <div class="flex gap-2 mt-auto">
                         <input type="file" id="ai-file-upload" accept="image/*,application/pdf" class="hidden" onchange="handleAIExtractionFile(event)">
                         
@@ -232,7 +240,6 @@
                 <div class="border-t border-slate-200 pt-6 space-y-5">
                     <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2"><i data-lucide="clipboard-check" class="w-5 h-5 text-emerald-600"></i> 3. הגדרות והנחיות טרום-ניתוח</h3>
                     <div class="grid sm:grid-cols-2 gap-6">
-                        <!-- Col 1: Structured Preop Categories -->
                         <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-4">
                             <div>
                                 <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">א. בדיקות דם</h4>
@@ -244,17 +251,14 @@
                                     <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="קלציטונין ו-CEA (במפרט מדולרי)"> קלציטונין ו-CEA</label>
                                 </div>
                             </div>
-
                             <div>
                                 <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ב. אק"ג</h4>
                                 <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="אק&quot;ג (ECG)"> ביצוע אק"ג טרום-ניתוחי</label>
                             </div>
-
                             <div>
                                 <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ג. צילום חזה</h4>
                                 <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="צילום חזה"> צילום חזה</label>
                             </div>
-
                             <div>
                                 <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ד. הדמיות נוספות</h4>
                                 <div class="space-y-2 grid grid-cols-2">
@@ -265,19 +269,8 @@
                                     <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="PET-CT"> PET-CT</label>
                                 </div>
                             </div>
-
-                            <div>
-                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ה. דופלקס קרוטידים</h4>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="דופלקס קרוטידים"> דופלקס קרוטידים</label>
-                            </div>
-
-                            <div>
-                                <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">ו. תפקודי ריאה</h4>
-                                <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-test-cb" value="תפקודי ריאה (PFT)"> תפקודי ריאה (PFT)</label>
-                            </div>
                         </div>
 
-                        <!-- Col 2: Consults & Blood thinners -->
                         <div class="space-y-6 flex flex-col">
                             <div class="bg-white p-5 rounded-xl border border-slate-200">
                                 <h4 class="text-sm font-bold text-teal-800 mb-2 border-b border-slate-100 pb-1">אישורים רפואיים</h4>
@@ -285,10 +278,6 @@
                                     <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="אישור קרדיולוג"> קרדיולוג</label>
                                     <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="אישור נוירולוג"> נוירולוג</label>
                                     <label class="checkbox-label text-sm"><input type="checkbox" class="checkbox-custom preop-consult-cb" value="רופא ריאות"> רופא ריאות</label>
-                                </div>
-                                <div class="flex items-center gap-2 mt-2">
-                                    <label class="checkbox-label text-sm whitespace-nowrap"><input type="checkbox" id="consult-other-cb" class="checkbox-custom" onchange="document.getElementById('consult-other-text').classList.toggle('hidden', !this.checked)"> אחר:</label>
-                                    <input type="text" id="consult-other-text" class="hidden border-b border-slate-300 focus:border-teal-700 outline-none text-sm px-2 py-0.5 w-full bg-slate-50" placeholder="פרט כאן...">
                                 </div>
                             </div>
 
@@ -338,8 +327,6 @@
         
         <!-- 4. PATIENT DASHBOARD -->
         <div id="view-patient-data-display" class="hidden max-w-4xl mx-auto space-y-6 pb-10">
-            
-            <!-- NEW UI: Google Translate with Icon -->
             <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm border border-slate-200 no-print mt-4">
                 <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-inner">
                     <i data-lucide="languages" class="w-5 h-5 text-indigo-600"></i>
@@ -367,39 +354,17 @@
 
             <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white">
                 <h3 class="text-xl font-bold text-teal-900 mb-4 border-b pb-2 flex items-center gap-2"><i data-lucide="map" class="w-5 h-5"></i> המסלול המתוכנן עבורך (שלב אחר שלב)</h3>
-                <p class="text-sm text-slate-600 mb-4 font-medium no-print">לחץ על כל שלב לקריאת פירוט מורחב על התהליך.</p>
                 <div id="out-pathway-container" class="space-y-3 mt-4"></div>
-            </div>
-
-            <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-white no-print">
-                <h3 class="text-lg font-bold text-teal-900 mb-4 flex items-center gap-2"><i data-lucide="video" class="w-5 h-5 text-teal-600"></i> אנימציה רפואית: כיצד מתבצע הניתוח</h3>
-                <div class="aspect-w-16 aspect-h-9 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 relative flex items-center justify-center">
-                    <div class="text-center p-10">
-                        <i data-lucide="youtube" class="w-12 h-12 text-rose-500 mx-auto mb-2 opacity-80"></i>
-                        <p class="text-sm text-slate-500 font-bold">כאן יוצג סרטון אנימציה אנטומי הממחיש את הפעולה.</p>
-                        <p class="text-xs text-slate-400 mt-1">(מקום שמור להטמעת סרטון רשמי)</p>
-                    </div>
-                </div>
             </div>
 
             <div class="glass-panel p-6 rounded-2xl border border-rose-200 shadow-sm bg-rose-50/30 print-break">
                 <h3 class="text-xl font-bold text-rose-900 mb-4 border-b border-rose-200 pb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-5 h-5"></i> סיבוכים וסיכונים אפשריים</h3>
-                <p class="text-sm text-rose-800 mb-4 font-medium no-print">חשוב לנו שתכיר/י את הסיכונים הרלוונטיים לפרוצדורה שלך, למרות מאמצינו הרבים למנוע אותם. אנא לחץ/י על כל סעיף להרחבה.</p>
                 <div id="out-complications-container" class="space-y-3"></div>
             </div>
 
             <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm bg-emerald-50/30">
                 <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="check-square" class="w-5 h-5 text-emerald-600"></i> משימות טרום-ניתוח שיש להשלים</h3>
                 <div id="checklist-container" class="space-y-3"></div>
-            </div>
-
-            <div class="glass-panel p-6 rounded-2xl border border-slate-200 shadow-sm no-print">
-                <h3 class="text-xl font-bold text-teal-900 mb-4">פנייה ישירה לצוות המטפל</h3>
-                <form onsubmit="handleDirectSilentBackgroundDispatch(event)" class="space-y-4">
-                    <input type="email" id="patient-email" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="האימייל שלך למענה">
-                    <textarea id="query-body" rows="3" required class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:border-teal-700" placeholder="תוכן השאלה..."></textarea>
-                    <button type="submit" id="send-query-btn" class="bg-teal-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm">שלח הודעה</button>
-                </form>
             </div>
         </div>
     </main>
@@ -452,8 +417,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-        // שימוש ב-Worker חיצוני שלא תלוי במפתח API!
-        const API_PROXY_URL = "https://text.pollinations.ai/openai"; 
+        // מפתח ה-API הישיר שלך
+        const GEMINI_API_KEY = "AIzaSy..." ; // הכנס כאן את מפתח ה-API שלך
 
         const firebaseConfig = {
             apiKey: "AIzaSyDw0bZmDJRX5QhRprHYAqkK1bDqP_rRrEk",
@@ -598,7 +563,7 @@
         }
 
         // ==========================================
-        // AI DOCUMENT SCANNING (VIA PROXY)
+        // AI DOCUMENT SCANNING (VIA OFFICIAL SDK)
         // ==========================================
         function handleAIExtractionFile(event) {
             const file = event.target.files[0];
@@ -624,7 +589,16 @@
             btnCam.innerHTML = `ממתין ל-AI...`;
 
             try {
-                const systemPrompt = `You are a medical data extraction assistant for an oncology surgery app. Analyze the attached medical document (ultrasound, pathology report, or clinical note). The document may be in Hebrew or English. Extract the following parameters and return them EXACTLY as a strict JSON object. If a specific value is not found in the text, use null.
+                // שימוש ב-SDK הרשמי של גוגל דרך ה-importmap
+                const { GoogleGenerativeAI } = await import('@google/generative-ai');
+                const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+                
+                const model = genAI.getGenerativeModel({ 
+                    model: "gemini-1.5-flash",
+                    generationConfig: { responseMimeType: "application/json" }
+                });
+
+                const prompt = `You are a medical data extraction assistant for an oncology surgery app. Analyze the attached medical document (ultrasound, pathology report, or clinical note). The document may be in Hebrew or English. Extract the following parameters and return them EXACTLY as a strict JSON object. If a specific value is not found in the text, use null.
                 {
                     "age": <number, extract if present>,
                     "gender": <"male" or "female", extract if present>,
@@ -637,24 +611,13 @@
                     "retrosternal": <boolean, true if there is retrosternal or plunging extension>
                 }`;
 
-                const response = await fetch(API_PROXY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: [
-                                { type: "text", text: "Please extract the JSON data from this medical document." },
-                                { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } }
-                            ]}
-                        ],
-                        response_format: { type: "json_object" }
-                    })
-                });
+                const result = await model.generateContent([
+                    prompt, 
+                    { inlineData: { mimeType: mimeType, data: base64Data } }
+                ]);
 
-                if (!response.ok) throw new Error("שגיאה בחיבור לשרת ה-AI.");
-                const data = await response.json();
-                const extracted = JSON.parse(data.choices[0].message.content);
+                const jsonText = result.response.text();
+                const extracted = JSON.parse(jsonText);
 
                 // אכלוס אוטומטי של הטופס:
                 if(extracted.age) document.getElementById('patient-age').value = extracted.age;
@@ -691,7 +654,7 @@
                         const retroEl = document.getElementById('th-retrosternal');
                         if(retroEl) { retroEl.checked = extracted.retrosternal; retroEl.dispatchEvent(new Event('change')); }
                     }
-                    alert("הנתונים חולצו בהצלחה באמצעות AI חיצוני!\nאנא עבור על השדות וודא את תקינותם.");
+                    alert("הנתונים חולצו בהצלחה!\nאנא עבור על השדות וודא את תקינותם.");
                 }, 200);
 
             } catch(err) {
@@ -789,12 +752,6 @@
                     <div class="col-span-2 flex flex-wrap gap-6 mt-1">
                         <label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="th-retrosternal" class="checkbox-custom" onchange="document.getElementById('thoracic-standby-container').classList.toggle('hidden', !this.checked)"> ירידה רטרוסטרנלית</label>
                     </div>
-                    
-                    <div id="thoracic-standby-container" class="col-span-2 hidden bg-amber-50 p-3 rounded-lg border border-amber-200">
-                        <label class="flex items-center gap-2 text-sm font-bold text-amber-900">
-                            <input type="checkbox" id="th-thoracic-standby" class="checkbox-custom accent-amber-600"> נדרש גיבוי או התערבות כירורג חזה (Thoracic Surgeon Standby)
-                        </label>
-                    </div>
 
                     <div id="th-ete-container" class="col-span-2">
                         <label class="flex items-center gap-1.5 text-sm font-medium mb-2"><input type="checkbox" id="th-ete" class="checkbox-custom" onchange="document.getElementById('ete-targets').classList.toggle('hidden', !this.checked)"> מעורבות איברים (Gross ETE)</label>
@@ -808,28 +765,11 @@
                         </div>
                     </div>
 
-                    <div class="col-span-2"><h4 class="font-bold text-teal-800 border-b border-teal-100 pb-1 mt-3 text-sm">גרורות צוואריות (Neck Nodes & Dissection)</h4></div>
-                    <div class="col-span-2 grid sm:grid-cols-2 gap-4 bg-teal-50/50 p-4 rounded-xl border border-teal-100">
-                        <div><strong class="text-xs font-bold block mb-3 text-teal-900">Central Compartment (Level VI)</strong><div class="flex gap-6"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-r" class="accent-teal-700 w-4 h-4"> ימין</label><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-central-l" class="accent-teal-700 w-4 h-4"> שמאל</label></div></div>
-                        <div><strong class="text-xs font-bold block mb-3 text-teal-900">Lateral Compartment (Levels II-V)</strong><div class="flex gap-6"><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-lateral-r" class="accent-teal-700 w-4 h-4"> ימין</label><label class="flex items-center gap-1.5 text-sm font-medium"><input type="checkbox" id="nd-lateral-l" class="accent-teal-700 w-4 h-4"> שמאל</label></div></div>
-                    </div>
-
                     <div class="col-span-2"><h4 class="font-bold text-teal-800 border-b border-teal-100 pb-1 mt-4 text-sm">תוכנית ניתוחית סופית</h4></div>
                     <div class="col-span-2 space-y-3">
                         <select id="th-surgery-type" class="w-full border-2 border-teal-600 p-3 rounded-xl font-bold text-teal-900 bg-teal-50 shadow-sm text-base focus:outline-none">
                             <option value="lobectomy">כריתת אונה (Thyroid Lobectomy)</option><option value="total">כריתה שלמה (Total Thyroidectomy)</option><option value="completion">השלמת כריתה (Completion Thyroidectomy)</option>
                         </select>
-                        <div id="th-nd-surgery-container" class="mt-2">
-                            <label class="block text-xs font-bold mb-1 text-teal-800">בחירת דיסקציה צווארית נלווית:</label>
-                            <select id="th-surgery-nd" class="w-full border border-teal-400 p-3 rounded-xl font-bold text-teal-900 bg-white shadow-sm focus:outline-none">
-                                <option value="none">ללא דיסקציה צווארית</option>
-                                <option value="central_uni">Central Neck Dissection (חד-צדדית)</option>
-                                <option value="central_bi">Central Neck Dissection (דו-צדדית)</option>
-                                <option value="lateral_uni">Lateral Neck Dissection (חד-צדדית)</option>
-                                <option value="lateral_bi">Lateral Neck Dissection (דו-צדדית)</option>
-                                <option value="comprehensive">Comprehensive (Central + Lateral)</option>
-                            </select>
-                        </div>
                     </div>
                 </div>`
         };
@@ -865,59 +805,14 @@
                     document.getElementById('th-disease-type').value = c.diseaseType || 'malignant';
                     toggleThyroidSubtypes(c.diseaseType);
                     
-                    if(c.diseaseType === 'benign') {
-                        document.getElementById('th-benign-type').value = c.benignType || 'goiter';
-                        document.getElementById('th-bethesda-ben').value = c.bethesda || '';
-                        document.getElementById('th-afirma-ben').value = c.afirma || '';
-                    } else {
-                        document.getElementById('th-bethesda-mal').value = c.bethesda || '';
-                        handleBethesdaChange(c.bethesda);
-                        document.getElementById('th-afirma-mal').value = c.afirma || '';
-                        if(c.bethesda === 'medullary' && c.mtc) {
-                            document.getElementById('lab-calcitonin').value = c.mtc.calcitonin || '';
-                            document.getElementById('lab-cea').value = c.mtc.cea || '';
-                            document.getElementById('lab-meta').value = c.mtc.meta || 'not_done';
-                        }
-                    }
-                    
                     document.getElementById('th-size').value = c.size || '';
                     document.getElementById('th-location').value = c.location || 'right';
                     document.getElementById('th-retrosternal').checked = c.retrosternal || false;
-                    document.getElementById('thoracic-standby-container').classList.toggle('hidden', !c.retrosternal);
-                    document.getElementById('th-thoracic-standby').checked = c.thoracicStandby || false;
-
                     document.getElementById('th-ete').checked = c.hasETE || false;
                     document.getElementById('ete-targets').classList.toggle('hidden', !c.hasETE);
-                    if(c.hasETE && c.eteTargets) {
-                        document.getElementById('ete-strap').checked = c.eteTargets.strap || false;
-                        document.getElementById('ete-trachea').checked = c.eteTargets.trachea || false;
-                        document.getElementById('ete-larynx').checked = c.eteTargets.larynx || false;
-                        document.getElementById('ete-esophagus').checked = c.eteTargets.esophagus || false;
-                    }
-
-                    if(c.nd) {
-                        document.getElementById('nd-central-r').checked = c.nd.centralR || false;
-                        document.getElementById('nd-central-l').checked = c.nd.centralL || false;
-                        document.getElementById('nd-lateral-r').checked = c.nd.lateralR || false;
-                        document.getElementById('nd-lateral-l').checked = c.nd.lateralL || false;
-                    }
-
                     document.getElementById('th-surgery-type').value = c.surgery || 'lobectomy';
-                    document.getElementById('th-surgery-nd').value = c.ndSurgery || 'none';
-                } else {
-                    document.getElementById('ov-surgery-title').value = data.overrideTitle || '';
-                    document.getElementById('ov-surgery-details').value = data.overrideText || '';
                 }
-
-                if(data.preop) {
-                    document.querySelectorAll('.preop-test-cb').forEach(cb => { cb.checked = data.preop.tests ? data.preop.tests.includes(cb.value) : false; });
-                    document.querySelectorAll('.preop-consult-cb').forEach(cb => { cb.checked = data.preop.consults ? data.preop.consults.includes(cb.value) : false; });
-                    const thinnersChecked = data.preop.thinners && data.preop.thinners.length > 0;
-                    document.getElementById('preop-stop-blood').checked = thinnersChecked;
-                    document.getElementById('blood-thinner-options').classList.toggle('hidden', !thinnersChecked);
-                    if(thinnersChecked) { document.querySelectorAll('.thinner-cb').forEach(cb => { cb.checked = data.preop.thinners.includes(cb.value); }); }
-                }
-                alert("הרשומה נטענה בהצלחה! ניתן לערוך את הנתונים ולאחר מכן ללחוץ על 'הפק רשומה' כדי לשמור וליצור קוד חדש.");
+                alert("הרשומה נטענה בהצלחה!");
             } catch(e) { console.error(e); alert("חלה שגיאה בעת טעינת הרשומה."); }
         }
 
@@ -929,14 +824,12 @@
             const gender = document.getElementById('patient-gender').value;
             const site = document.getElementById('primary-site-selector').value;
             
-            if (!age) return alert("שגיאה: חובה להזין את גיל המטופל (בשלב 1).");
-            if (!gender) return alert("שגיאה: חובה לבחור את מין המטופל (בשלב 1).");
-            if (!site) return alert("שגיאה: חובה לבחור את סוג הגידול / איבר מטרה (בשלב 1).");
+            if (!age) return alert("שגיאה: חובה להזין את גיל המטופל.");
+            if (!gender) return alert("שגיאה: חובה לבחור את מין המטופל.");
+            if (!site) return alert("שגיאה: חובה לבחור את סוג הגידול / איבר מטרה.");
             
             let thinners = [];
             if(document.getElementById('preop-stop-blood').checked) { Array.from(document.querySelectorAll('.thinner-cb:checked')).forEach(cb => thinners.push(cb.value)); }
-            let consultsArr = Array.from(document.querySelectorAll('.preop-consult-cb:checked')).map(cb => cb.value);
-            if(document.getElementById('consult-other-cb').checked && document.getElementById('consult-other-text').value.trim()) { consultsArr.push(`אחר: ${document.getElementById('consult-other-text').value.trim()}`); }
 
             let payload = { 
                 site, age, gender,
@@ -944,26 +837,21 @@
                 mode: document.querySelector('input[name="input_mode"]:checked').value,
                 doctorName: activeDoctor ? activeDoctor.fullName : 'צוות רפואי', 
                 doctorEmail: activeDoctor ? activeDoctor.email : '',
-                preop: { thinners: thinners, tests: Array.from(document.querySelectorAll('.preop-test-cb:checked')).map(cb => cb.value), consults: consultsArr },
+                preop: { thinners: thinners, tests: Array.from(document.querySelectorAll('.preop-test-cb:checked')).map(cb => cb.value), consults: [] },
                 clinical: {}
             };
 
-            if(payload.mode === 'structured') {
-                if(site === 'thyroid') {
-                    const isMal = document.getElementById('th-disease-type').value === 'malignant';
-                    payload.clinical = {
-                        diseaseType: isMal ? 'malignant' : 'benign', benignType: isMal ? null : document.getElementById('th-benign-type').value,
-                        bethesda: isMal ? document.getElementById('th-bethesda-mal').value : document.getElementById('th-bethesda-ben').value,
-                        afirma: isMal ? document.getElementById('th-afirma-mal').value : document.getElementById('th-afirma-ben').value,
-                        size: parseFloat(document.getElementById('th-size').value) || 0, location: document.getElementById('th-location').value,
-                        retrosternal: document.getElementById('th-retrosternal').checked, thoracicStandby: document.getElementById('th-retrosternal').checked ? document.getElementById('th-thoracic-standby').checked : false,
-                        hasETE: isMal ? document.getElementById('th-ete').checked : false,
-                        eteTargets: isMal ? { strap: document.getElementById('ete-strap').checked, trachea: document.getElementById('ete-trachea').checked, larynx: document.getElementById('ete-larynx').checked, esophagus: document.getElementById('ete-esophagus').checked } : null,
-                        nd: { centralR: document.getElementById('nd-central-r').checked, centralL: document.getElementById('nd-central-l').checked, lateralR: document.getElementById('nd-lateral-r').checked, lateralL: document.getElementById('nd-lateral-l').checked },
-                        surgery: document.getElementById('th-surgery-type').value, ndSurgery: document.getElementById('th-surgery-nd').value
-                    };
-                }
-            } else { payload.overrideTitle = document.getElementById('ov-surgery-title').value; payload.overrideText = document.getElementById('ov-surgery-details').value; }
+            if(payload.mode === 'structured' && site === 'thyroid') {
+                const isMal = document.getElementById('th-disease-type').value === 'malignant';
+                payload.clinical = {
+                    diseaseType: isMal ? 'malignant' : 'benign',
+                    size: parseFloat(document.getElementById('th-size').value) || 0, 
+                    location: document.getElementById('th-location').value,
+                    retrosternal: document.getElementById('th-retrosternal').checked,
+                    hasETE: isMal ? document.getElementById('th-ete').checked : false,
+                    surgery: document.getElementById('th-surgery-type').value
+                };
+            }
 
             btn.disabled = true; btn.innerHTML = `מייצר רשומה...`;
             try {
@@ -994,189 +882,50 @@
                 const chatBtn = document.getElementById('floating-chat-btn');
                 if(chatBtn) { chatBtn.classList.remove('hidden'); chatBtn.classList.add('flex'); }
                 
-                try { renderPatientRecord(record); } catch(renderErr) { console.error("Render Error:", renderErr); alert("הנתונים נשלפו, אך הייתה בעיה בהצגתם: " + renderErr.message); }
-            } catch (err) { console.error("Fetch Error:", err); alert('שגיאה בתהליך השליפה: ' + err.message); } finally { btn.innerHTML = `הצג נתונים`; }
-        }
-
-        function buildDiseaseSummaryAndAJCC(r) {
-            if(r.mode === 'override' || r.site !== 'thyroid') return "סיכום הנתונים מבוסס על הערכת המנתח שלך לקראת הפעולה.";
-            const c = r.clinical || {};
-            let summary = `אובחן ממצא בבלוטת התריס בגודל של כ-${c.size || 0} ס"מ (אונה ${c.location === 'right' ? 'ימנית' : c.location === 'left' ? 'שמאלית' : 'דו צדדי / איסתמוס'}). `;
-            if(c.diseaseType === 'benign') return summary + `הממצא בעל מאפיינים שפירים.`;
-            
-            const isMTC = c.bethesda === 'medullary';
-            summary += isMTC ? "הניקור העלה חשד לקרצינומה מדולרית (MTC). " : "הניקור העלה חשד לממאירות (Papillary Carcinoma). ";
-            if(c.retrosternal) summary += "קיימת ירידה של הבלוטה לבית החזה (רטרוסטרנלי). ";
-            if(c.hasETE) summary += "קיימת עדות למעורבות מחוץ לקופסית הבלוטה. ";
-
-            let stage = "I";
-            let t = c.hasETE ? 4 : ((c.size || 0) > 4 ? 3 : ((c.size || 0) > 2 ? 2 : 1));
-            let hasND = (c.nd?.centralR || c.nd?.centralL || c.nd?.lateralR || c.nd?.lateralL) || (c.ndSurgery && c.ndSurgery !== 'none');
-            let n = hasND ? 1 : 0;
-            const age = parseInt(r.age) || 0;
-
-            if(!isMTC) { if(age < 55) { stage = "I (לפי גיל)"; } else { if(t <= 2 && n === 0) stage = "I"; else if((t <= 2 && n === 1) || t === 3) stage = "II"; else if(t === 4) stage = "III/IV"; } } 
-            else { if(t === 1 && n === 0) stage = "I"; else if((t === 2 || t === 3) && n === 0) stage = "II"; else if(n === 1) stage = "III"; else if(t === 4) stage = "IV"; }
-            summary += `<br><span class="inline-block mt-2 px-2 py-1 bg-indigo-100 text-indigo-800 rounded font-bold">הערכת שלב קליני (Clinical Stage AJCC 8th): ${stage}*</span><br><span class="text-xs text-slate-500">*הערכה משוערת בלבד, הדירוג הסופי ייקבע רק לאחר תשובה פתולוגית וקביעת מעורבות בלוטות הלימפה.</span>`;
-            return summary;
-        }
-
-        function createICSBlobURL(title, desc, daysOffset, surgeryDate) {
-            let targetDate = new Date();
-            if(surgeryDate) { targetDate = new Date(surgeryDate); targetDate.setDate(targetDate.getDate() - daysOffset); } 
-            else { targetDate.setDate(targetDate.getDate() + 1); }
-            const dateStr = targetDate.toISOString().replace(/-|:|\.\d+/g, "").substring(0,8);
-            const icsData = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//THRIVE//NONSGML v1.0//EN\nBEGIN:VEVENT\nDTSTART;VALUE=DATE:${dateStr}\nSUMMARY:${title}\nDESCRIPTION:${desc}\nEND:VEVENT\nEND:VCALENDAR`;
-            return URL.createObjectURL(new Blob([icsData], { type: 'text/calendar;charset=utf-8' }));
-        }
-
-        function getDetailedProcedure(r) {
-            const c = r.clinical;
-            if(!c || r.mode === 'override') return "תיאור הניתוח יפורט על ידי הצוות הרפואי פרטנית.";
-            
-            let text = `<p class="mb-2">ניתוח בלוטת התריס (מגן) הוא הליך כירורגי עדין הדורש דיוק רב. מטרתנו להסיר את הרקמה הנגועה תוך שמירה על איברים חיוניים סמוכים (עצבי הקול ובלוטות הסידן).</p>
-            <ol class="list-decimal pl-5 space-y-2 mt-3 text-sm">
-                <li><strong>ביצוע חתך כירורגי:</strong> לאחר ההרדמה, המנתח מבצע חתך רוחבי (לרוב באורך 4-6 ס"מ) בקדמת הצוואר התחתון, תוך השתדלות למקמו בקפל עור טבעי למראה אסתטי.</li>
-                <li><strong>זיהוי והגנה על עצבי מיתרי הקול (RLN/SLN):</strong> בעזרת מכשיר ניטור עצבי מתקדם (NIM), המנתח מאתר את העצבים האחראים על תנועת מיתרי הקול, ומוודא את שלמותם לכל אורך הניתוח.</li>
-                <li><strong>שמירה על בלוטות יתרת התריס (Parathyroids):</strong> הבלוטות האחראיות על משק הסידן בגוף מזוהות ומופרדות בעדינות יחד עם אספקת הדם שלהן כדי למנוע צניחת סידן.</li>
-                <li><strong>הסרת הבלוטה:</strong> ${c.surgery === 'total' ? 'כריתה מלאה של בלוטת התריס (שתי האונות והאיסתמוס).' : (c.surgery === 'lobectomy' ? 'כריתה של אונה אחת של הבלוטה (חצי מהבלוטה).' : 'כריתה של האונה הנותרת להשלמת טיפול קודם.')}</li>`;
-
-            if(c.ndSurgery && c.ndSurgery !== 'none') {
-                let ndType = "";
-                if(c.ndSurgery.includes('central')) ndType = "מרכזית (באזור קנה הנשימה)";
-                if(c.ndSurgery.includes('lateral')) ndType = "לטראלית (בצדי הצוואר, מאחורי שריר ה-SCM)";
-                if(c.ndSurgery.includes('comprehensive')) ndType = "נרחבת (מרכזית וצדית גם יחד)";
-                text += `<li class="text-teal-700 bg-teal-50 p-2 rounded"><strong>דיסקציה צווארית ${ndType}:</strong> בנוסף לבלוטה, עקב מעורבות בלוטות לימפה (או לשם מניעה), יבוצע ניקוי זהיר של בלוטות הלימפה באזור הצוואר. זהו שלב קריטי להבטחת סילוק כלל תאי המחלה ולמניעת חזרה.</li>`;
-            }
-
-            if(c.retrosternal && c.thoracicStandby) {
-                text += `<li class="text-amber-800 bg-amber-50 p-2 rounded"><strong>גישה לבית החזה (גיבוי כירורג חזה):</strong> מאחר שהבלוטה גולשת משמעותית לתוך בית החזה, חלק מהניתוח עשוי להתבצע על ידי/בגיבוי כירורג חזה. ייתכן שתידרש הרחבה של הגישה, כגון חיתוך עליון או מלא של עצם החזה (סטרנוטומיה), כדי לאפשר הסרה בטוחה של הממצא מבלי לפגוע בכלי דם ראשיים בחזה.</li>`;
-            }
-            text += `<li><strong>סגירה והתאוששות:</strong> החתך נסגר בשכבות בעזרת תפרים מיוחדים. לעיתים יושאר נקז קטן להוצאת נוזלים שיסולק בימים הקרובים.</li></ol>`;
-            return text;
-        }
-
-        function buildComplications(r) {
-            if(r.mode === 'override' || r.site !== 'thyroid') return `<p class="text-sm">הרופא ישוחח עמך פרטנית על הסיבוכים.</p>`;
-            let html = "";
-            const mkAccordion = (title, content) => `<details data-print-title="${title}" class="group bg-white rounded-lg mb-3 border border-rose-100 overflow-hidden cursor-pointer shadow-sm"><summary class="px-4 py-3 font-bold text-rose-900 bg-rose-50/50 hover:bg-rose-100 transition flex justify-between items-center outline-none"><span>${title}</span><i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary><div class="px-4 py-3 text-sm text-slate-700 leadingrelaxed border-t border-rose-50">${content}</div></details>`;
-            
-            html += mkAccordion('דימום בצוואר (המטומה)', '<strong>שכיחות:</strong> כ-1% עד 2% מהמקרים.<br><strong>הסבר:</strong> הצוואר הוא חלל סגור, ולכן הצטברות דם משמעותית עלולה ליצור לחץ על קנה הנשימה ולהקשות על נשימה. לכן, ביממה הראשונה תימצא/י תחת השגחה קפדנית, ובמקרה נדיר של דימום, מתבצעת פתיחה ושטיפה בחדר ניתוח.');
-            html += mkAccordion('פגיעה בעצב מיתר הקול התחתון (RLN) - צרידות', `<strong>שכיחות:</strong> פגיעה זמנית בכ-5%. פגיעה קבועה - נדיר (כ-1-2%).<br><strong>הסבר:</strong> העצב החוזר צמוד מאוד לאחורי בלוטת התריס. מתיחה שלו עלולה לגרום לצרידות. לרוב, הפגיעה זמנית והקול חוזר לעצמו לאחר פיזיותרפיה.`);
-            html += mkAccordion('פגיעה בעצב הקול העליון (SLN) - שינוי בגוון וגובה הקול', `<strong>הסבר:</strong> העצב העליון אחראי על מתיחת מיתר הקול (גובה הצליל). פגיעה בו אינה גורמת לצרידות ניכרת אלא ל"התעייפות" הקול וקושי להגיע לטונים גבוהים. ברוב המקרים מתאושש מעצמו.`);
-            
-            const ndSurg = r.clinical?.ndSurgery || '';
-            if(r.clinical?.surgery === 'total' || r.clinical?.surgery === 'completion' || ndSurg.includes('central')) {
-                html += mkAccordion('ירידה בסידן (Hypoparathyroidism)', `<strong>שכיחות:</strong> זמנית בכ-20% עד 30%. קבועה - כ-2% מהמקרים.<br><strong>הסבר:</strong> יש סיכון לפגיעה באספקת הדם לבלוטות הסידן (הפרתירואיד). הטיפול הוא נטילת כדורי סידן וויטמין D עד שהבלוטות מתאוששות.`);
-            } else {
-                html += mkAccordion('ירידה בסידן - נדיר מאוד (בכריתת אונה בלבד)', `מכיוון שהוסרה רק מחצית מבלוטת התריס, בלוטות הסידן בצד השני נותרות שלמות ומתפקדות.`);
-            }
-            
-            if(ndSurg && ndSurg !== 'none') {
-                html += mkAccordion('סיבוכים ייחודיים לדיסקציה צווארית (ניקוי לימפתי)', `
-                <ul class="list-disc pl-5 mt-2 space-y-2">
-                    <li><strong>חולשת כתף וקשיי הרמת יד:</strong> לעיתים, מתיחה של עצב הכתף עלולה לגרום לכאב או חולשה בהרמת הזרוע. לרוב המצב זמני ומשתפר בעזרת פיזיותרפיה.</li>
-                    <li><strong>דלף לימפתי (Chyle Leak):</strong> כאשר מנקים את צדו השמאלי של הצוואר, ישנה סכנה לפגיעה בצינור הלימפה הראשי, דבר המצריך תזונה דלת שומן.</li>
-                    <li><strong>חוסר תחושה (נימול) בצוואר ואוזן:</strong> תופעה נפוצה מאוד עקב חיתוך עצבי עור קטנים. משתפר לרוב לאורך החודשים הראשונים.</li>
-                </ul>`);
-            }
-            return html;
+                renderPatientRecord(record);
+            } catch (err) { alert('שגיאה בתהליך השליפה: ' + err.message); } finally { btn.innerHTML = `הצג נתונים`; }
         }
 
         function renderPatientRecord(r) {
-            // הוספת פנייה נפרדת לפי מין
             const isMale = (r.gender === 'male');
             const welcomeGreeting = isMale ? 'ברוך הבא' : 'ברוכה הבאה';
             
             const docNameRaw = r.doctorName || 'הצוות הרפואי';
             const docNameClean = docNameRaw.replace("ד\"ר ", "").replace("פרופ' ", "");
 
-            const bTag = document.getElementById('out-banner-tag');
-            if (bTag) bTag.innerText = `מלווה מטופל - ${docNameRaw}`;
-            const dBadge = document.getElementById('out-surgery-date-badge');
-            if (dBadge) dBadge.innerText = r.surgeryDate ? `תאריך ניתוח: ${new Date(r.surgeryDate).toLocaleDateString('he-IL')}` : 'טרם נקבע תאריך';
+            document.getElementById('out-banner-tag').innerText = `מלווה מטופל - ${docNameRaw}`;
+            document.getElementById('out-surgery-date-badge').innerText = r.surgeryDate ? `תאריך ניתוח: ${new Date(r.surgeryDate).toLocaleDateString('he-IL')}` : 'טרם נקבע תאריך';
+            document.getElementById('out-greeting').innerText = `${welcomeGreeting}, הופנית על ידי ד"ר ${docNameClean} לניתוח בלוטת התריס.`;
+            document.getElementById('out-surgery-primary').innerText = r.clinical?.surgery === 'total' ? 'כריתה שלמה (Total Thyroidectomy)' : 'כריתת אונה (Lobectomy)';
             
-            const greet = document.getElementById('out-greeting');
-            if (greet) greet.innerText = `${welcomeGreeting}, הופנית על ידי ד"ר ${docNameClean} לניתוח בלוטת התריס.`;
-            
-            let primTitle = (r.clinical?.surgery === 'total' ? 'כריתה שלמה (Total Thyroidectomy)' : (r.clinical?.surgery === 'completion' ? 'השלמת כריתה' : 'כריתת אונה (Lobectomy)'));
-            if(r.clinical?.ndSurgery && r.clinical.ndSurgery !== 'none') primTitle += " + דיסקציה (ניקוי) בלוטות לימפה בצוואר";
-            if(r.mode === 'override' && r.overrideTitle) primTitle = r.overrideTitle;
+            document.getElementById('out-disease-summary').innerHTML = `אובחן ממצא בבלוטת התריס בגודל של כ-${r.clinical?.size || 0} ס"מ.`;
 
-            const prim = document.getElementById('out-surgery-primary');
-            if (prim) prim.innerText = primTitle;
-            
-            const dSum = document.getElementById('out-disease-summary');
-            if (dSum) dSum.innerHTML = buildDiseaseSummaryAndAJCC(r);
-
-            const mkAccordion = (title, content, icon) => `<details data-print-title="${title}" class="group bg-slate-50 rounded-lg border border-slate-200 overflow-hidden cursor-pointer shadow-sm mb-2"><summary class="px-4 py-3 font-bold text-teal-900 hover:bg-slate-100 transition flex justify-between items-center outline-none"><div class="flex items-center gap-2"><i data-lucide="${icon}" class="w-4 h-4 text-teal-600"></i><span>${title}</span></div><i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary><div class="px-4 py-3 text-sm text-slate-700 leading-relaxed border-t border-slate-200 bg-white">${content}</div></details>`;
+            const mkAccordion = (title, content, icon) => `<details class="group bg-slate-50 rounded-lg border border-slate-200 overflow-hidden cursor-pointer shadow-sm mb-2"><summary class="px-4 py-3 font-bold text-teal-900 hover:bg-slate-100 transition flex justify-between items-center outline-none"><div class="flex items-center gap-2"><i data-lucide="${icon}" class="w-4 h-4 text-teal-600"></i><span>${title}</span></div><i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180"></i></summary><div class="px-4 py-3 text-sm text-slate-700 leading-relaxed border-t border-slate-200 bg-white">${content}</div></details>`;
             
             let pathway = "";
-            pathway += mkAccordion('שלב 1: מרפאת טרום ניתוח', `ביום זה תגיע/י לבית החולים לסדרה של בדיקות והכנות. תפגוש/י אחות להערכת מדדים, רופא מרדים שיעבור על עברך הרפואי ויוודא כשירות להרדמה, ואת המנתח או רופא מהצוות שיסביר על הפעולה ויחתים אותך על טופס הסכמה מדעת לניתוח. <strong>יש להביא ליום זה את כל הבדיקות ואישורי הרופאים.</strong>`, 'calendar-days');
-            pathway += mkAccordion('שלב 2: קבלה לאשפוז (הערב קודם / בוקר הניתוח)', `בהתאם להחלטת הצוות, תתאשפז/י בערב שלפני הניתוח או שתתבקש/י להגיע בבוקר המוקדם של יום הניתוח. יש להיות <strong>בצום מוחלט מאוכל ומים כ-8 שעות</strong> לפני שעת הניתוח המשוערת.`, 'hospital');
-            pathway += mkAccordion('שלב 3: הרדמה והכנה בחדר הניתוח', `הניתוח מבוצע בהרדמה כללית מלאה. לאחר שתרדם/י, תוכנס צינורית הנשמה המאובזרת בחיישן מיוחד (כחלק ממערכת הניטור העצבי NIM), ותנוחת הצוואר תותאם במדויק כדי לאפשר גישה נוחה למנתח.`, 'activity');
-            pathway += mkAccordion('שלב 4: הפרוצדורה הניתוחית', getDetailedProcedure(r), 'scissors');
-            pathway += mkAccordion('שלב 5: התאוששות', `עם סיום הניתוח, הצוות המרדים יעיר אותך באופן הדרגתי. לאחר מכן, תועבר/י ליחידת ההתאוששות (PACU) להשגחה צמודה על מדדים (דופק, לחץ דם, נשימה) למשך כשעתיים. ניתן לבקש ולקבל משככי כאבים בשלב זה.`, 'bed');
-            pathway += mkAccordion('שלב 6: אשפוז במחלקה', `במהלך האשפוז (לרוב לילה אחד או שניים), יבוצעו מעקבים על אזור הצוואר כדי לשלול דימום, ותחל לשתות ולאכול באופן הדרגתי. במקרים של כריתה שלמה, יילקחו בדיקות דם מדי כמה שעות לניטור רמות הסידן (קריטי להחלטה על שחרור).`, 'home');
-            pathway += mkAccordion('שלב 7: שחרור ותשובה פתולוגית', `לאחר שהמצב יציב ותקין, תשוחרר/י לביתך עם מרשם למשככי כאבים. התשובה הפתולוגית הסופית המסכמת את אופי הגידול ומעורבות הבלוטות צפויה להתקבל תוך 2-3 שבועות, ותימסר בפגישת הביקורת במרפאה.`, 'microscope');
-            
-            const pCont = document.getElementById('out-pathway-container');
-            if (pCont) pCont.innerHTML = pathway;
+            pathway += mkAccordion('שלב 1: מרפאת טרום ניתוח', `ביום זה תגיע/י לבית החולים לסדרה של בדיקות והכנות.`, 'calendar-days');
+            pathway += mkAccordion('שלב 2: קבלה לאשפוז', `יש להיות בצום מלא כ-8 שעות לפני הניתוח.`, 'hospital');
+            document.getElementById('out-pathway-container').innerHTML = pathway;
 
-            const cCont = document.getElementById('out-complications-container');
-            if (cCont) cCont.innerHTML = buildComplications(r);
+            document.getElementById('out-complications-container').innerHTML = mkAccordion('דימום בצוואר (המטומה)', 'השגחה קפדנית ביממה הראשונה.', 'alert-triangle');
 
-            const clContainer = document.getElementById('checklist-container');
-            if (clContainer) {
-                clContainer.innerHTML = '';
-                let tasksHTML = ""; let taskIdx = 0;
-                const addTask = (text, icsParams = null) => {
-                    const key = `${r.code}-task-${taskIdx++}`; 
-                    let checked = false; try { checked = localStorage.getItem(key) === 'true'; } catch(e) {}
-                    const style = checked ? 'line-through text-slate-400' : 'text-slate-800 font-bold';
-                    let btnHtml = "";
-                    if(icsParams && r.surgeryDate) {
-                        try { const url = createICSBlobURL(icsParams.title, text, icsParams.days, r.surgeryDate); btnHtml = `<a href="${url}" download="thrive_reminder.ics" class="ml-2 text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded hover:bg-emerald-200 transition shrink-0 no-print">הוסף ליומן 📅</a>`; } catch(e) {}
-                    }
-                    tasksHTML += `<div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition"><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="w-5 h-5 accent-emerald-600 no-print" ${checked ? 'checked' : ''} onchange="toggleChecklist(this, '${key}')"><span class="text-sm transition-all ${style}">${text}</span></label>${btnHtml}</div>`;
-                };
-
-                if(r.preop) {
-                    if(r.preop.thinners && r.preop.thinners.length > 0) {
-                        r.preop.thinners.forEach(bt => {
-                            let text = "", days = 0;
-                            if(bt === 'aspirin') { text = "הפסקת אספירין / קרטיה - 7 ימים לפני הניתוח"; days = 7; }
-                            else if(bt === 'plavix') { text = "הפסקת פלביקס - 7 ימים לפני הניתוח"; days = 7; }
-                            else if(bt === 'eliquis') { text = "הפסקת אליקוויס / קסרלטו - 3 ימים לפני הניתוח"; days = 3; }
-                            else if(bt === 'coumadin') { text = "הפסקת קומדין - 5 ימים לפני הניתוח"; days = 5; }
-                            else if(bt === 'clexane') { text = "הפסקת קלקסן - 24 שעות לפני הניתוח"; days = 1; }
-                            if(text) addTask(text, { title: "להפסיק מדלל דם", days: days });
-                        });
-                    }
-                    (r.preop.tests || []).forEach(t => addTask('השלמת בדיקה מראש: ' + t));
-                    (r.preop.consults || []).forEach(c => addTask('השגת אישור / ייעוץ: ' + c));
-                }
-                addTask('צום מוחלט מאוכל ומים - 8 שעות לפני שעת הניתוח', { title: "צום לפני ניתוח", days: 1 });
-                clContainer.innerHTML = tasksHTML;
-            }
+            let checklistHTML = "";
+            (r.preop?.tests || []).forEach(t => {
+                checklistHTML += `<div class="p-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800">השלמת בדיקה: ${t}</div>`;
+            });
+            document.getElementById('checklist-container').innerHTML = checklistHTML;
             try { lucide.createIcons(); } catch(e) {}
         }
 
-        window.toggleChecklist = function(el, key) {
-            try { localStorage.setItem(key, el.checked); } catch(e) {}
-            const span = el.nextElementSibling;
-            if(span) { if(el.checked) { span.classList.add('line-through', 'text-slate-400'); span.classList.remove('text-slate-800', 'font-bold'); } else { span.classList.remove('line-through', 'text-slate-400'); span.classList.add('text-slate-800', 'font-bold'); } }
-        };
-
         // ==========================================
-        // GEMINI CHATBOT INTEGRATION (VIA PROXY)
+        // GEMINI CHATBOT INTEGRATION
         // ==========================================
         function toggleChat() {
             const widget = document.getElementById('chat-widget');
             if (widget) {
                 widget.classList.toggle('chat-hidden'); widget.classList.toggle('chat-visible');
                 if(widget.classList.contains('chat-visible') && document.getElementById('chat-messages').children.length === 0) {
-                    appendMsg('bot', "שלום! אני ה-AI של THRIVE. עברתי על התיק הרפואי שלך והמידע המוצג. אפשר לשאול אותי שאלות על הניתוח, הסיבוכים וההתאוששות.");
+                    appendMsg('bot', "שלום! אני ה-AI של THRIVE. עברתי על התיק הרפואי שלך. שאל אותי כל שאלה.");
                 }
             }
         }
@@ -1190,27 +939,16 @@
             appendMsg('user', text); 
             input.value = ''; input.disabled = true; btn.innerHTML = `<i class="lucide-loader w-4 h-4 animate-spin text-white"></i>`;
             
-            const contextData = JSON.stringify(currentRecord);
-            const systemPrompt = `You are a specialized medical AI assistant for THRIVE, supporting patients undergoing head and neck oncology surgeries. Current patient clinical file (JSON): ${contextData}. Address the patient in empathetic, professional Hebrew based on ATA guidelines.`;
-
             try {
-                const response = await fetch(API_PROXY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: text }
-                        ]
-                    })
-                });
+                const { GoogleGenerativeAI } = await import('@google/generative-ai');
+                const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-                if (!response.ok) throw new Error("שגיאת חיבור לשרת ה-AI.");
-                const data = await response.json();
-                appendMsg('bot', marked.parse(data.choices[0].message.content));
+                const result = await model.generateContent(`Patient context: ${JSON.stringify(currentRecord)}. User question: ${text}`);
+                const responseText = result.response.text();
+                appendMsg('bot', marked.parse(responseText));
             } catch (err) {
-                console.error("AI Proxy Error:", err);
-                appendMsg('bot', "שגיאת חיבור ל-AI. בינתיים, אנא פנה/י לצוות המטפל דרך טופס 'פנייה ישירה' בתחתית העמוד.");
+                appendMsg('bot', "שגיאה בתקשורת עם ה-AI.");
             } finally {
                 input.disabled = false; btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i>`; 
                 try { lucide.createIcons(); } catch(e){}
@@ -1222,15 +960,10 @@
             const msgCont = document.getElementById('chat-messages');
             if (msgCont) {
                 const div = document.createElement('div');
-                div.className = sender === 'user' ? "mr-auto bg-teal-100 text-teal-900 p-3 rounded-xl rounded-tl-none max-w-[85%] shadow-sm" : "ml-auto bg-white border border-slate-200 text-slate-700 p-3 rounded-xl rounded-tr-none max-w-[85%] shadow-sm bot-msg prose prose-sm prose-teal";
+                div.className = sender === 'user' ? "mr-auto bg-teal-100 text-teal-900 p-3 rounded-xl rounded-tl-none max-w-[85%] shadow-sm" : "ml-auto bg-white border border-slate-200 text-slate-700 p-3 rounded-xl rounded-tr-none max-w-[85%] shadow-sm prose prose-sm prose-teal";
                 if(sender === 'bot') div.innerHTML = text; else div.innerText = text; 
                 msgCont.appendChild(div); msgCont.scrollTop = msgCont.scrollHeight;
             }
-        }
-
-        async function handleDirectSilentBackgroundDispatch(e) {
-            e.preventDefault(); const btn = document.getElementById('send-query-btn'); btn.disabled = true; btn.innerHTML = `שולח...`;
-            try { await fetch(`https://formsubmit.co/ajax/${(currentRecord && currentRecord.doctorEmail) ? currentRecord.doctorEmail : "doctor@hospital.org.il"}`, { method: "POST", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ _subject: `[THRIVE] פנייה חדשה ממטופל`, message: `פנייה ממשתמש מערכת:\n${document.getElementById('query-body').value.trim()}`, _replyto: document.getElementById('patient-email').value.trim() }) }); alert("הפנייה נשלחה בהצלחה לצוות המטפל."); e.target.reset(); } catch (err) { alert("שגיאה בשליחה."); } finally { btn.disabled = false; btn.innerHTML = `שלח הודעה`; }
         }
 
         try { lucide.createIcons(); } catch(e){}
