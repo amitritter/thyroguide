@@ -452,8 +452,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-        // מפתח ה-API כפי שסיפקת - בשימוש עם ה-SDK הרשמי בקוד למטה
-        const GEMINI_API_KEY = "AQ.Ab8RN6Khi5KzZaPSOHuKX1xIkMv1u06u8SCCiGj3ywzCVNcGcw"; 
+        // שימוש ב-Worker חיצוני שלא תלוי במפתח API!
+        const API_PROXY_URL = "https://text.pollinations.ai/openai"; 
 
         const firebaseConfig = {
             apiKey: "AIzaSyDw0bZmDJRX5QhRprHYAqkK1bDqP_rRrEk",
@@ -598,7 +598,7 @@
         }
 
         // ==========================================
-        // AI DOCUMENT SCANNING (SDK)
+        // AI DOCUMENT SCANNING (VIA PROXY)
         // ==========================================
         function handleAIExtractionFile(event) {
             const file = event.target.files[0];
@@ -624,14 +624,7 @@
             btnCam.innerHTML = `ממתין ל-AI...`;
 
             try {
-                // ייבוא דינמי של ה-SDK הרשמי
-                const { GoogleGenerativeAI } = await import('https://esm.run/@google/generative-ai');
-                const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-                
-                const prompt = `You are a medical data extraction assistant for an oncology surgery app. 
-                Analyze the attached medical document (ultrasound, pathology report, or clinical note). The document may be in Hebrew or English.
-                Extract the following parameters and return them EXACTLY as a strict JSON object.
-                If a specific value is not found in the text, use null.
+                const systemPrompt = `You are a medical data extraction assistant for an oncology surgery app. Analyze the attached medical document (ultrasound, pathology report, or clinical note). The document may be in Hebrew or English. Extract the following parameters and return them EXACTLY as a strict JSON object. If a specific value is not found in the text, use null.
                 {
                     "age": <number, extract if present>,
                     "gender": <"male" or "female", extract if present>,
@@ -644,19 +637,24 @@
                     "retrosternal": <boolean, true if there is retrosternal or plunging extension>
                 }`;
 
-                // שימוש בהגדרת JSON Mode של ה-SDK
-                const model = genAI.getGenerativeModel({ 
-                    model: "gemini-1.5-flash",
-                    generationConfig: { responseMimeType: "application/json" }
+                const response = await fetch(API_PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: [
+                                { type: "text", text: "Please extract the JSON data from this medical document." },
+                                { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } }
+                            ]}
+                        ],
+                        response_format: { type: "json_object" }
+                    })
                 });
 
-                const result = await model.generateContent([
-                    prompt, 
-                    { inlineData: { mimeType: mimeType, data: base64Data } }
-                ]);
-
-                const jsonText = result.response.text();
-                const extracted = JSON.parse(jsonText);
+                if (!response.ok) throw new Error("שגיאה בחיבור לשרת ה-AI.");
+                const data = await response.json();
+                const extracted = JSON.parse(data.choices[0].message.content);
 
                 // אכלוס אוטומטי של הטופס:
                 if(extracted.age) document.getElementById('patient-age').value = extracted.age;
@@ -693,12 +691,12 @@
                         const retroEl = document.getElementById('th-retrosternal');
                         if(retroEl) { retroEl.checked = extracted.retrosternal; retroEl.dispatchEvent(new Event('change')); }
                     }
-                    alert("הנתונים חולצו בהצלחה באמצעות ה-SDK!\nאנא עבור על השדות וודא את תקינותם.");
+                    alert("הנתונים חולצו בהצלחה באמצעות AI חיצוני!\nאנא עבור על השדות וודא את תקינותם.");
                 }, 200);
 
             } catch(err) {
                 console.error(err);
-                alert("שגיאה בניתוח המסמך. ייתכן שמפתח ה-API הנוכחי עדיין חסום לקריאות צד-לקוח. פרטי שגיאה:\n" + err.message);
+                alert("שגיאה בניתוח המסמך: " + err.message);
             } finally {
                 btnFile.innerHTML = origFileHTML;
                 btnCam.innerHTML = origCamHTML;
@@ -1171,7 +1169,7 @@
         };
 
         // ==========================================
-        // GEMINI CHATBOT INTEGRATION (SDK)
+        // GEMINI CHATBOT INTEGRATION (VIA PROXY)
         // ==========================================
         function toggleChat() {
             const widget = document.getElementById('chat-widget');
@@ -1196,22 +1194,23 @@
             const systemPrompt = `You are a specialized medical AI assistant for THRIVE, supporting patients undergoing head and neck oncology surgeries. Current patient clinical file (JSON): ${contextData}. Address the patient in empathetic, professional Hebrew based on ATA guidelines.`;
 
             try {
-                // שימוש ב-SDK של גוגל גם עבור פונקציית הצ'אט
-                const { GoogleGenerativeAI } = await import('https://esm.run/@google/generative-ai');
-                const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-                
-                const model = genAI.getGenerativeModel({ 
-                    model: "gemini-1.5-flash",
-                    systemInstruction: systemPrompt 
+                const response = await fetch(API_PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: text }
+                        ]
+                    })
                 });
 
-                const result = await model.generateContent(text);
-                const reply = result.response.text();
-                
-                appendMsg('bot', marked.parse(reply));
+                if (!response.ok) throw new Error("שגיאת חיבור לשרת ה-AI.");
+                const data = await response.json();
+                appendMsg('bot', marked.parse(data.choices[0].message.content));
             } catch (err) {
-                console.error("Gemini SDK Error:", err);
-                appendMsg('bot', "שגיאת חיבור ל-AI: נראה שמפתח ה-API עדיין מוגבל לקריאות חיצוניות. בינתיים, אנא פנה/י לצוות המטפל דרך טופס 'פנייה ישירה' בתחתית העמוד.");
+                console.error("AI Proxy Error:", err);
+                appendMsg('bot', "שגיאת חיבור ל-AI. בינתיים, אנא פנה/י לצוות המטפל דרך טופס 'פנייה ישירה' בתחתית העמוד.");
             } finally {
                 input.disabled = false; btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i>`; 
                 try { lucide.createIcons(); } catch(e){}
